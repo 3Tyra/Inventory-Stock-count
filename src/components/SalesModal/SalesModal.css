@@ -1,0 +1,203 @@
+.sales-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0,0,0,0.45);
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+}
+
+
+
+.sales-modal {
+
+  background:white;
+
+  padding:30px;
+
+  border-radius:18px;
+
+  width:350px;
+
+}
+
+
+
+.sales-modal h2 {
+
+  margin-bottom:20px;
+
+}
+
+
+
+.sales-modal input {
+
+  width:100%;
+
+  padding:12px;
+
+  margin:20px 0;
+
+  border-radius:8px;
+
+  border:1px solid #ddd;
+
+}
+
+
+
+.sales-buttons {
+
+  display:flex;
+
+  justify-content:flex-end;
+
+  gap:10px;
+
+}
+
+
+
+.sales-buttons button {
+
+  padding:10px 16px;
+
+  border:none;
+
+  border-radius:8px;
+
+  cursor:pointer;
+
+}
+
+.sale-preview {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f7f5fb;
+  border-radius: 12px;
+}
+
+.sale-preview div {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.sale-preview div:last-child {
+  border-bottom: none;
+}
+
+.sale-preview span {
+  color: #777;
+}
+
+.sale-preview strong {
+  font-weight: 700;
+}
+
+.sale-error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #fff1f2;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.sale-confirmation {
+  text-align: center;
+}
+
+
+.confirmation-icon {
+  width: 60px;
+  height: 60px;
+
+  margin: 0 auto 15px;
+
+  border-radius: 50%;
+
+  background: #f4f3ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+}
+
+
+.sale-confirmation h2 {
+  margin-bottom: 10px;
+}
+
+
+.sale-confirmation p {
+  color: #666;
+  line-height: 1.5;
+}
+
+
+.confirmation-summary {
+  margin: 20px 0;
+
+  padding: 15px;
+
+  background: #f7f5fb;
+
+  border-radius: 12px;
+}
+
+
+.confirmation-summary div {
+  display: flex;
+
+  justify-content: space-between;
+
+  padding: 9px 0;
+
+  border-bottom: 1px solid #e5e5e5;
+}
+
+
+.confirmation-summary div:last-child {
+  border-bottom: none;
+}
+
+
+.confirmation-summary span {
+  color: #777;
+}
+
+
+.confirmation-summary strong {
+  color: #222;
+}
+
+
+.confirmation-warning {
+  font-size: 13px;
+  color: #777;
+}
+
+
+.confirm-sale-btn {
+  background: #16a34a !important;
+  color: white !important;
+}
+
+
+.confirm-sale-btn:hover {
+  background: #15803d !important;
+}

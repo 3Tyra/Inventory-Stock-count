@@ -1,0 +1,132 @@
+.settings-page {
+
+  padding:30px;
+
+}
+
+
+
+.settings-card {
+
+  background:white;
+
+  padding:30px;
+
+  border-radius:18px;
+
+  width:500px;
+
+  max-width:100%;
+
+  box-shadow:
+  0 10px 25px rgba(0,0,0,0.08);
+
+}
+
+
+
+.settings-card label {
+
+  display:block;
+
+  margin-top:15px;
+
+  margin-bottom:5px;
+
+  font-weight:600;
+
+}
+
+
+
+.settings-card input,
+.settings-card select {
+
+  width:100%;
+
+  padding:12px;
+
+  border-radius:10px;
+
+  border:1px solid #ddd;
+
+}
+
+
+
+.settings-card button {
+
+  margin-top:25px;
+
+  padding:12px 25px;
+
+  border:none;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  background:#6d28d9;
+
+  color:white;
+
+  font-size:16px;
+
+}
+
+.settings-success {
+  margin-bottom: 20px;
+  padding: 13px 16px;
+
+  background: #ecfdf5;
+  color: #15803d;
+
+  border: 1px solid #bbf7d0;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+}
+
+
+.settings-error {
+  margin-bottom: 20px;
+  padding: 13px 16px;
+
+  background: #fff1f2;
+  color: #dc2626;
+
+  border: 1px solid #fecdd3;
+
+  border-radius: 10px;
+
+  font-weight: 500;
+}
+
+
+.save-settings-btn {
+  width: 100%;
+
+  margin-top: 25px;
+
+  padding: 13px 20px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #aa3bff;
+
+  color: white;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.save-settings-btn:hover {
+  opacity: 0.9;
+}

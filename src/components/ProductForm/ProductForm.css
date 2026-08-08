@@ -1,0 +1,104 @@
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+}
+
+.modal{
+    background:white;
+    width:500px;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 20px 40px rgba(0,0,0,.2);
+}
+
+.modal h2{
+    margin-bottom:25px;
+}
+
+.modal form{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.modal input,
+.modal select{
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    outline:none;
+}
+
+.modal-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:15px;
+    margin-top:10px;
+}
+
+.cancel-btn{
+    background:#e5e7eb;
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.save-btn{
+    background:#4f46e5;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.save-btn:hover{
+    background:#4338ca;
+}
+
+.image-label{
+  display:block;
+  margin-top:15px;
+  margin-bottom:8px;
+  font-weight:600;
+}
+
+.image-preview{
+  margin-top:12px;
+  text-align:center;
+}
+
+.preview-image{
+  width:120px;
+  height:120px;
+  object-fit:cover;
+  border-radius:10px;
+  border:2px solid #ddd;
+}
+
+.image-label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.image-preview {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.preview-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e4e7;
+}
