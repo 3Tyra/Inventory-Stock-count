@@ -7,15 +7,14 @@ import {
   FaShoppingCart
 } from "react-icons/fa";
 
-
 function ProductTable({
   products,
   onDelete,
   onEdit,
   onStockUpdate,
-  onSell
+  onSell,
+  lowStockLimit = 10
 }) {
-
 
   const [productToDelete, setProductToDelete] =
     useState(null);
@@ -37,7 +36,7 @@ function ProductTable({
     }
 
 
-    if (quantity <= 10) {
+    if (quantity <= Number(lowStockLimit)) {
 
       return {
         text: "Low Stock",
@@ -76,6 +75,10 @@ function ProductTable({
   };
 
 
+  // =========================
+  // PAGE
+  // =========================
+
   return (
 
     <>
@@ -91,27 +94,49 @@ function ProductTable({
 
           <tr>
 
-            <th>Image</th>
+            <th>
+              Image
+            </th>
 
-            <th>Product</th>
+            <th>
+              Product
+            </th>
 
-            <th>Brand</th>
+            <th>
+              Brand
+            </th>
 
-            <th>Category</th>
+            <th>
+              Category
+            </th>
 
-            <th>Shelf</th>
+            <th>
+              Shelf
+            </th>
 
-            <th>Store / Box</th>
+            <th>
+              Store / Box
+            </th>
 
-            <th>Total</th>
+            <th>
+              Total
+            </th>
 
-            <th>Buying</th>
+            <th>
+              Buying
+            </th>
 
-            <th>Selling</th>
+            <th>
+              Selling
+            </th>
 
-            <th>Status</th>
+            <th>
+              Status
+            </th>
 
-            <th>Actions</th>
+            <th>
+              Actions
+            </th>
 
           </tr>
 
@@ -123,7 +148,6 @@ function ProductTable({
         ========================= */}
 
         <tbody>
-
 
           {products.length === 0 ? (
 
@@ -139,323 +163,306 @@ function ProductTable({
 
           ) : (
 
-            products.map((product) => {
+            products.map(
+              (product) => {
+
+                // =========================
+                // STOCK QUANTITIES
+                // =========================
+
+                const shelfQuantity =
+                  Number(
+                    product.shelfQuantity
+                  ) || 0;
 
 
-              // Make sure old products
-              // don't break the table
-
-              const shelfQuantity =
-                Number(
-                  product.shelfQuantity
-                ) || 0;
+                const storeQuantity =
+                  Number(
+                    product.storeQuantity
+                  ) || 0;
 
 
-              const storeQuantity =
-                Number(
-                  product.storeQuantity
-                ) || 0;
+                // =========================
+                // TOTAL STOCK
+                // =========================
+
+                const totalQuantity =
+                  shelfQuantity +
+                  storeQuantity;
 
 
-              // Total stock
+                // =========================
+                // STATUS
+                // =========================
 
-              const totalQuantity =
-                shelfQuantity +
-                storeQuantity;
-
-
-              // Status based on TOTAL stock
-
-              const status =
-                getStatus(
-                  totalQuantity
-                );
+                const status =
+                  getStatus(
+                    totalQuantity
+                  );
 
 
-              return (
+                return (
 
-                <tr
-                  key={product.id}
-                >
+                  <tr
+                    key={product.id}
+                  >
 
 
-                  {/* =========================
-                      IMAGE
-                  ========================= */}
+                    {/* =========================
+                        IMAGE
+                    ========================= */}
 
-                  <td>
+                    <td>
 
-                    {product.image ? (
+                      {product.image ? (
 
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="product-image"
-                      />
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="product-image"
+                        />
 
-                    ) : (
+                      ) : (
 
-                      <div
-                        className="no-product-image"
+                        <div className="no-product-image">
+
+                          📦
+
+                        </div>
+
+                      )}
+
+                    </td>
+
+
+                    {/* =========================
+                        PRODUCT
+                    ========================= */}
+
+                    <td>
+
+                      {product.name}
+
+                    </td>
+
+
+                    {/* =========================
+                        BRAND
+                    ========================= */}
+
+                    <td>
+
+                      {product.brand || "—"}
+
+                    </td>
+
+
+                    {/* =========================
+                        CATEGORY
+                    ========================= */}
+
+                    <td>
+
+                      {product.category || "Other"}
+
+                    </td>
+
+
+                    {/* =========================
+                        SHELF
+                    ========================= */}
+
+                    <td>
+
+                      <span className="stock-number shelf-stock">
+
+                        {shelfQuantity}
+
+                      </span>
+
+                    </td>
+
+
+                    {/* =========================
+                        STORE / BOX
+                    ========================= */}
+
+                    <td>
+
+                      <span className="stock-number store-stock">
+
+                        {storeQuantity}
+
+                      </span>
+
+                    </td>
+
+
+                    {/* =========================
+                        TOTAL
+                    ========================= */}
+
+                    <td>
+
+                      <strong className="total-stock">
+
+                        {totalQuantity}
+
+                      </strong>
+
+                    </td>
+
+
+                    {/* =========================
+                        BUYING PRICE
+                    ========================= */}
+
+                    <td>
+
+                      KSh{" "}
+
+                      {Number(
+                        product.buyingPrice
+                      ).toLocaleString()}
+
+                    </td>
+
+
+                    {/* =========================
+                        SELLING PRICE
+                    ========================= */}
+
+                    <td>
+
+                      KSh{" "}
+
+                      {Number(
+                        product.sellingPrice
+                      ).toLocaleString()}
+
+                    </td>
+
+
+                    {/* =========================
+                        STATUS
+                    ========================= */}
+
+                    <td>
+
+                      <span
+                        className={
+                          `status ${status.className}`
+                        }
                       >
 
-                        📦
+                        {status.text}
 
-                      </div>
+                      </span>
 
-                    )}
+                    </td>
 
-                  </td>
 
+                    {/* =========================
+                        ACTIONS
+                    ========================= */}
 
-                  {/* =========================
-                      PRODUCT
-                  ========================= */}
+                    <td className="actions">
 
-                  <td>
 
-                    {product.name}
+                      {/* STOCK IN */}
 
-                  </td>
+                      <button
+                        className="stock-in-btn"
+                        onClick={() =>
+                          onStockUpdate(
+                            product.id,
+                            1
+                          )
+                        }
+                        title="Add stock"
+                      >
 
+                        +
 
-                  {/* =========================
-                      BRAND
-                  ========================= */}
+                      </button>
 
-                  <td>
 
-                    {product.brand || "—"}
+                      {/* STOCK OUT */}
 
-                  </td>
+                      <button
+                        className="stock-out-btn"
+                        onClick={() =>
+                          onStockUpdate(
+                            product.id,
+                            -1
+                          )
+                        }
+                        title="Remove stock"
+                      >
 
+                        -
 
-                  {/* =========================
-                      CATEGORY
-                  ========================= */}
+                      </button>
 
-                  <td>
 
-                    {product.category}
+                      {/* SELL */}
 
-                  </td>
+                      <button
+                        className="sell-btn"
+                        onClick={() =>
+                          onSell(product)
+                        }
+                        title="Sell product"
+                      >
 
+                        <FaShoppingCart />
 
-                  {/* =========================
-                      SHELF
-                  ========================= */}
+                      </button>
 
-                  <td>
 
-                    <span className="stock-number shelf-stock">
+                      {/* EDIT */}
 
-                      {shelfQuantity}
+                      <button
+                        className="edit-btn"
+                        onClick={() =>
+                          onEdit(product)
+                        }
+                        title="Edit product"
+                      >
 
-                    </span>
+                        <FaEdit />
 
-                  </td>
+                      </button>
 
 
-                  {/* =========================
-                      STORE / BOX
-                  ========================= */}
+                      {/* DELETE */}
 
-                  <td>
+                      <button
+                        className="delete-btn"
+                        onClick={() =>
+                          setProductToDelete(
+                            product
+                          )
+                        }
+                        title="Delete product"
+                      >
 
-                    <span className="stock-number store-stock">
+                        <FaTrash />
 
-                      {storeQuantity}
+                      </button>
 
-                    </span>
 
-                  </td>
+                    </td>
 
 
-                  {/* =========================
-                      TOTAL
-                  ========================= */}
+                  </tr>
 
-                  <td>
+                );
 
-                    <strong className="total-stock">
-
-                      {totalQuantity}
-
-                    </strong>
-
-                  </td>
-
-
-                  {/* =========================
-                      BUYING PRICE
-                  ========================= */}
-
-                  <td>
-
-                    KSh{" "}
-
-                    {Number(
-                      product.buyingPrice
-                    ).toLocaleString()}
-
-                  </td>
-
-
-                  {/* =========================
-                      SELLING PRICE
-                  ========================= */}
-
-                  <td>
-
-                    KSh{" "}
-
-                    {Number(
-                      product.sellingPrice
-                    ).toLocaleString()}
-
-                  </td>
-
-
-                  {/* =========================
-                      STATUS
-                  ========================= */}
-
-                  <td>
-
-                    <span
-                      className={
-                        `status ${status.className}`
-                      }
-                    >
-
-                      {status.text}
-
-                    </span>
-
-                  </td>
-
-
-                  {/* =========================
-                      ACTIONS
-                  ========================= */}
-
-                  <td className="actions">
-
-
-                    {/* STOCK IN */}
-
-                    <button
-
-                      className="stock-in-btn"
-
-                      onClick={() =>
-                        onStockUpdate(
-                          product.id,
-                          1
-                        )
-                      }
-
-                      title="Add stock"
-
-                    >
-
-                      +
-
-                    </button>
-
-
-                    {/* STOCK OUT */}
-
-                    <button
-
-                      className="stock-out-btn"
-
-                      onClick={() =>
-                        onStockUpdate(
-                          product.id,
-                          -1
-                        )
-                      }
-
-                      title="Remove stock"
-
-                    >
-
-                      -
-
-                    </button>
-
-
-                    {/* SELL */}
-
-                    <button
-
-                      className="sell-btn"
-
-                      onClick={() =>
-                        onSell(product)
-                      }
-
-                      title="Sell product"
-
-                    >
-
-                      <FaShoppingCart />
-
-                    </button>
-
-
-                    {/* EDIT */}
-
-                    <button
-
-                      className="edit-btn"
-
-                      onClick={() =>
-                        onEdit(product)
-                      }
-
-                      title="Edit product"
-
-                    >
-
-                      <FaEdit />
-
-                    </button>
-
-
-                    {/* DELETE */}
-
-                    <button
-
-                      className="delete-btn"
-
-                      onClick={() =>
-                        setProductToDelete(
-                          product
-                        )
-                      }
-
-                      title="Delete product"
-
-                    >
-
-                      <FaTrash />
-
-                    </button>
-
-
-                  </td>
-
-
-                </tr>
-
-              );
-
-            })
+              }
+            )
 
           )}
-
 
         </tbody>
 
@@ -469,7 +476,6 @@ function ProductTable({
       {productToDelete && (
 
         <div className="delete-overlay">
-
 
           <div className="delete-modal">
 
@@ -509,21 +515,16 @@ function ProductTable({
             </p>
 
 
-            <div
-              className="delete-modal-buttons"
-            >
+            <div className="delete-modal-buttons">
 
 
               <button
-
                 className="cancel-delete-btn"
-
                 onClick={() =>
                   setProductToDelete(
                     null
                   )
                 }
-
               >
 
                 Cancel
@@ -532,13 +533,8 @@ function ProductTable({
 
 
               <button
-
                 className="confirm-delete-btn"
-
-                onClick={
-                  confirmDelete
-                }
-
+                onClick={confirmDelete}
               >
 
                 <FaTrash />
@@ -553,7 +549,6 @@ function ProductTable({
 
           </div>
 
-
         </div>
 
       )}
@@ -564,6 +559,4 @@ function ProductTable({
 
 }
 
-
 export default ProductTable;
-

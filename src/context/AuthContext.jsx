@@ -21,78 +21,164 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
-  const [user, setUser] =
-    useState(null);
+  const [user, setUser] = useState(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
 
   // =========================
-  // LOAD CURRENT USER
+  // LOAD PROFILE
+  // =========================
+
+  const loadProfile = async (authUser) => {
+
+    if (!authUser) {
+
+      setUser(null);
+
+      return;
+
+    }
+
+
+    try {
+
+      const {
+        data: profile,
+        error
+      } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq(
+          "id",
+          authUser.id
+        )
+        .maybeSingle();
+
+
+      if (error) {
+
+        console.log(
+          "Profile loading error:",
+          error
+        );
+
+
+        // Still keep the Auth user
+
+        setUser({
+
+          id:
+            authUser.id,
+
+          email:
+            authUser.email
+
+        });
+
+        return;
+
+      }
+
+
+      if (profile) {
+
+        setUser(profile);
+
+      } else {
+
+        setUser({
+
+          id:
+            authUser.id,
+
+          email:
+            authUser.email
+
+        });
+
+      }
+
+    } catch (error) {
+
+      console.log(
+        "Load profile error:",
+        error
+      );
+
+
+      setUser({
+
+        id:
+          authUser.id,
+
+        email:
+          authUser.email
+
+      });
+
+    }
+
+  };
+
+
+  // =========================
+  // CHECK CURRENT SESSION
   // =========================
 
   useEffect(() => {
+
+    let mounted = true;
+
 
     const loadUser = async () => {
 
       try {
 
         const {
-          data: {
-            session
+          data,
+          error
+        } = await supabase.auth.getSession();
+
+
+        if (error) {
+
+          console.log(
+            "Session error:",
+            error
+          );
+
+          if (mounted) {
+
+            setUser(null);
+
           }
-        } =
-          await supabase.auth.getSession();
-
-
-        if (!session) {
-
-          setUser(null);
-
-          setLoading(false);
 
           return;
 
         }
 
 
-        // Get profile
-
-        const {
-          data: profile,
-          error
-        } =
-          await supabase
-            .from("profiles")
-            .select("*")
-            .eq(
-              "id",
-              session.user.id
-            )
-            .single();
+        const session =
+          data?.session;
 
 
-        if (error) {
+        if (!session) {
 
-          console.log(
-            "Profile error:",
-            error
-          );
+          if (mounted) {
 
-          setUser({
-            id:
-              session.user.id,
+            setUser(null);
 
-            email:
-              session.user.email
-          });
+          }
 
-        } else {
-
-          setUser(profile);
+          return;
 
         }
+
+
+        await loadProfile(
+          session.user
+        );
 
       } catch (error) {
 
@@ -101,11 +187,20 @@ export function AuthProvider({ children }) {
           error
         );
 
-        setUser(null);
+
+        if (mounted) {
+
+          setUser(null);
+
+        }
 
       } finally {
 
-        setLoading(false);
+        if (mounted) {
+
+          setLoading(false);
+
+        }
 
       }
 
@@ -115,7 +210,9 @@ export function AuthProvider({ children }) {
     loadUser();
 
 
-    // Listen for login/logout
+    // =========================
+    // AUTH STATE LISTENER
+    // =========================
 
     const {
       data: authListener
@@ -126,55 +223,44 @@ export function AuthProvider({ children }) {
           session
         ) => {
 
+          if (!mounted) {
+            return;
+          }
+
+
           if (!session) {
 
             setUser(null);
+
+            setLoading(false);
 
             return;
 
           }
 
 
-          const {
-            data: profile
-          } =
-            await supabase
-              .from("profiles")
-              .select("*")
-              .eq(
-                "id",
-                session.user.id
-              )
-              .single();
+          await loadProfile(
+            session.user
+          );
 
 
-          if (profile) {
-
-            setUser(profile);
-
-          } else {
-
-            setUser({
-
-              id:
-                session.user.id,
-
-              email:
-                session.user.email
-
-            });
-
-          }
+          setLoading(false);
 
         }
       );
 
 
+    // =========================
+    // CLEANUP
+    // =========================
+
     return () => {
 
+      mounted = false;
+
       authListener
-        .subscription
-        .unsubscribe();
+        ?.subscription
+        ?.unsubscribe();
 
     };
 
@@ -193,7 +279,72 @@ export function AuthProvider({ children }) {
 
     try {
 
-      // Create Supabase account
+      const cleanName =
+        name.trim();
+
+      const cleanEmail =
+        email.trim().toLowerCase();
+
+
+      if (!cleanName) {
+
+        return {
+
+          success: false,
+
+          message:
+            "Please enter your name."
+
+        };
+
+      }
+
+
+      if (!cleanEmail) {
+
+        return {
+
+          success: false,
+
+          message:
+            "Please enter your email."
+
+        };
+
+      }
+
+
+      if (!password) {
+
+        return {
+
+          success: false,
+
+          message:
+            "Please enter a password."
+
+        };
+
+      }
+
+
+      if (password.length < 6) {
+
+        return {
+
+          success: false,
+
+          message:
+            "Password must be at least 6 characters."
+
+        };
+
+      }
+
+
+      // =========================
+      // CREATE AUTH ACCOUNT
+      // =========================
 
       const {
         data,
@@ -202,7 +353,7 @@ export function AuthProvider({ children }) {
         await supabase.auth.signUp({
 
           email:
-            email.trim(),
+            cleanEmail,
 
           password
 
@@ -223,7 +374,7 @@ export function AuthProvider({ children }) {
       }
 
 
-      if (!data.user) {
+      if (!data?.user) {
 
         return {
 
@@ -253,10 +404,10 @@ export function AuthProvider({ children }) {
               data.user.id,
 
             name:
-              name.trim(),
+              cleanName,
 
             email:
-              email.trim()
+              cleanEmail
 
           })
           .select()
@@ -270,6 +421,7 @@ export function AuthProvider({ children }) {
           profileError
         );
 
+
         return {
 
           success: false,
@@ -282,7 +434,9 @@ export function AuthProvider({ children }) {
       }
 
 
-      // Save current user
+      // =========================
+      // SAVE USER
+      // =========================
 
       setUser(profile);
 
@@ -291,7 +445,8 @@ export function AuthProvider({ children }) {
 
         success: true,
 
-        user: profile
+        user:
+          profile
 
       };
 
@@ -301,6 +456,7 @@ export function AuthProvider({ children }) {
         "Registration error:",
         error
       );
+
 
       return {
 
@@ -327,6 +483,10 @@ export function AuthProvider({ children }) {
 
     try {
 
+      const cleanEmail =
+        email.trim().toLowerCase();
+
+
       const {
         data,
         error
@@ -334,7 +494,7 @@ export function AuthProvider({ children }) {
         await supabase.auth.signInWithPassword({
 
           email:
-            email.trim(),
+            cleanEmail,
 
           password
 
@@ -355,7 +515,7 @@ export function AuthProvider({ children }) {
       }
 
 
-      if (!data.user) {
+      if (!data?.user) {
 
         return {
 
@@ -370,7 +530,7 @@ export function AuthProvider({ children }) {
 
 
       // =========================
-      // GET PROFILE
+      // LOAD PROFILE
       // =========================
 
       const {
@@ -384,7 +544,7 @@ export function AuthProvider({ children }) {
             "id",
             data.user.id
           )
-          .single();
+          .maybeSingle();
 
 
       if (profileError) {
@@ -405,9 +565,21 @@ export function AuthProvider({ children }) {
 
         });
 
-      } else {
+      } else if (profile) {
 
         setUser(profile);
+
+      } else {
+
+        setUser({
+
+          id:
+            data.user.id,
+
+          email:
+            data.user.email
+
+        });
 
       }
 
@@ -424,6 +596,7 @@ export function AuthProvider({ children }) {
         "Login error:",
         error
       );
+
 
       return {
 
@@ -447,9 +620,39 @@ export function AuthProvider({ children }) {
 
     try {
 
-      await supabase.auth.signOut();
+      const {
+        error
+      } =
+        await supabase.auth.signOut();
+
+
+      if (error) {
+
+        console.log(
+          "Logout error:",
+          error
+        );
+
+        return {
+
+          success: false,
+
+          message:
+            error.message
+
+        };
+
+      }
+
 
       setUser(null);
+
+
+      return {
+
+        success: true
+
+      };
 
     } catch (error) {
 
@@ -457,6 +660,16 @@ export function AuthProvider({ children }) {
         "Logout error:",
         error
       );
+
+
+      return {
+
+        success: false,
+
+        message:
+          "Could not log out."
+
+      };
 
     }
 
@@ -487,6 +700,48 @@ export function AuthProvider({ children }) {
       }
 
 
+      const cleanName =
+        updatedUser.name?.trim();
+
+
+      const cleanEmail =
+        updatedUser.email
+          ?.trim()
+          .toLowerCase();
+
+
+      if (!cleanName) {
+
+        return {
+
+          success: false,
+
+          message:
+            "Please enter your name."
+
+        };
+
+      }
+
+
+      if (!cleanEmail) {
+
+        return {
+
+          success: false,
+
+          message:
+            "Please enter your email."
+
+        };
+
+      }
+
+
+      // =========================
+      // UPDATE PROFILE TABLE
+      // =========================
+
       const {
         data: updatedProfile,
         error
@@ -496,10 +751,10 @@ export function AuthProvider({ children }) {
           .update({
 
             name:
-              updatedUser.name,
+              cleanName,
 
             email:
-              updatedUser.email
+              cleanEmail
 
           })
           .eq(
@@ -517,6 +772,7 @@ export function AuthProvider({ children }) {
           error
         );
 
+
         return {
 
           success: false,
@@ -528,6 +784,53 @@ export function AuthProvider({ children }) {
 
       }
 
+
+      // =========================
+      // UPDATE AUTH EMAIL
+      // =========================
+
+      if (
+        cleanEmail !==
+        user.email
+      ) {
+
+        const {
+          error:
+            emailError
+        } =
+          await supabase.auth.updateUser({
+
+            email:
+              cleanEmail
+
+          });
+
+
+        if (emailError) {
+
+          console.log(
+            "Auth email update error:",
+            emailError
+          );
+
+
+          return {
+
+            success: false,
+
+            message:
+              emailError.message
+
+          };
+
+        }
+
+      }
+
+
+      // =========================
+      // UPDATE LOCAL USER
+      // =========================
 
       setUser(
         updatedProfile
@@ -549,6 +852,7 @@ export function AuthProvider({ children }) {
         "Profile update error:",
         error
       );
+
 
       return {
 
@@ -608,4 +912,3 @@ export function useAuth() {
   );
 
 }
-

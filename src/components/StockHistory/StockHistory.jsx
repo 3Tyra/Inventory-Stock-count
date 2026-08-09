@@ -1,11 +1,13 @@
 import "./StockHistory.css";
 
-
 function StockHistory({
   history,
   onDeleteHistory
 }) {
 
+  // =========================
+  // EMPTY HISTORY
+  // =========================
 
   if (!history || history.length === 0) {
 
@@ -138,11 +140,15 @@ function StockHistory({
 
             {history.map((record) => {
 
-
               const actionClass =
                 record.action
                   ?.toLowerCase()
                   .replace(/\s+/g, "-");
+
+
+              const isNegative =
+                record.action === "Sold" ||
+                record.action === "Stock Removed";
 
 
               return (
@@ -152,7 +158,9 @@ function StockHistory({
                 >
 
 
-                  {/* PRODUCT */}
+                  {/* =========================
+                      PRODUCT
+                  ========================= */}
 
                   <td>
 
@@ -166,7 +174,7 @@ function StockHistory({
 
                       <span>
 
-                        {record.productName}
+                        {record.product_name}
 
                       </span>
 
@@ -175,7 +183,9 @@ function StockHistory({
                   </td>
 
 
-                  {/* ACTION */}
+                  {/* =========================
+                      ACTION
+                  ========================= */}
 
                   <td>
 
@@ -192,21 +202,21 @@ function StockHistory({
                   </td>
 
 
-                  {/* QUANTITY */}
+                  {/* =========================
+                      QUANTITY
+                  ========================= */}
 
                   <td>
 
                     <strong
                       className={
-                        record.action === "Sold" ||
-                        record.action === "Stock Removed"
+                        isNegative
                           ? "quantity-negative"
                           : "quantity-positive"
                       }
                     >
 
-                      {record.action === "Sold" ||
-                      record.action === "Stock Removed"
+                      {isNegative
                         ? "-"
                         : "+"}
 
@@ -217,7 +227,9 @@ function StockHistory({
                   </td>
 
 
-                  {/* LOCATION */}
+                  {/* =========================
+                      LOCATION
+                  ========================= */}
 
                   <td>
 
@@ -230,7 +242,9 @@ function StockHistory({
                   </td>
 
 
-                  {/* DATE */}
+                  {/* =========================
+                      DATE
+                  ========================= */}
 
                   <td>
 
@@ -239,7 +253,9 @@ function StockHistory({
                   </td>
 
 
-                  {/* TIME */}
+                  {/* =========================
+                      TIME
+                  ========================= */}
 
                   <td>
 
@@ -248,7 +264,9 @@ function StockHistory({
                   </td>
 
 
-                  {/* DELETE */}
+                  {/* =========================
+                      DELETE
+                  ========================= */}
 
                   <td>
 
@@ -293,5 +311,5 @@ function StockHistory({
 
 }
 
-
 export default StockHistory;
+

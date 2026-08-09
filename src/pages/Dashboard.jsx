@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   LineChart,
   Line,
@@ -11,139 +12,222 @@ import {
 
 import "./Dashboard.css";
 
+import { supabase } from "../supabaseClient";
+import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
+  const { user } = useAuth();
 
+  const [products, setProducts] = useState([]);
+  const [sales, setSales] = useState([]);
 
-  const [products, setProducts] =
-    useState([]);
+  const [lowStockLimit, setLowStockLimit] =
+    useState(10);
 
-  const [sales, setSales] =
-    useState([]);
+  const [currency, setCurrency] =
+    useState("KSh");
 
+  const [loading, setLoading] =
+    useState(true);
 
   // =========================
-  // LOAD DATA
+  // LOAD DASHBOARD DATA
   // =========================
 
   useEffect(() => {
+    if (!user) {
+      setProducts([]);
+      setSales([]);
+      setLoading(false);
+      return;
+    }
 
-    const loadData = () => {
+    loadDashboardData();
 
-      const savedProducts =
-        localStorage.getItem("products");
-
-      const savedSales =
-        localStorage.getItem("sales");
-
-
-      setProducts(
-        savedProducts
-          ? JSON.parse(savedProducts)
-          : []
-      );
-
-
-      setSales(
-        savedSales
-          ? JSON.parse(savedSales)
-          : []
-      );
-
+    // Refresh whenever dashboard becomes visible again
+    const handleFocus = () => {
+      loadDashboardData();
     };
 
-
-    loadData();
-
-
     window.addEventListener(
-      "productsUpdated",
-      loadData
+      "focus",
+      handleFocus
     );
-
-
-    window.addEventListener(
-      "salesUpdated",
-      loadData
-    );
-
 
     return () => {
-
       window.removeEventListener(
-        "productsUpdated",
-        loadData
+        "focus",
+        handleFocus
       );
-
-      window.removeEventListener(
-        "salesUpdated",
-        loadData
-      );
-
     };
-
-  }, []);
-
+  }, [user]);
 
   // =========================
-  // LOW STOCK SETTINGS
+  // LOAD EVERYTHING
   // =========================
 
-  const savedSettings =
-    JSON.parse(
-      localStorage.getItem("settings")
-    ) || {};
+  const loadDashboardData = async () => {
+    if (!user) return;
 
+    try {
+      setLoading(true);
 
-  const lowStockLimit =
-    Number(
-      savedSettings.lowStockLimit
-    ) || 10;
+      // =========================
+      // PRODUCTS
+      // =========================
 
+      const {
+        data: productData,
+        error: productError
+      } = await supabase
+        .from("products")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {
+          ascending: false
+        });
+
+      if (productError) {
+        console.error(
+          "Dashboard products error:",
+          productError
+        );
+      } else {
+        const formattedProducts =
+          (productData || []).map(
+            (product) => {
+              const shelfQuantity =
+                Number(
+                  product.shelf_quantity
+                ) || 0;
+
+              const storeQuantity =
+                Number(
+                  product.store_quantity
+                ) || 0;
+
+              return {
+                ...product,
+
+                shelfQuantity,
+
+                storeQuantity,
+
+                buyingPrice:
+                  Number(
+                    product.buying_price
+                  ) || 0,
+
+                sellingPrice:
+                  Number(
+                    product.selling_price
+                  ) || 0,
+
+                quantity:
+                  shelfQuantity +
+                  storeQuantity
+              };
+            }
+          );
+
+        setProducts(
+          formattedProducts
+        );
+      }
+
+      // =========================
+      // SALES
+      // =========================
+
+      const {
+        data: salesData,
+        error: salesError
+      } = await supabase
+        .from("sales")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {
+          ascending: true
+        });
+
+      if (salesError) {
+        console.error(
+          "Dashboard sales error:",
+          salesError
+        );
+      } else {
+        setSales(
+          salesData || []
+        );
+      }
+
+      // =========================
+      // SETTINGS
+      // =========================
+
+      const {
+        data: settingsData,
+        error: settingsError
+      } = await supabase
+        .from("settings")
+        .select(
+          "low_stock_limit, currency"
+        )
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (settingsError) {
+        console.error(
+          "Dashboard settings error:",
+          settingsError
+        );
+      }
+
+      if (settingsData) {
+        setLowStockLimit(
+          Number(
+            settingsData.low_stock_limit
+          ) || 10
+        );
+
+        setCurrency(
+          settingsData.currency ||
+            "KSh"
+        );
+      } else {
+        setLowStockLimit(10);
+        setCurrency("KSh");
+      }
+    } catch (error) {
+      console.error(
+        "Dashboard loading failed:",
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // =========================
-  // HELPER
   // GET TOTAL STOCK
   // =========================
 
   const getTotalStock = (product) => {
-
     const shelfQuantity =
       Number(
         product.shelfQuantity
       ) || 0;
-
 
     const storeQuantity =
       Number(
         product.storeQuantity
       ) || 0;
 
-
-    // New products
-    // Shelf + Store/Box
-
-    if (
-      product.shelfQuantity !== undefined ||
-      product.storeQuantity !== undefined
-    ) {
-
-      return (
-        shelfQuantity +
-        storeQuantity
-      );
-
-    }
-
-
-    // Support old products
-
-    return Number(
-      product.quantity
-    ) || 0;
-
+    return (
+      shelfQuantity +
+      storeQuantity
+    );
   };
-
 
   // =========================
   // STATISTICS
@@ -151,7 +235,6 @@ function Dashboard() {
 
   const totalProducts =
     products.length;
-
 
   const totalStock =
     products.reduce(
@@ -161,7 +244,6 @@ function Dashboard() {
       0
     );
 
-
   const lowStockProducts =
     products.filter(
       (product) =>
@@ -169,57 +251,44 @@ function Dashboard() {
         lowStockLimit
     );
 
-
   const inventoryValue =
     products.reduce(
       (sum, product) => {
-
         const quantity =
           getTotalStock(product);
 
+        return (
+          sum +
+          Number(
+            product.buyingPrice
+          ) *
+            quantity
+        );
+      },
+      0
+    );
+
+  const potentialProfit =
+    products.reduce(
+      (sum, product) => {
+        const quantity =
+          getTotalStock(product);
 
         return (
           sum +
           (
             Number(
-              product.buyingPrice || 0
-            ) *
+              product.sellingPrice
+            ) -
+            Number(
+              product.buyingPrice
+            )
+          ) *
             quantity
-          )
         );
-
       },
       0
     );
-
-
-  const potentialProfit =
-    products.reduce(
-      (sum, product) => {
-
-        const quantity =
-          getTotalStock(product);
-
-
-        return (
-          sum +
-          (
-            (
-              Number(
-                product.sellingPrice || 0
-              ) -
-              Number(
-                product.buyingPrice || 0
-              )
-            ) *
-            quantity
-          )
-        );
-
-      },
-      0
-    );
-
 
   // =========================
   // SALES STATISTICS
@@ -235,7 +304,6 @@ function Dashboard() {
       0
     );
 
-
   const totalRevenue =
     sales.reduce(
       (sum, sale) =>
@@ -245,7 +313,6 @@ function Dashboard() {
         ),
       0
     );
-
 
   const totalProfit =
     sales.reduce(
@@ -257,95 +324,108 @@ function Dashboard() {
       0
     );
 
-
   // =========================
   // CATEGORIES
   // =========================
 
   const categories = {};
 
+  products.forEach(
+    (product) => {
+      const category =
+        product.category ||
+        "Other";
 
-  products.forEach((product) => {
-
-    if (categories[product.category]) {
-
-      categories[product.category]++;
-
-    } else {
-
-      categories[product.category] = 1;
-
+      if (
+        categories[category]
+      ) {
+        categories[category]++;
+      } else {
+        categories[category] = 1;
+      }
     }
-
-  });
-
+  );
 
   // =========================
   // RECENT PRODUCTS
   // =========================
 
   const recentProducts =
-    [...products]
-      .reverse()
-      .slice(0, 5);
-
+    products.slice(0, 5);
 
   // =========================
-  // SALES CHART DATA
+  // SALES CHART
   // =========================
 
   const chartData = {};
 
+  sales.forEach(
+    (sale) => {
+      const date =
+        sale.date ||
+        (
+          sale.created_at
+            ? new Date(
+                sale.created_at
+              ).toLocaleDateString()
+            : "Unknown"
+        );
 
-  sales.forEach((sale) => {
+      if (!chartData[date]) {
+        chartData[date] = {
+          date,
+          revenue: 0,
+          profit: 0
+        };
+      }
 
-    const date =
-      sale.date;
+      chartData[date].revenue +=
+        Number(
+          sale.revenue || 0
+        );
 
-
-    if (!chartData[date]) {
-
-      chartData[date] = {
-
-        date,
-
-        revenue: 0,
-
-        profit: 0
-
-      };
-
+      chartData[date].profit +=
+        Number(
+          sale.profit || 0
+        );
     }
-
-
-    chartData[date].revenue +=
-      Number(
-        sale.revenue || 0
-      );
-
-
-    chartData[date].profit +=
-      Number(
-        sale.profit || 0
-      );
-
-  });
-
+  );
 
   const salesChartData =
     Object.values(
       chartData
     );
 
+  // =========================
+  // LOADING
+  // =========================
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+
+        <div className="dashboard-header">
+
+          <h1>
+            📊 Dashboard
+          </h1>
+
+          <p>
+            Loading your shop data...
+          </p>
+
+        </div>
+
+      </div>
+    );
+  }
 
   // =========================
   // PAGE
   // =========================
 
   return (
-
     <div className="dashboard">
-
 
       {/* =========================
           HEADER
@@ -364,13 +444,11 @@ function Dashboard() {
 
       </div>
 
-
       {/* =========================
           STATISTICS
       ========================= */}
 
       <div className="stats-container">
-
 
         {/* TOTAL PRODUCTS */}
 
@@ -386,7 +464,6 @@ function Dashboard() {
 
         </div>
 
-
         {/* TOTAL STOCK */}
 
         <div className="stat-card">
@@ -400,7 +477,6 @@ function Dashboard() {
           </h2>
 
         </div>
-
 
         {/* LOW STOCK */}
 
@@ -416,7 +492,6 @@ function Dashboard() {
 
         </div>
 
-
         {/* INVENTORY VALUE */}
 
         <div className="stat-card">
@@ -426,12 +501,11 @@ function Dashboard() {
           </h3>
 
           <h2>
-            KSh{" "}
+            {currency}{" "}
             {inventoryValue.toLocaleString()}
           </h2>
 
         </div>
-
 
         {/* POTENTIAL PROFIT */}
 
@@ -442,12 +516,11 @@ function Dashboard() {
           </h3>
 
           <h2>
-            KSh{" "}
+            {currency}{" "}
             {potentialProfit.toLocaleString()}
           </h2>
 
         </div>
-
 
         {/* ITEMS SOLD */}
 
@@ -463,7 +536,6 @@ function Dashboard() {
 
         </div>
 
-
         {/* SALES REVENUE */}
 
         <div className="stat-card">
@@ -473,12 +545,11 @@ function Dashboard() {
           </h3>
 
           <h2>
-            KSh{" "}
+            {currency}{" "}
             {totalRevenue.toLocaleString()}
           </h2>
 
         </div>
-
 
         {/* PROFIT MADE */}
 
@@ -489,22 +560,19 @@ function Dashboard() {
           </h3>
 
           <h2>
-            KSh{" "}
+            {currency}{" "}
             {totalProfit.toLocaleString()}
           </h2>
 
         </div>
 
-
       </div>
-
 
       {/* =========================
           SALES CHART
       ========================= */}
 
       <div className="dashboard-card chart-card">
-
 
         <div className="card-header">
 
@@ -517,7 +585,6 @@ function Dashboard() {
           </p>
 
         </div>
-
 
         {salesChartData.length === 0 ? (
 
@@ -565,15 +632,13 @@ function Dashboard() {
 
               <YAxis />
 
-
               <Tooltip
                 formatter={(value) =>
-                  `KSh ${Number(
+                  `${currency} ${Number(
                     value
                   ).toLocaleString()}`
                 }
               />
-
 
               <Line
                 type="monotone"
@@ -584,7 +649,6 @@ function Dashboard() {
                 dot={{ r: 4 }}
               />
 
-
               <Line
                 type="monotone"
                 dataKey="profit"
@@ -594,7 +658,6 @@ function Dashboard() {
                 dot={{ r: 4 }}
               />
 
-
             </LineChart>
 
           </ResponsiveContainer>
@@ -603,13 +666,11 @@ function Dashboard() {
 
       </div>
 
-
       {/* =========================
           DASHBOARD GRID
       ========================= */}
 
       <div className="dashboard-grid">
-
 
         {/* =========================
             RECENT PRODUCTS
@@ -620,7 +681,6 @@ function Dashboard() {
           <h2>
             🆕 Recent Products
           </h2>
-
 
           {recentProducts.length === 0 ? (
 
@@ -640,7 +700,6 @@ function Dashboard() {
 
                   <div className="product-info">
 
-
                     {product.image ? (
 
                       <img
@@ -652,13 +711,10 @@ function Dashboard() {
                     ) : (
 
                       <div className="dashboard-product-placeholder">
-
                         📦
-
                       </div>
 
                     )}
-
 
                     <span>
                       {product.name}
@@ -666,26 +722,20 @@ function Dashboard() {
 
                   </div>
 
-
                   <span>
-
                     {getTotalStock(product)}
                     {" "}
                     pcs
-
                   </span>
-
 
                 </div>
 
               )
-
             )
 
           )}
 
         </div>
-
 
         {/* =========================
             STOCK ALERTS
@@ -696,7 +746,6 @@ function Dashboard() {
           <h2>
             ⚠️ Stock Alerts
           </h2>
-
 
           {lowStockProducts.length === 0 ? (
 
@@ -719,23 +768,19 @@ function Dashboard() {
                   </span>
 
                   <span>
-
                     {getTotalStock(product)}
                     {" "}
                     left
-
                   </span>
 
                 </div>
 
               )
-
             )
 
           )}
 
         </div>
-
 
         {/* =========================
             CATEGORIES
@@ -747,8 +792,9 @@ function Dashboard() {
             🏷 Categories
           </h2>
 
-
-          {Object.keys(categories).length === 0 ? (
+          {Object.keys(
+            categories
+          ).length === 0 ? (
 
             <p>
               No categories yet
@@ -777,22 +823,17 @@ function Dashboard() {
                 </div>
 
               )
-
             )
 
           )}
 
         </div>
 
-
       </div>
 
-
     </div>
-
   );
-
 }
 
-
 export default Dashboard;
+

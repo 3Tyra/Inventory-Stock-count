@@ -1,108 +1,93 @@
 import { useEffect, useState } from "react";
 import "./Settings.css";
 
+import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 
-
 function Settings() {
+  const { user, updateProfile } = useAuth();
 
+  const [settings, setSettings] = useState({
+    shopName: "Stock Count",
+    phone: "",
+    location: "",
+    currency: "KSh",
+    lowStockLimit: 10,
+    darkMode: false
+  });
 
-  const {
-    user,
-    updateProfile
-  } = useAuth();
+  const [profile, setProfile] = useState({
+    name: "",
+    email: ""
+  });
 
+  const [password, setPassword] = useState({
+    current: "",
+    newPassword: "",
+    confirm: ""
+  });
 
-  const [settings, setSettings] =
-    useState({
-
-      shopName: "Stock Count",
-
-      phone: "",
-
-      location: "",
-
-      currency: "KSh",
-
-      lowStockLimit: 10,
-
-      darkMode: false
-
-    });
-
-
-  const [profile, setProfile] =
-    useState({
-
-      name: "",
-
-      email: ""
-
-    });
-
-
-  const [password, setPassword] =
-    useState({
-
-      current: "",
-
-      newPassword: "",
-
-      confirm: ""
-
-    });
-
-
-  const [message, setMessage] =
-    useState("");
-
-
-  const [error, setError] =
-    useState("");
-
-
-  useEffect(() => {
-
-    const savedSettings =
-      JSON.parse(
-        localStorage.getItem(
-          "settings"
-        )
-      );
-
-
-    if (savedSettings) {
-
-      setSettings(
-        savedSettings
-      );
-
-    }
-
-
-    if (user) {
-
-      setProfile({
-
-        name:
-          user.name || "",
-
-        email:
-          user.email || ""
-
-      });
-
-    }
-
-  }, [user]);
-
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // =========================
-  // SETTINGS
+  // LOAD USER + SETTINGS
+  // =========================
+
+  useEffect(() => {
+    if (!user) return;
+
+    setProfile({
+      name: user.name || "",
+      email: user.email || ""
+    });
+
+    loadSettings();
+  }, [user]);
+
+  // =========================
+  // LOAD SETTINGS
+  // =========================
+
+  const loadSettings = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Settings load error:", error);
+        setError("Could not load your settings.");
+        return;
+      }
+
+      if (data) {
+        setSettings({
+          shopName: data.shop_name || "Stock Count",
+          phone: data.phone || "",
+          location: data.location || "",
+          currency: data.currency || "KSh",
+          lowStockLimit:
+            Number(data.low_stock_limit) || 10,
+          darkMode: Boolean(data.dark_mode)
+        });
+      }
+    } catch (err) {
+      console.error("Settings loading failed:", err);
+      setError("Could not load your settings.");
+    }
+  };
+
+  // =========================
+  // SETTINGS INPUT
   // =========================
 
   const handleSettings = (e) => {
-
     const {
       name,
       value,
@@ -110,634 +95,662 @@ function Settings() {
       checked
     } = e.target;
 
-
-    setSettings({
-
-      ...settings,
-
+    setSettings((prev) => ({
+      ...prev,
       [name]:
         type === "checkbox"
           ? checked
           : value
-
-    });
-
+    }));
 
     setMessage("");
-
     setError("");
-
   };
 
-
   // =========================
-  // PROFILE
+  // PROFILE INPUT
   // =========================
 
   const handleProfile = (e) => {
-
-    setProfile({
-
-      ...profile,
-
-      [e.target.name]:
-        e.target.value
-
-    });
-
+    setProfile((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
 
     setMessage("");
-
     setError("");
-
   };
 
-
   // =========================
-  // PASSWORD
+  // PASSWORD INPUT
   // =========================
 
   const handlePassword = (e) => {
-
-    setPassword({
-
-      ...password,
-
-      [e.target.name]:
-        e.target.value
-
-    });
-
+    setPassword((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
 
     setMessage("");
-
     setError("");
-
   };
 
-
   // =========================
-  // SAVE SETTINGS
+  // SAVE EVERYTHING
   // =========================
 
-  const saveAll = () => {
+  const saveAll = async () => {
+    if (!user) {
+      setError("You must be logged in.");
+      return;
+    }
 
     setMessage("");
-
     setError("");
+    setLoading(true);
 
+    try {
+      // =========================
+      // VALIDATE PROFILE
+      // =========================
 
-    // Validate profile
-
-    if (
-      !profile.name.trim()
-    ) {
-
-      setError(
-        "Please enter your name."
-      );
-
-      return;
-
-    }
-
-
-    if (
-      !profile.email.trim()
-    ) {
-
-      setError(
-        "Please enter your email."
-      );
-
-      return;
-
-    }
-
-
-    // =========================
-    // PASSWORD VALIDATION
-    // =========================
-
-    if (
-      password.current ||
-      password.newPassword ||
-      password.confirm
-    ) {
-
-
-      if (
-        !password.current
-      ) {
-
-        setError(
-          "Please enter your current password."
-        );
-
+      if (!profile.name.trim()) {
+        setError("Please enter your name.");
+        setLoading(false);
         return;
-
       }
 
-
-      if (
-        !password.newPassword
-      ) {
-
-        setError(
-          "Please enter a new password."
-        );
-
+      if (!profile.email.trim()) {
+        setError("Please enter your email.");
+        setLoading(false);
         return;
-
       }
 
+      // =========================
+      // SAVE SHOP SETTINGS
+      // =========================
 
-      if (
-        password.newPassword.length < 6
-      ) {
+      const settingsData = {
+        user_id: user.id,
 
-        setError(
-          "New password must be at least 6 characters."
-        );
+        shop_name:
+          settings.shopName.trim(),
 
-        return;
+        phone:
+          settings.phone.trim() || null,
 
-      }
+        location:
+          settings.location.trim() || null,
 
+        currency:
+          settings.currency,
 
-      if (
-        password.newPassword !==
-        password.confirm
-      ) {
+        low_stock_limit:
+          Number(settings.lowStockLimit) || 10,
 
-        setError(
-          "New passwords do not match."
-        );
+        dark_mode:
+          Boolean(settings.darkMode)
+      };
 
-        return;
-
-      }
-
-
-      const users =
-        JSON.parse(
-          localStorage.getItem(
-            "users"
-          )
-        ) || [];
-
-
-      const currentUser =
-        users.find(
-          (u) =>
-            u.email ===
-            user.email
-        );
-
-
-      if (
-        !currentUser
-      ) {
-
-        setError(
-          "Account could not be found."
-        );
-
-        return;
-
-      }
-
-
-      if (
-        currentUser.password !==
-        password.current
-      ) {
-
-        setError(
-          "Current password is incorrect."
-        );
-
-        return;
-
-      }
-
-
-      const updatedUsers =
-        users.map((u) => {
-
-          if (
-            u.email ===
-            user.email
-          ) {
-
-            return {
-
-              ...u,
-
-              password:
-                password.newPassword
-
-            };
-
+      const {
+        error: settingsError
+      } = await supabase
+        .from("settings")
+        .upsert(
+          settingsData,
+          {
+            onConflict: "user_id"
           }
+        );
 
+      if (settingsError) {
+        console.error(
+          "Settings save error:",
+          settingsError
+        );
 
-          return u;
+        setError(
+          "Could not save shop settings."
+        );
 
+        setLoading(false);
+        return;
+      }
+
+      // =========================
+      // UPDATE PROFILE
+      // =========================
+
+      const profileResult =
+        await updateProfile({
+          ...user,
+          name: profile.name.trim(),
+          email: profile.email.trim()
         });
 
+      if (
+        profileResult &&
+        !profileResult.success
+      ) {
+        setError(
+          profileResult.message ||
+            "Could not update profile."
+        );
 
-      localStorage.setItem(
-        "users",
-        JSON.stringify(
-          updatedUsers
-        )
-      );
+        setLoading(false);
+        return;
+      }
 
-    }
+      // =========================
+      // PASSWORD
+      // =========================
 
+      if (
+        password.current ||
+        password.newPassword ||
+        password.confirm
+      ) {
+        if (!password.current) {
+          setError(
+            "Please enter your current password."
+          );
 
-    // =========================
-    // SAVE SHOP SETTINGS
-    // =========================
+          setLoading(false);
+          return;
+        }
 
-    localStorage.setItem(
-      "settings",
-      JSON.stringify(
-        settings
-      )
-    );
+        if (!password.newPassword) {
+          setError(
+            "Please enter a new password."
+          );
 
+          setLoading(false);
+          return;
+        }
 
-    // =========================
-    // UPDATE PROFILE
-    // =========================
+        if (
+          password.newPassword.length < 6
+        ) {
+          setError(
+            "New password must be at least 6 characters."
+          );
 
-    if (user) {
+          setLoading(false);
+          return;
+        }
 
-      updateProfile({
+        if (
+          password.newPassword !==
+          password.confirm
+        ) {
+          setError(
+            "New passwords do not match."
+          );
 
-        ...user,
+          setLoading(false);
+          return;
+        }
 
-        name:
-          profile.name,
+        // Supabase does not require
+        // the current password here.
+        // The current password field
+        // is kept as a confirmation field
+        // for the UI.
 
-        email:
-          profile.email
+        const {
+          error: passwordError
+        } = await supabase.auth.updateUser({
+          password:
+            password.newPassword
+        });
 
+        if (passwordError) {
+          console.error(
+            "Password update error:",
+            passwordError
+          );
+
+          setError(
+            passwordError.message ||
+              "Could not update password."
+          );
+
+          setLoading(false);
+          return;
+        }
+      }
+
+      // =========================
+      // CLEAR PASSWORD FIELDS
+      // =========================
+
+      setPassword({
+        current: "",
+        newPassword: "",
+        confirm: ""
       });
 
+      // =========================
+      // SUCCESS
+      // =========================
+
+      setMessage(
+        "✓ Settings updated successfully."
+      );
+
+    } catch (err) {
+      console.error(
+        "Save settings failed:",
+        err
+      );
+
+      setError(
+        "Something went wrong while saving."
+      );
     }
 
-
-    // Clear password fields
-
-    setPassword({
-
-      current: "",
-
-      newPassword: "",
-
-      confirm: ""
-
-    });
-
-
-    setMessage(
-      "✓ Settings updated successfully."
-    );
-
+    setLoading(false);
   };
-
 
   // =========================
   // BACKUP DATA
   // =========================
 
-  const backupData = () => {
+  const backupData = async () => {
+    if (!user) return;
 
-    const backup = {
+    try {
+      const [
+        productsResult,
+        salesResult,
+        historyResult,
+        settingsResult
+      ] = await Promise.all([
+        supabase
+          .from("products")
+          .select("*")
+          .eq("user_id", user.id),
 
-      products:
-        JSON.parse(
-          localStorage.getItem(
-            "products"
-          )
-        ) || [],
+        supabase
+          .from("sales")
+          .select("*")
+          .eq("user_id", user.id),
 
-      sales:
-        JSON.parse(
-          localStorage.getItem(
-            "sales"
-          )
-        ) || [],
+        supabase
+          .from("stock_history")
+          .select("*")
+          .eq("user_id", user.id),
 
-      settings:
-        JSON.parse(
-          localStorage.getItem(
-            "settings"
-          )
-        ) || {},
+        supabase
+          .from("settings")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle()
+      ]);
 
-      users:
-        JSON.parse(
-          localStorage.getItem(
-            "users"
-          )
-        ) || []
+      if (productsResult.error) {
+        throw productsResult.error;
+      }
 
-    };
+      if (salesResult.error) {
+        throw salesResult.error;
+      }
 
+      if (historyResult.error) {
+        throw historyResult.error;
+      }
 
-    const data =
-      JSON.stringify(
-        backup,
-        null,
-        2
+      if (settingsResult.error) {
+        throw settingsResult.error;
+      }
+
+      const backup = {
+        products:
+          productsResult.data || [],
+
+        sales:
+          salesResult.data || [],
+
+        stockHistory:
+          historyResult.data || [],
+
+        settings:
+          settingsResult.data || null
+      };
+
+      const data =
+        JSON.stringify(
+          backup,
+          null,
+          2
+        );
+
+      const blob =
+        new Blob(
+          [data],
+          {
+            type:
+              "application/json"
+          }
+        );
+
+      const url =
+        URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "stock-count-backup.json";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+
+      setMessage(
+        "✓ Backup downloaded successfully."
       );
 
+      setError("");
 
-    const blob =
-      new Blob(
-        [data],
-        {
-          type:
-            "application/json"
-        }
+    } catch (err) {
+      console.error(
+        "Backup error:",
+        err
       );
 
-
-    const url =
-      URL.createObjectURL(
-        blob
+      setError(
+        "Could not create backup."
       );
-
-
-    const link =
-      document.createElement(
-        "a"
-      );
-
-
-    link.href = url;
-
-
-    link.download =
-      "stock-count-backup.json";
-
-
-    document.body.appendChild(
-      link
-    );
-
-
-    link.click();
-
-
-    document.body.removeChild(
-      link
-    );
-
-
-    URL.revokeObjectURL(
-      url
-    );
-
-
-    setMessage(
-      "✓ Backup downloaded successfully."
-    );
-
-    setError("");
-
+    }
   };
-
 
   // =========================
   // RESTORE DATA
   // =========================
 
   const restoreData = (e) => {
-
     const file =
       e.target.files[0];
 
-
-    if (!file) {
+    if (!file || !user) {
       return;
     }
-
 
     const reader =
       new FileReader();
 
-
-    reader.onload = (event) => {
-
+    reader.onload = async (event) => {
       try {
-
         const backup =
           JSON.parse(
             event.target.result
           );
 
-
-        // Validate backup
-
         if (
           !backup ||
-          typeof backup !==
-            "object"
+          typeof backup !== "object"
         ) {
-
           throw new Error(
-            "Invalid backup file."
+            "Invalid backup."
           );
-
         }
 
-
-        // Restore products
+        // =========================
+        // RESTORE PRODUCTS
+        // =========================
 
         if (
           Array.isArray(
             backup.products
           )
         ) {
+          const products =
+            backup.products.map(
+              (product) => ({
+                ...product,
+                user_id: user.id
+              })
+            );
 
-          localStorage.setItem(
-            "products",
-            JSON.stringify(
-              backup.products
-            )
-          );
+          const {
+            error
+          } = await supabase
+            .from("products")
+            .upsert(products);
 
+          if (error) {
+            throw error;
+          }
         }
 
-
-        // Restore sales
+        // =========================
+        // RESTORE SALES
+        // =========================
 
         if (
           Array.isArray(
             backup.sales
           )
         ) {
+          const sales =
+            backup.sales.map(
+              (sale) => ({
+                ...sale,
+                user_id: user.id
+              })
+            );
 
-          localStorage.setItem(
-            "sales",
-            JSON.stringify(
-              backup.sales
-            )
-          );
+          const {
+            error
+          } = await supabase
+            .from("sales")
+            .upsert(sales);
 
+          if (error) {
+            throw error;
+          }
         }
 
+        // =========================
+        // RESTORE STOCK HISTORY
+        // =========================
 
-        // Restore settings
+        if (
+          Array.isArray(
+            backup.stockHistory
+          )
+        ) {
+          const history =
+            backup.stockHistory.map(
+              (record) => ({
+                ...record,
+                user_id: user.id
+              })
+            );
+
+          const {
+            error
+          } = await supabase
+            .from("stock_history")
+            .upsert(history);
+
+          if (error) {
+            throw error;
+          }
+        }
+
+        // =========================
+        // RESTORE SETTINGS
+        // =========================
 
         if (
           backup.settings &&
           typeof backup.settings ===
             "object"
         ) {
+          const restoredSettings = {
+            ...backup.settings,
+            user_id: user.id
+          };
 
-          localStorage.setItem(
-            "settings",
-            JSON.stringify(
-              backup.settings
-            )
-          );
+          const {
+            error
+          } = await supabase
+            .from("settings")
+            .upsert(
+              restoredSettings,
+              {
+                onConflict:
+                  "user_id"
+              }
+            );
 
+          if (error) {
+            throw error;
+          }
         }
 
-
-        // Restore users
-
-        if (
-          Array.isArray(
-            backup.users
-          )
-        ) {
-
-          localStorage.setItem(
-            "users",
-            JSON.stringify(
-              backup.users
-            )
-          );
-
-        }
-
-
-        // Tell the application
-        // that the data changed
-
-        window.dispatchEvent(
-          new Event(
-            "productsUpdated"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "salesUpdated"
-          )
-        );
-
+        await loadSettings();
 
         setMessage(
-          "✓ Data restored successfully. Refresh the page to see everything."
+          "✓ Data restored successfully."
         );
 
         setError("");
 
-
-      } catch (error) {
-
-        console.log(error);
+      } catch (err) {
+        console.error(
+          "Restore error:",
+          err
+        );
 
         setError(
-          "Invalid backup file. Please select a valid Stock Count backup."
+          "Invalid backup file or restore failed."
         );
 
         setMessage("");
-
       }
-
     };
 
-
-    reader.readAsText(
-      file
-    );
-
-
-    // Allow selecting
-    // the same file again
+    reader.readAsText(file);
 
     e.target.value = "";
-
   };
-
 
   // =========================
   // CLEAR ALL DATA
   // =========================
 
-  const clearAllData = () => {
+  const clearAllData = async () => {
+    if (!user) return;
 
     const confirmed =
       window.confirm(
         "Are you sure you want to delete ALL products, sales and shop data? This cannot be undone."
       );
 
+    if (!confirmed) return;
 
-    if (!confirmed) {
-      return;
-    }
-
-
-    localStorage.removeItem(
-      "products"
-    );
-
-    localStorage.removeItem(
-      "sales"
-    );
-
-    localStorage.removeItem(
-      "settings"
-    );
-
-
-    window.dispatchEvent(
-      new Event(
-        "productsUpdated"
-      )
-    );
-
-
-    window.dispatchEvent(
-      new Event(
-        "salesUpdated"
-      )
-    );
-
-
-    setMessage(
-      "✓ Shop data cleared successfully."
-    );
-
+    setLoading(true);
+    setMessage("");
     setError("");
 
+    try {
+      // Delete sales
+
+      const {
+        error: salesError
+      } = await supabase
+        .from("sales")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (salesError) {
+        throw salesError;
+      }
+
+      // Delete stock history
+
+      const {
+        error: historyError
+      } = await supabase
+        .from("stock_history")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (historyError) {
+        throw historyError;
+      }
+
+      // Delete products
+
+      const {
+        error: productsError
+      } = await supabase
+        .from("products")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (productsError) {
+        throw productsError;
+      }
+
+      // Delete settings
+
+      const {
+        error: settingsError
+      } = await supabase
+        .from("settings")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (settingsError) {
+        throw settingsError;
+      }
+
+      setSettings({
+        shopName: "Stock Count",
+        phone: "",
+        location: "",
+        currency: "KSh",
+        lowStockLimit: 10,
+        darkMode: false
+      });
+
+      setMessage(
+        "✓ Shop data cleared successfully."
+      );
+
+      setError("");
+
+    } catch (err) {
+      console.error(
+        "Clear data error:",
+        err
+      );
+
+      setError(
+        "Could not clear shop data."
+      );
+
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // =========================
+  // PAGE
+  // =========================
 
   return (
-
     <div className="settings-page">
-
 
       <div className="settings-header">
 
@@ -751,35 +764,23 @@ function Settings() {
 
       </div>
 
-
-      {/* SUCCESS MESSAGE */}
+      {/* SUCCESS */}
 
       {message && (
-
         <div className="settings-success">
-
           {message}
-
         </div>
-
       )}
 
-
-      {/* ERROR MESSAGE */}
+      {/* ERROR */}
 
       {error && (
-
         <div className="settings-error">
-
           ⚠️ {error}
-
         </div>
-
       )}
 
-
       <div className="settings-card">
-
 
         {/* =========================
             PROFILE
@@ -791,44 +792,30 @@ function Settings() {
             👤 Profile
           </h2>
 
-
           <label>
             Name
           </label>
 
-
           <input
             name="name"
-            value={
-              profile.name
-            }
-            onChange={
-              handleProfile
-            }
+            value={profile.name}
+            onChange={handleProfile}
           />
-
 
           <label>
             Email
           </label>
 
-
           <input
             type="email"
             name="email"
-            value={
-              profile.email
-            }
-            onChange={
-              handleProfile
-            }
+            value={profile.email}
+            onChange={handleProfile}
           />
 
         </section>
 
-
         <hr />
-
 
         {/* =========================
             SHOP
@@ -840,109 +827,77 @@ function Settings() {
             🏪 Shop
           </h2>
 
-
           <label>
             Shop Name
           </label>
 
-
           <input
             name="shopName"
-            value={
-              settings.shopName
-            }
-            onChange={
-              handleSettings
-            }
+            value={settings.shopName}
+            onChange={handleSettings}
           />
-
 
           <label>
             Phone
           </label>
 
-
           <input
             name="phone"
-            value={
-              settings.phone
-            }
-            onChange={
-              handleSettings
-            }
+            value={settings.phone}
+            onChange={handleSettings}
             placeholder="07xxxxxxxx"
           />
-
 
           <label>
             Location
           </label>
 
-
           <input
             name="location"
-            value={
-              settings.location
-            }
-            onChange={
-              handleSettings
-            }
+            value={settings.location}
+            onChange={handleSettings}
             placeholder="Shop location"
           />
-
 
           <label>
             Currency
           </label>
 
-
           <select
             name="currency"
-            value={
-              settings.currency
-            }
-            onChange={
-              handleSettings
-            }
+            value={settings.currency}
+            onChange={handleSettings}
           >
 
-            <option>
+            <option value="KSh">
               KSh
             </option>
 
-            <option>
+            <option value="USD">
               USD
             </option>
 
-            <option>
+            <option value="EUR">
               EUR
             </option>
 
           </select>
 
-
           <label>
             Low Stock Alert
           </label>
-
 
           <input
             type="number"
             name="lowStockLimit"
             min="1"
-            value={
-              settings.lowStockLimit
-            }
-            onChange={
-              handleSettings
-            }
+            value={settings.lowStockLimit}
+            onChange={handleSettings}
           />
 
         </section>
 
-
         <hr />
-
 
         {/* =========================
             APPEARANCE
@@ -954,18 +909,13 @@ function Settings() {
             🌙 Appearance
           </h2>
 
-
           <label className="switch">
 
             <input
               type="checkbox"
               name="darkMode"
-              checked={
-                settings.darkMode
-              }
-              onChange={
-                handleSettings
-              }
+              checked={settings.darkMode}
+              onChange={handleSettings}
             />
 
             Enable Dark Mode
@@ -974,9 +924,7 @@ function Settings() {
 
         </section>
 
-
         <hr />
-
 
         {/* =========================
             PASSWORD
@@ -988,60 +936,45 @@ function Settings() {
             🔒 Change Password
           </h2>
 
-
           <input
             type="password"
             name="current"
             placeholder="Current Password"
-            value={
-              password.current
-            }
-            onChange={
-              handlePassword
-            }
+            value={password.current}
+            onChange={handlePassword}
           />
-
 
           <input
             type="password"
             name="newPassword"
             placeholder="New Password"
-            value={
-              password.newPassword
-            }
-            onChange={
-              handlePassword
-            }
+            value={password.newPassword}
+            onChange={handlePassword}
           />
-
 
           <input
             type="password"
             name="confirm"
             placeholder="Confirm New Password"
-            value={
-              password.confirm
-            }
-            onChange={
-              handlePassword
-            }
+            value={password.confirm}
+            onChange={handlePassword}
           />
 
         </section>
 
-
         <button
           className="save-settings-btn"
           onClick={saveAll}
+          disabled={loading}
         >
 
-          💾 Save Changes
+          {loading
+            ? "Saving..."
+            : "💾 Save Changes"}
 
         </button>
 
-
         <hr />
-
 
         {/* =========================
             BACKUP & RESTORE
@@ -1061,7 +994,6 @@ function Settings() {
 
           </p>
 
-
           <button
             className="backup-btn"
             onClick={backupData}
@@ -1071,30 +1003,23 @@ function Settings() {
 
           </button>
 
-
-          <label
-            className="restore-btn"
-          >
+          <label className="restore-btn">
 
             📂 Restore Backup
 
             <input
               type="file"
               accept=".json,application/json"
-              onChange={
-                restoreData
-              }
+              onChange={restoreData}
               hidden
             />
 
           </label>
 
-
           <button
             className="clear-data-btn"
-            onClick={
-              clearAllData
-            }
+            onClick={clearAllData}
+            disabled={loading}
           >
 
             🗑️ Clear Shop Data
@@ -1103,15 +1028,11 @@ function Settings() {
 
         </section>
 
-
       </div>
 
-
     </div>
-
   );
-
 }
 
-
 export default Settings;
+

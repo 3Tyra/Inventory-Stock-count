@@ -1,16 +1,18 @@
 import { useState } from "react";
 import "./SalesHistory.css";
 
-
 function SalesHistory({
   sales,
   onDeleteSale
 }) {
 
-
   const [saleToDelete, setSaleToDelete] =
     useState(null);
 
+
+  // =========================
+  // CONFIRM DELETE
+  // =========================
 
   const confirmDelete = () => {
 
@@ -34,6 +36,10 @@ function SalesHistory({
     <div className="sales-history">
 
 
+      {/* =========================
+          HEADER
+      ========================= */}
+
       <div className="sales-history-header">
 
         <div>
@@ -50,6 +56,10 @@ function SalesHistory({
 
       </div>
 
+
+      {/* =========================
+          EMPTY STATE
+      ========================= */}
 
       {sales.length === 0 ? (
 
@@ -84,58 +94,93 @@ function SalesHistory({
               >
 
 
+                {/* =========================
+                    SALE INFO
+                ========================= */}
+
                 <div className="sale-info">
 
                   <h3>
-                    {sale.productName}
+                    {sale.product_name}
                   </h3>
 
                   <p>
+
                     Quantity sold:{" "}
+
                     <strong>
                       {sale.quantity}
                     </strong>
+
                   </p>
 
                   <p>
+
                     Date:{" "}
+
                     {sale.date}
+
                   </p>
 
                 </div>
 
+
+                {/* =========================
+                    SALE MONEY
+                ========================= */}
 
                 <div className="sale-money">
 
                   <p>
+
                     Revenue:{" "}
+
                     <strong>
+
                       KSh{" "}
+
                       {Number(
-                        sale.revenue
+                        sale.revenue || 0
                       ).toLocaleString()}
+
                     </strong>
+
                   </p>
 
+
                   <p>
+
                     Profit:{" "}
+
                     <strong>
+
                       KSh{" "}
+
                       {Number(
-                        sale.profit
+                        sale.profit || 0
                       ).toLocaleString()}
+
                     </strong>
+
                   </p>
 
                 </div>
 
 
+                {/* =========================
+                    DELETE BUTTON
+                ========================= */}
+
                 <button
+
                   className="delete-sale-btn"
+
                   onClick={() =>
                     setSaleToDelete(sale)
                   }
+
                   title="Delete sale"
+
                 >
 
                   🗑️
@@ -152,7 +197,9 @@ function SalesHistory({
       )}
 
 
-      {/* DELETE SALE MODAL */}
+      {/* =========================
+          DELETE SALE MODAL
+      ========================= */}
 
       {saleToDelete && (
 
@@ -163,7 +210,9 @@ function SalesHistory({
 
 
             <div className="sale-delete-icon">
+
               ⚠️
+
             </div>
 
 
@@ -178,8 +227,11 @@ function SalesHistory({
               delete the sale for{" "}
 
               <strong>
-                "{saleToDelete.productName}"
+
+                "{saleToDelete.product_name}"
+
               </strong>
+
               ?
 
             </p>
@@ -196,11 +248,16 @@ function SalesHistory({
             <div className="sale-delete-buttons">
 
 
+              {/* CANCEL */}
+
               <button
+
                 className="cancel-sale-delete"
+
                 onClick={() =>
                   setSaleToDelete(null)
                 }
+
               >
 
                 Cancel
@@ -208,9 +265,14 @@ function SalesHistory({
               </button>
 
 
+              {/* CONFIRM */}
+
               <button
+
                 className="confirm-sale-delete"
+
                 onClick={confirmDelete}
+
               >
 
                 🗑️ Delete Sale
@@ -234,7 +296,6 @@ function SalesHistory({
   );
 
 }
-
 
 export default SalesHistory;
 

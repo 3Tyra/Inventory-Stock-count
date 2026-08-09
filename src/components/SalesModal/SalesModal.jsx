@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./SalesModal.css";
 
-
 function SalesModal({
   product,
   isOpen,
@@ -9,29 +8,20 @@ function SalesModal({
   onSell
 }) {
 
+  const [quantity, setQuantity] = useState("");
+  const [error, setError] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const [quantity, setQuantity] =
-    useState("");
+  // =========================
+  // RESET MODAL
+  // =========================
 
-
-  const [error, setError] =
-    useState("");
-
-
-  const [showConfirmation, setShowConfirmation] =
-    useState(false);
-
-
-  // Reset everything whenever
-  // the modal opens
   useEffect(() => {
 
     if (isOpen) {
 
       setQuantity("");
-
       setError("");
-
       setShowConfirmation(false);
 
     }
@@ -39,33 +29,42 @@ function SalesModal({
   }, [isOpen, product]);
 
 
+  // =========================
+  // HIDE MODAL
+  // =========================
+
   if (!isOpen || !product) {
     return null;
   }
 
 
+  // =========================
+  // VALUES
+  // =========================
+
   const soldQuantity =
     Number(quantity) || 0;
-
 
   const sellingPrice =
     Number(product.sellingPrice) || 0;
 
-
   const buyingPrice =
     Number(product.buyingPrice) || 0;
 
+  const availableStock =
+    Number(product.quantity) || 0;
 
   const revenue =
     sellingPrice * soldQuantity;
-
 
   const profit =
     (sellingPrice - buyingPrice) *
     soldQuantity;
 
 
-  // STEP 1: Validate quantity
+  // =========================
+  // VALIDATE SALE
+  // =========================
 
   const handleSubmit = (e) => {
 
@@ -96,13 +95,10 @@ function SalesModal({
     }
 
 
-    if (
-      soldQuantity >
-      Number(product.quantity)
-    ) {
+    if (soldQuantity > availableStock) {
 
       setError(
-        `Only ${product.quantity} units are available.`
+        `Only ${availableStock} units are available.`
       );
 
       return;
@@ -110,15 +106,16 @@ function SalesModal({
     }
 
 
-    // Show our own confirmation
-    // instead of window.confirm()
+    // Show confirmation screen
 
     setShowConfirmation(true);
 
   };
 
 
-  // STEP 2: Complete the sale
+  // =========================
+  // COMPLETE SALE
+  // =========================
 
   const confirmSale = () => {
 
@@ -126,7 +123,6 @@ function SalesModal({
       product,
       soldQuantity
     );
-
 
     setQuantity("");
 
@@ -137,7 +133,9 @@ function SalesModal({
   };
 
 
-  // Cancel confirmation
+  // =========================
+  // CANCEL CONFIRMATION
+  // =========================
 
   const cancelConfirmation = () => {
 
@@ -146,10 +144,13 @@ function SalesModal({
   };
 
 
+  // =========================
+  // PAGE
+  // =========================
+
   return (
 
     <div className="sales-overlay">
-
 
       <div className="sales-modal">
 
@@ -157,7 +158,9 @@ function SalesModal({
         {!showConfirmation ? (
 
           <>
-
+            {/* =========================
+                SELL FORM
+            ========================= */}
 
             <h2>
               🛒 Sell Product
@@ -172,7 +175,7 @@ function SalesModal({
             <p>
               Available Stock:{" "}
               <strong>
-                {product.quantity}
+                {availableStock}
               </strong>
             </p>
 
@@ -190,7 +193,6 @@ function SalesModal({
               onSubmit={handleSubmit}
             >
 
-
               <label>
                 Quantity Sold
               </label>
@@ -199,7 +201,7 @@ function SalesModal({
               <input
                 type="number"
                 min="1"
-                max={product.quantity}
+                max={availableStock}
                 placeholder="Enter quantity"
                 value={quantity}
                 onChange={(e) => {
@@ -214,7 +216,9 @@ function SalesModal({
               />
 
 
-              {/* ERROR */}
+              {/* =========================
+                  ERROR
+              ========================= */}
 
               {error && (
 
@@ -225,14 +229,14 @@ function SalesModal({
               )}
 
 
-              {/* SALE PREVIEW */}
+              {/* =========================
+                  SALE PREVIEW
+              ========================= */}
 
               {soldQuantity > 0 &&
-                soldQuantity <=
-                  product.quantity && (
+                soldQuantity <= availableStock && (
 
                   <div className="sale-preview">
-
 
                     <div>
 
@@ -274,14 +278,16 @@ function SalesModal({
 
                     </div>
 
-
                   </div>
 
                 )}
 
 
-              <div className="sales-buttons">
+              {/* =========================
+                  BUTTONS
+              ========================= */}
 
+              <div className="sales-buttons">
 
                 <button
                   type="button"
@@ -297,21 +303,19 @@ function SalesModal({
                   Continue
                 </button>
 
-
               </div>
 
-
             </form>
-
 
           </>
 
         ) : (
 
-          /* CONFIRMATION SCREEN */
+          /* =========================
+             CONFIRMATION SCREEN
+          ========================= */
 
           <div className="sale-confirmation">
-
 
             <div className="confirmation-icon">
               🛒
@@ -339,8 +343,11 @@ function SalesModal({
             </p>
 
 
-            <div className="confirmation-summary">
+            {/* =========================
+                SUMMARY
+            ========================= */}
 
+            <div className="confirmation-summary">
 
               <div>
 
@@ -382,9 +389,12 @@ function SalesModal({
 
               </div>
 
-
             </div>
 
+
+            {/* =========================
+                WARNING
+            ========================= */}
 
             <p className="confirmation-warning">
 
@@ -394,8 +404,11 @@ function SalesModal({
             </p>
 
 
-            <div className="sales-buttons">
+            {/* =========================
+                CONFIRM BUTTONS
+            ========================= */}
 
+            <div className="sales-buttons">
 
               <button
                 type="button"
@@ -415,9 +428,7 @@ function SalesModal({
                 ✓ Complete Sale
               </button>
 
-
             </div>
-
 
           </div>
 
@@ -431,6 +442,4 @@ function SalesModal({
 
 }
 
-
 export default SalesModal;
-
