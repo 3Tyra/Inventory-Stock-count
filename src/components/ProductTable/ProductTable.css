@@ -1,390 +1,533 @@
+/* =========================================================
+   PRODUCT TABLE
+   ========================================================= */
+
+.product-table-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 0;
+}
+
 .product-table {
   width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, .05);
+  min-width: 1250px;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  table-layout: auto;
+}
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.product-table thead {
+  background: linear-gradient(
+    135deg,
+    #8b0000 0%,
+    #cc0033 50%,
+    #8b0000 100%
+  );
 }
 
 .product-table th {
-  background: #4f46e5;
-  color: white;
-  padding: 16px;
+  padding: 16px 14px;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 3px solid #ff6b8a;
 }
 
-.product-table td {
-  padding: 16px;
-  border-bottom: 1px solid #eee;
+/* Rounded header corners */
+
+.product-table th:first-child {
+  border-radius: 14px 0 0 14px;
+  padding-left: 20px;
+}
+
+.product-table th:last-child {
+  border-radius: 0 14px 14px 0;
+  padding-right: 20px;
   text-align: center;
 }
 
-.status {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 30px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
+/* =========================================================
+   COLUMN SIZING
+   ========================================================= */
+
+.product-table th:nth-child(1),
+.product-table td:nth-child(1) {
+  width: 75px;
 }
 
-.in-stock {
-  background: #16a34a;
+.product-table th:nth-child(2),
+.product-table td:nth-child(2) {
+  min-width: 150px;
 }
 
-.edit-btn,
-.delete-btn {
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: white;
+.product-table th:nth-child(3),
+.product-table td:nth-child(3) {
+  min-width: 110px;
 }
 
-.edit-btn {
-  background: #2563eb;
-  margin-right: 8px;
+.product-table th:nth-child(4),
+.product-table td:nth-child(4) {
+  min-width: 130px;
 }
 
-.delete-btn {
-  background: #dc2626;
-}
-
-.edit-btn:hover {
-  background: #1d4ed8;
-}
-
-.delete-btn:hover {
-  background: #b91c1c;
-}
-
-.empty-table {
+.product-table th:nth-child(5),
+.product-table td:nth-child(5) {
+  width: 80px;
   text-align: center;
-  padding: 40px;
-  color: #6b7280;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+.product-table th:nth-child(6),
+.product-table td:nth-child(6) {
+  min-width: 120px;
+  text-align: center;
 }
 
-.low-stock {
-  background: #f59e0b;
+.product-table th:nth-child(7),
+.product-table td:nth-child(7) {
+  width: 80px;
+  text-align: center;
 }
 
-.out-stock {
-  background: #dc2626;
-}
-
-.stock-in-btn,
-.stock-out-btn {
-
-border:none;
-
-width:32px;
-
-height:32px;
-
-border-radius:8px;
-
-cursor:pointer;
-
-color:white;
-
-font-size:18px;
-
-}
-
-
-
-.stock-in-btn {
-
-background:#16a34a;
-
-}
-
-
-
-.stock-out-btn {
-
-background:#f59e0b;
-
-}
-
-
-
-.stock-in-btn:hover {
-
-background:#15803d;
-
-}
-
-
-
-.stock-out-btn:hover {
-
-background:#d97706;
-
-}
-
-.sell-btn {
-
-  border:none;
-
-  width:38px;
-
-  height:38px;
-
-  border-radius:10px;
-
-  background:#2563eb;
-
-  color:white;
-
-  cursor:pointer;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  transition:0.2s;
-
-}
-
-
-
-.sell-btn:hover {
-
-  background:#1d4ed8;
-
-  transform:translateY(-2px);
-
-}
-
-.product-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-
-.product-image-placeholder {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  border-radius: 8px;
-  font-size: 22px;
-}
-
-.product-name-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.product-table-image {
-  width: 45px;
-  height: 45px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.product-image-placeholder {
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f1f1;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.product-table th,
-.product-table td {
+.product-table th:nth-child(8),
+.product-table td:nth-child(8),
+.product-table th:nth-child(9),
+.product-table td:nth-child(9) {
+  min-width: 110px;
   white-space: nowrap;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.product-table th:nth-child(10),
+.product-table td:nth-child(10) {
+  min-width: 120px;
+  text-align: center;
 }
 
-.actions button {
-  width: 32px;
-  height: 32px;
+.product-table th:nth-child(11),
+.product-table td:nth-child(11) {
+  min-width: 220px;
+  text-align: center;
+}
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
+.product-table tbody tr {
+  background: rgba(255, 255, 255, 0.95);
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(139, 0, 0, 0.06);
+}
+
+.product-table tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(139, 0, 0, 0.14);
+}
+
+/* =========================================================
+   TABLE CELLS
+   ========================================================= */
+
+.product-table td {
+  padding: 14px;
+  color: #2d1b1b;
+  font-size: 0.9rem;
+  font-weight: 500;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(204, 0, 51, 0.07);
+  white-space: nowrap;
+}
+
+.product-table td:first-child {
+  border-radius: 12px 0 0 12px;
+  padding-left: 20px;
+}
+
+.product-table td:last-child {
+  border-radius: 0 12px 12px 0;
+  padding-right: 20px;
+}
+
+/* =========================================================
+   PRODUCT IMAGE
+   ========================================================= */
+
+.product-image {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+}
+
+.product-image:hover {
+  transform: scale(1.5);
+  border-color: #cc0033;
+  box-shadow: 0 8px 25px rgba(204, 0, 51, 0.3);
+  position: relative;
+  z-index: 10;
+}
+
+.no-product-image {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  margin: 0 auto;
+  font-size: 38px;
 }
+
+/* =========================================================
+   STOCK NUMBERS
+   ========================================================= */
+
+.stock-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+/* Shelf */
+
+.shelf-stock {
+  background: #ffe8e8;
+  color: #8b0000;
+  border: 1px solid #ffb6c1;
+}
+
+/* Store / Box */
+
+.store-stock {
+  background: #f8d7e0;
+  color: #6b0000;
+  border: 1px solid #e89aaa;
+}
+
+/* Total */
+
+.total-stock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    #cc0033,
+    #8b0000
+  );
+  color: white;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.2);
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 13px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* In stock */
+
+.status.in-stock {
+  background: #ffd1dc;
+  color: #72001d;
+  border: 1px solid #cc0033;
+}
+
+/* Low stock */
+
+.status.low-stock {
+  background: #cc0033;
+  color: white;
+  border: 1px solid #8b0000;
+}
+
+/* Out of stock */
+
+.status.out-stock {
+  background: #8b0000;
+  color: #ffb6c1;
+  border: 1px solid #ffb6c1;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 210px;
+}
+
+.actions button {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+/* =========================================================
+   STOCK IN
+   ========================================================= */
+
+.stock-in-btn {
+  background: #ffb6c1;
+  color: #6b0000;
+  border: 1px solid #cc0033 !important;
+  font-size: 1.4rem !important;
+  font-weight: 900;
+}
+
+.stock-in-btn:hover {
+  background: #ff8fa3;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 15px rgba(204, 0, 51, 0.25);
+}
+
+/* =========================================================
+   STOCK OUT
+   ========================================================= */
+
+.stock-out-btn {
+  background: #cc0033;
+  color: white;
+  border: 1px solid #8b0000 !important;
+  font-size: 1.4rem !important;
+  font-weight: 900;
+}
+
+.stock-out-btn:hover {
+  background: #8b0000;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 15px rgba(139, 0, 0, 0.3);
+}
+
+/* =========================================================
+   SELL
+   ========================================================= */
+
+.sell-btn {
+  background: #ff69b4;
+  color: #6b0000;
+  border: 1px solid #ff1493 !important;
+}
+
+.sell-btn:hover {
+  background: #ff1493;
+  color: white;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 15px rgba(255, 20, 147, 0.3);
+}
+
+/* =========================================================
+   EDIT
+   ========================================================= */
+
+.edit-btn {
+  background: #ffe8e8;
+  color: #8b0000;
+  border: 1px solid #cc0033 !important;
+}
+
+.edit-btn:hover {
+  background: #ffb6c1;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 15px rgba(204, 0, 51, 0.25);
+}
+
+.edit-btn svg,
+.delete-btn svg {
+  font-size: 1rem;
+}
+
+/* =========================================================
+   DELETE
+   ========================================================= */
+
+.delete-btn {
+  background: #8b0000;
+  color: #ffb6c1;
+  border: 1px solid #ffb6c1 !important;
+}
+
+.delete-btn:hover {
+  background: #cc0033;
+  color: white;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 15px rgba(139, 0, 0, 0.3);
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.product-table tbody tr:only-child td {
+  padding: 50px 20px;
+  text-align: center;
+  color: #8b0000;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* =========================================================
+   DELETE MODAL
+   ========================================================= */
 
 .delete-overlay {
   position: fixed;
   inset: 0;
-
-  background: rgba(0, 0, 0, 0.45);
-
+  background: rgba(74, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-
   z-index: 9999;
-
-  padding: 20px;
 }
-
 
 .delete-modal {
-  width: 100%;
-  max-width: 420px;
-
-  background: white;
-
-  border-radius: 18px;
-
-  padding: 30px;
-
+  background: linear-gradient(
+    135deg,
+    #fff5f5,
+    #ffe8e8
+  );
+  padding: 40px;
+  border-radius: 28px;
+  width: 90%;
+  max-width: 500px;
   text-align: center;
-
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.2);
-
-  animation: deleteModalIn 0.2s ease;
+  box-shadow: 0 30px 70px rgba(139, 0, 0, 0.4);
+  border: 2px solid #ffb6c1;
 }
-
-
-@keyframes deleteModalIn {
-
-  from {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-}
-
 
 .delete-icon {
-  width: 60px;
-  height: 60px;
-
-  margin: 0 auto 15px;
-
-  border-radius: 50%;
-
-  background: #fff3cd;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 28px;
+  font-size: 3.5rem;
+  margin-bottom: 12px;
 }
-
 
 .delete-modal h2 {
-  margin: 0 0 10px;
-
-  font-size: 22px;
+  color: #8b0000;
+  margin-bottom: 12px;
 }
-
 
 .delete-modal p {
-  color: #666;
-
-  line-height: 1.5;
-
-  margin: 8px 0;
+  color: #4a0000;
+  margin-bottom: 10px;
 }
-
 
 .delete-modal strong {
-  color: #222;
+  color: #cc0033;
 }
-
 
 .delete-warning {
-  font-size: 13px;
-
-  color: #dc2626 !important;
+  background: rgba(204, 0, 51, 0.08);
+  padding: 10px;
+  border-radius: 10px;
+  color: #8b0000 !important;
+  font-weight: 700;
 }
-
 
 .delete-modal-buttons {
   display: flex;
-
-  gap: 12px;
-
+  justify-content: center;
+  gap: 15px;
   margin-top: 25px;
 }
 
-
 .delete-modal-buttons button {
-  flex: 1;
-
-  padding: 12px 18px;
-
+  padding: 12px 25px;
+  border-radius: 12px;
   border: none;
-
-  border-radius: 9px;
-
-  font-size: 14px;
-
-  font-weight: 600;
-
   cursor: pointer;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
+  font-weight: 700;
 }
-
 
 .cancel-delete-btn {
-  background: #f1f1f1;
-
-  color: #333;
+  background: #ffe8e8;
+  color: #8b0000;
+  border: 1px solid #cc0033 !important;
 }
-
-
-.cancel-delete-btn:hover {
-  background: #e5e5e5;
-}
-
 
 .confirm-delete-btn {
-  background: #dc2626;
-
+  background: #8b0000;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-
 .confirm-delete-btn:hover {
-  background: #b91c1c;
+  background: #cc0033;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+  .product-table {
+    min-width: 1250px;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 12px 10px;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .product-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .product-table {
+    min-width: 1200px;
+  }
+
+  .product-table th {
+    font-size: 0.7rem;
+  }
+
+  .product-table td {
+    font-size: 0.82rem;
+  }
+
 }

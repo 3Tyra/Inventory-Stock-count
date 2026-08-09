@@ -6,10 +6,14 @@ import ProductTable from "../components/ProductTable/ProductTable";
 import ProductForm from "../components/ProductForm/ProductForm";
 import SalesModal from "../components/SalesModal/SalesModal";
 import SalesHistory from "../components/SalesHistory/SalesHistory";
+import StockHistory from "../components/StockHistory/StockHistory";
 
 
 function Products() {
 
+  // =========================
+  // PRODUCTS
+  // =========================
 
   const [products, setProducts] = useState(() => {
 
@@ -18,8 +22,63 @@ function Products() {
       const savedProducts =
         localStorage.getItem("products");
 
-      return savedProducts
+      const parsedProducts = savedProducts
         ? JSON.parse(savedProducts)
+        : [];
+
+
+      return parsedProducts.map((product) => {
+
+        const shelfQuantity =
+          Number(product.shelfQuantity) || 0;
+
+        const storeQuantity =
+          Number(product.storeQuantity) ||
+          (
+            Number(product.quantity) || 0
+          );
+
+
+        return {
+
+          ...product,
+
+          shelfQuantity,
+
+          storeQuantity,
+
+          quantity:
+            shelfQuantity +
+            storeQuantity
+
+        };
+
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      return [];
+
+    }
+
+  });
+
+
+  // =========================
+  // SALES
+  // =========================
+
+  const [sales, setSales] = useState(() => {
+
+    try {
+
+      const savedSales =
+        localStorage.getItem("sales");
+
+      return savedSales
+        ? JSON.parse(savedSales)
         : [];
 
     } catch (error) {
@@ -33,17 +92,38 @@ function Products() {
   });
 
 
-  const [sales, setSales] = useState(() => {
+  // =========================
+  // STOCK HISTORY
+  // =========================
 
-    const savedSales =
-      localStorage.getItem("sales");
+  const [stockHistory, setStockHistory] =
+    useState(() => {
 
-    return savedSales
-      ? JSON.parse(savedSales)
-      : [];
+      try {
 
-  });
+        const savedHistory =
+          localStorage.getItem(
+            "stockHistory"
+          );
 
+        return savedHistory
+          ? JSON.parse(savedHistory)
+          : [];
+
+      } catch (error) {
+
+        console.log(error);
+
+        return [];
+
+      }
+
+    });
+
+
+  // =========================
+  // MODALS
+  // =========================
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -53,20 +133,24 @@ function Products() {
     useState(null);
 
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
-
-
-  const [categoryFilter, setCategoryFilter] =
-    useState("All Categories");
-
-
   const [saleProduct, setSaleProduct] =
     useState(null);
 
 
   const [isSaleOpen, setIsSaleOpen] =
     useState(false);
+
+
+  // =========================
+  // SEARCH
+  // =========================
+
+  const [searchTerm, setSearchTerm] =
+    useState("");
+
+
+  const [categoryFilter, setCategoryFilter] =
+    useState("All Categories");
 
 
   // =========================
@@ -79,6 +163,7 @@ function Products() {
       "products",
       JSON.stringify(products)
     );
+
 
     window.dispatchEvent(
       new Event("productsUpdated")
@@ -98,6 +183,7 @@ function Products() {
       JSON.stringify(sales)
     );
 
+
     window.dispatchEvent(
       new Event("salesUpdated")
     );
@@ -106,30 +192,166 @@ function Products() {
 
 
   // =========================
+  // SAVE STOCK HISTORY
+  // =========================
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "stockHistory",
+      JSON.stringify(stockHistory)
+    );
+
+
+    window.dispatchEvent(
+      new Event("stockHistoryUpdated")
+    );
+
+  }, [stockHistory]);
+
+
+  // =========================
+  // ADD STOCK HISTORY RECORD
+  // =========================
+
+  const addStockHistory = ({
+    product,
+    action,
+    quantity,
+    location
+  }) => {
+
+    const historyRecord = {
+
+      id:
+        Date.now() + Math.random(),
+
+      productId:
+        product.id,
+
+      productName:
+        product.name,
+
+      action,
+
+      quantity,
+
+      location,
+
+      date:
+        new Date().toLocaleDateString(),
+
+      time:
+        new Date().toLocaleTimeString()
+
+    };
+
+
+    setStockHistory((prev) => {
+
+      return [
+        historyRecord,
+        ...prev
+      ];
+
+    });
+
+  };
+
+
+  // =========================
   // ADD PRODUCT
   // =========================
 
   const addProduct = (product) => {
 
+    const shelfQuantity =
+      Number(
+        product.shelfQuantity
+      ) || 0;
+
+
+    const storeQuantity =
+      Number(
+        product.storeQuantity
+      ) || 0;
+
+
+    const totalQuantity =
+      shelfQuantity +
+      storeQuantity;
+
+
+    const newProduct = {
+
+      ...product,
+
+      shelfQuantity,
+
+      storeQuantity,
+
+      quantity:
+        totalQuantity
+
+    };
+
+
     setProducts((prev) => {
 
-      const updatedProducts = [
+      return [
+
         ...prev,
-        product
+
+        newProduct
+
       ];
 
-      localStorage.setItem(
-        "products",
-        JSON.stringify(updatedProducts)
-      );
-
-      window.dispatchEvent(
-        new Event("productsUpdated")
-      );
-
-      return updatedProducts;
-
     });
+
+
+    // Record initial stock
+
+    if (shelfQuantity > 0) {
+
+      addStockHistory({
+
+        product:
+          newProduct,
+
+        action:
+          "Initial Stock",
+
+        quantity:
+          shelfQuantity,
+
+        location:
+          "Shelf"
+
+      });
+
+    }
+
+
+    if (storeQuantity > 0) {
+
+      addStockHistory({
+
+        product:
+          newProduct,
+
+        action:
+          "Initial Stock",
+
+        quantity:
+          storeQuantity,
+
+        location:
+          "Store / Box"
+
+      });
+
+    }
+
 
     setIsModalOpen(false);
 
@@ -140,31 +362,56 @@ function Products() {
   // UPDATE PRODUCT
   // =========================
 
-  const updateProduct = (updatedProduct) => {
+  const updateProduct = (
+    updatedProduct
+  ) => {
+
+    const shelfQuantity =
+      Number(
+        updatedProduct.shelfQuantity
+      ) || 0;
+
+
+    const storeQuantity =
+      Number(
+        updatedProduct.storeQuantity
+      ) || 0;
+
+
+    const totalQuantity =
+      shelfQuantity +
+      storeQuantity;
+
+
+    const updatedProductData = {
+
+      ...updatedProduct,
+
+      shelfQuantity,
+
+      storeQuantity,
+
+      quantity:
+        totalQuantity
+
+    };
+
 
     setProducts((prev) => {
 
-      const updatedProducts =
-        prev.map((product) =>
+      return prev.map((product) =>
 
-          product.id === updatedProduct.id
-            ? updatedProduct
-            : product
+        product.id ===
+        updatedProduct.id
 
-        );
+          ? updatedProductData
 
-      localStorage.setItem(
-        "products",
-        JSON.stringify(updatedProducts)
+          : product
+
       );
-
-      window.dispatchEvent(
-        new Event("productsUpdated")
-      );
-
-      return updatedProducts;
 
     });
+
 
     setEditingProduct(null);
 
@@ -181,22 +428,10 @@ function Products() {
 
     setProducts((prev) => {
 
-      const updatedProducts =
-        prev.filter(
-          (product) =>
-            product.id !== id
-        );
-
-      localStorage.setItem(
-        "products",
-        JSON.stringify(updatedProducts)
+      return prev.filter(
+        (product) =>
+          product.id !== id
       );
-
-      window.dispatchEvent(
-        new Event("productsUpdated")
-      );
-
-      return updatedProducts;
 
     });
 
@@ -214,46 +449,189 @@ function Products() {
 
     setProducts((prev) => {
 
-      const updatedProducts =
-        prev.map((product) => {
+      return prev.map((product) => {
 
-          if (product.id === id) {
-
-            return {
-
-              ...product,
-
-              quantity:
-                Math.max(
-                  0,
-                  Number(
-                    product.quantity
-                  ) + amount
-                )
-
-            };
-
-          }
+        if (
+          product.id !== id
+        ) {
 
           return product;
 
-        });
+        }
 
 
-      localStorage.setItem(
-        "products",
-        JSON.stringify(
-          updatedProducts
-        )
-      );
+        let shelfQuantity =
+          Number(
+            product.shelfQuantity
+          ) || 0;
 
 
-      window.dispatchEvent(
-        new Event("productsUpdated")
-      );
+        let storeQuantity =
+          Number(
+            product.storeQuantity
+          ) || 0;
 
 
-      return updatedProducts;
+        // =========================
+        // STOCK IN
+        // =========================
+
+        if (amount > 0) {
+
+          storeQuantity +=
+            amount;
+
+
+          addStockHistory({
+
+            product,
+
+            action:
+              "Stock Added",
+
+            quantity:
+              amount,
+
+            location:
+              "Store / Box"
+
+          });
+
+        }
+
+
+        // =========================
+        // STOCK OUT
+        // =========================
+
+        if (amount < 0) {
+
+          const amountToRemove =
+            Math.abs(amount);
+
+
+          // Remove from store first
+
+          if (
+            storeQuantity >=
+            amountToRemove
+          ) {
+
+            storeQuantity -=
+              amountToRemove;
+
+
+            addStockHistory({
+
+              product,
+
+              action:
+                "Stock Removed",
+
+              quantity:
+                amountToRemove,
+
+              location:
+                "Store / Box"
+
+            });
+
+          } else {
+
+            const removedFromStore =
+              storeQuantity;
+
+
+            const remaining =
+              amountToRemove -
+              storeQuantity;
+
+
+            storeQuantity = 0;
+
+
+            const removedFromShelf =
+              Math.min(
+                shelfQuantity,
+                remaining
+              );
+
+
+            shelfQuantity =
+              Math.max(
+                0,
+                shelfQuantity -
+                remaining
+              );
+
+
+            if (
+              removedFromStore > 0
+            ) {
+
+              addStockHistory({
+
+                product,
+
+                action:
+                  "Stock Removed",
+
+                quantity:
+                  removedFromStore,
+
+                location:
+                  "Store / Box"
+
+              });
+
+            }
+
+
+            if (
+              removedFromShelf > 0
+            ) {
+
+              addStockHistory({
+
+                product,
+
+                action:
+                  "Stock Removed",
+
+                quantity:
+                  removedFromShelf,
+
+                location:
+                  "Shelf"
+
+              });
+
+            }
+
+          }
+
+        }
+
+
+        const totalQuantity =
+          shelfQuantity +
+          storeQuantity;
+
+
+        return {
+
+          ...product,
+
+          shelfQuantity,
+
+          storeQuantity,
+
+          quantity:
+            totalQuantity
+
+        };
+
+      });
 
     });
 
@@ -269,10 +647,48 @@ function Products() {
     quantity
   ) => {
 
+    const soldQuantity =
+      Number(quantity);
+
+
+    if (
+      !soldQuantity ||
+      soldQuantity <= 0
+    ) {
+
+      return;
+
+    }
+
+
+    const availableStock =
+      Number(
+        product.shelfQuantity || 0
+      ) +
+      Number(
+        product.storeQuantity || 0
+      );
+
+
+    if (
+      soldQuantity >
+      availableStock
+    ) {
+
+      alert(
+        "Not enough stock available."
+      );
+
+      return;
+
+    }
+
+
     const revenue =
       Number(
         product.sellingPrice
-      ) * quantity;
+      ) *
+      soldQuantity;
 
 
     const profit =
@@ -283,12 +699,14 @@ function Products() {
         Number(
           product.buyingPrice
         )
-      ) * quantity;
+      ) *
+      soldQuantity;
 
 
     const newSale = {
 
-      id: Date.now(),
+      id:
+        Date.now(),
 
       productId:
         product.id,
@@ -296,7 +714,8 @@ function Products() {
       productName:
         product.name,
 
-      quantity,
+      quantity:
+        soldQuantity,
 
       revenue,
 
@@ -309,70 +728,184 @@ function Products() {
     };
 
 
+    // =========================
+    // ADD SALE
+    // =========================
+
     setSales((prev) => {
 
-      const updatedSales = [
+      return [
+
         ...prev,
+
         newSale
+
       ];
-
-      localStorage.setItem(
-        "sales",
-        JSON.stringify(
-          updatedSales
-        )
-      );
-
-      window.dispatchEvent(
-        new Event("salesUpdated")
-      );
-
-      return updatedSales;
 
     });
 
 
+    // =========================
+    // REMOVE SOLD STOCK
+    // =========================
+
     setProducts((prev) => {
 
-      const updatedProducts =
-        prev.map((item) => {
+      return prev.map((item) => {
 
-          if (
-            item.id === product.id
-          ) {
-
-            return {
-
-              ...item,
-
-              quantity:
-                Number(
-                  item.quantity
-                ) - quantity
-
-            };
-
-          }
+        if (
+          item.id !==
+          product.id
+        ) {
 
           return item;
 
-        });
+        }
 
 
-      localStorage.setItem(
-        "products",
-        JSON.stringify(
-          updatedProducts
-        )
-      );
+        let shelfQuantity =
+          Number(
+            item.shelfQuantity
+          ) || 0;
 
 
-      window.dispatchEvent(
-        new Event("productsUpdated")
-      );
+        let storeQuantity =
+          Number(
+            item.storeQuantity
+          ) || 0;
 
 
-      return updatedProducts;
+        let remaining =
+          soldQuantity;
+
+
+        // =========================
+        // REMOVE FROM SHELF FIRST
+        // =========================
+
+        if (
+          shelfQuantity >=
+          remaining
+        ) {
+
+          shelfQuantity -=
+            remaining;
+
+
+          addStockHistory({
+
+            product:
+              item,
+
+            action:
+              "Sold",
+
+            quantity:
+              remaining,
+
+            location:
+              "Shelf"
+
+          });
+
+
+          remaining = 0;
+
+        } else {
+
+          const removedFromShelf =
+            shelfQuantity;
+
+
+          remaining -=
+            shelfQuantity;
+
+
+          shelfQuantity = 0;
+
+
+          if (
+            removedFromShelf > 0
+          ) {
+
+            addStockHistory({
+
+              product:
+                item,
+
+              action:
+                "Sold",
+
+              quantity:
+                removedFromShelf,
+
+              location:
+                "Shelf"
+
+            });
+
+          }
+
+        }
+
+
+        // =========================
+        // REMOVE REST FROM STORE
+        // =========================
+
+        if (
+          remaining > 0
+        ) {
+
+          const removedFromStore =
+            Math.min(
+              storeQuantity,
+              remaining
+            );
+
+
+          storeQuantity -=
+            removedFromStore;
+
+
+          addStockHistory({
+
+            product:
+              item,
+
+            action:
+              "Sold",
+
+            quantity:
+              removedFromStore,
+
+            location:
+              "Store / Box"
+
+          });
+
+        }
+
+
+        const totalQuantity =
+          shelfQuantity +
+          storeQuantity;
+
+
+        return {
+
+          ...item,
+
+          shelfQuantity,
+
+          storeQuantity,
+
+          quantity:
+            totalQuantity
+
+        };
+
+      });
 
     });
 
@@ -394,8 +927,12 @@ function Products() {
       );
 
 
-    if (!saleToDelete) {
+    if (
+      !saleToDelete
+    ) {
+
       return;
+
     }
 
 
@@ -403,80 +940,106 @@ function Products() {
 
     setSales((prev) => {
 
-      const updatedSales =
-        prev.filter(
-          (sale) =>
-            sale.id !== saleId
-        );
-
-
-      localStorage.setItem(
-        "sales",
-        JSON.stringify(
-          updatedSales
-        )
+      return prev.filter(
+        (sale) =>
+          sale.id !== saleId
       );
-
-
-      window.dispatchEvent(
-        new Event("salesUpdated")
-      );
-
-
-      return updatedSales;
 
     });
 
 
-    // Return sold quantity
-    // back to stock
+    // Restore quantity
+    // back to shelf
 
     setProducts((prev) => {
 
-      const updatedProducts =
-        prev.map((product) => {
+      return prev.map((product) => {
 
-          if (
-            product.id ===
-            saleToDelete.productId
-          ) {
-
-            return {
-
-              ...product,
-
-              quantity:
-                Number(
-                  product.quantity
-                ) +
-                Number(
-                  saleToDelete.quantity
-                )
-
-            };
-
-          }
-
+        if (
+          product.id !==
+          saleToDelete.productId
+        ) {
 
           return product;
+
+        }
+
+
+        const shelfQuantity =
+          Number(
+            product.shelfQuantity
+          ) || 0;
+
+
+        const storeQuantity =
+          Number(
+            product.storeQuantity
+          ) || 0;
+
+
+        const restoredQuantity =
+          Number(
+            saleToDelete.quantity
+          );
+
+
+        const restoredShelf =
+          shelfQuantity +
+          restoredQuantity;
+
+
+        addStockHistory({
+
+          product,
+
+          action:
+            "Sale Reversed",
+
+          quantity:
+            restoredQuantity,
+
+          location:
+            "Shelf"
 
         });
 
 
-      localStorage.setItem(
-        "products",
-        JSON.stringify(
-          updatedProducts
-        )
+        return {
+
+          ...product,
+
+          shelfQuantity:
+            restoredShelf,
+
+          storeQuantity,
+
+          quantity:
+            restoredShelf +
+            storeQuantity
+
+        };
+
+      });
+
+    });
+
+  };
+
+
+  // =========================
+  // DELETE STOCK HISTORY
+  // =========================
+
+  const deleteHistory = (
+    historyId
+  ) => {
+
+    setStockHistory((prev) => {
+
+      return prev.filter(
+        (record) =>
+          record.id !== historyId
       );
-
-
-      window.dispatchEvent(
-        new Event("productsUpdated")
-      );
-
-
-      return updatedProducts;
 
     });
 
@@ -491,8 +1054,12 @@ function Products() {
     products.filter(
       (product) => {
 
+        const productName =
+          product.name || "";
+
+
         const matchesSearch =
-          product.name
+          productName
             .toLowerCase()
             .includes(
               searchTerm
@@ -526,15 +1093,17 @@ function Products() {
     <div className="products">
 
 
-      <div className="products-header">
+      {/* =========================
+          HEADER
+      ========================= */}
 
+      <div className="products-header">
 
         <div>
 
           <h1>
             📦 Products
           </h1>
-
 
           <p>
             Manage all electrical
@@ -545,27 +1114,29 @@ function Products() {
 
 
         <button
+
           className="add-product-btn"
+
           onClick={() => {
 
-            setEditingProduct(
-              null
-            );
+            setEditingProduct(null);
 
-            setIsModalOpen(
-              true
-            );
+            setIsModalOpen(true);
 
           }}
+
         >
 
           + Add Product
 
         </button>
 
-
       </div>
 
+
+      {/* =========================
+          SEARCH
+      ========================= */}
 
       <SearchBar
 
@@ -587,6 +1158,10 @@ function Products() {
 
       />
 
+
+      {/* =========================
+          PRODUCT TABLE
+      ========================= */}
 
       <div className="product-table-wrapper">
 
@@ -635,6 +1210,10 @@ function Products() {
       </div>
 
 
+      {/* =========================
+          PRODUCT FORM
+      ========================= */}
+
       <ProductForm
 
         isOpen={
@@ -670,6 +1249,10 @@ function Products() {
       />
 
 
+      {/* =========================
+          SALES MODAL
+      ========================= */}
+
       <SalesModal
 
         product={
@@ -701,6 +1284,10 @@ function Products() {
       />
 
 
+      {/* =========================
+          SALES HISTORY
+      ========================= */}
+
       <SalesHistory
 
         sales={
@@ -714,6 +1301,23 @@ function Products() {
       />
 
 
+      {/* =========================
+          STOCK HISTORY
+      ========================= */}
+
+      <StockHistory
+
+        history={
+          stockHistory
+        }
+
+        onDeleteHistory={
+          deleteHistory
+        }
+
+      />
+
+
     </div>
 
   );
@@ -722,4 +1326,3 @@ function Products() {
 
 
 export default Products;
-

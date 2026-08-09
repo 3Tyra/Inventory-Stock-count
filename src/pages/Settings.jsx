@@ -177,7 +177,7 @@ function Settings() {
 
 
   // =========================
-  // SAVE
+  // SAVE SETTINGS
   // =========================
 
   const saveAll = () => {
@@ -215,7 +215,9 @@ function Settings() {
     }
 
 
-    // Password validation
+    // =========================
+    // PASSWORD VALIDATION
+    // =========================
 
     if (
       password.current ||
@@ -355,7 +357,9 @@ function Settings() {
     }
 
 
-    // Save shop settings
+    // =========================
+    // SAVE SHOP SETTINGS
+    // =========================
 
     localStorage.setItem(
       "settings",
@@ -365,7 +369,9 @@ function Settings() {
     );
 
 
-    // Update profile
+    // =========================
+    // UPDATE PROFILE
+    // =========================
 
     if (user) {
 
@@ -404,6 +410,330 @@ function Settings() {
   };
 
 
+  // =========================
+  // BACKUP DATA
+  // =========================
+
+  const backupData = () => {
+
+    const backup = {
+
+      products:
+        JSON.parse(
+          localStorage.getItem(
+            "products"
+          )
+        ) || [],
+
+      sales:
+        JSON.parse(
+          localStorage.getItem(
+            "sales"
+          )
+        ) || [],
+
+      settings:
+        JSON.parse(
+          localStorage.getItem(
+            "settings"
+          )
+        ) || {},
+
+      users:
+        JSON.parse(
+          localStorage.getItem(
+            "users"
+          )
+        ) || []
+
+    };
+
+
+    const data =
+      JSON.stringify(
+        backup,
+        null,
+        2
+      );
+
+
+    const blob =
+      new Blob(
+        [data],
+        {
+          type:
+            "application/json"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+
+    link.href = url;
+
+
+    link.download =
+      "stock-count-backup.json";
+
+
+    document.body.appendChild(
+      link
+    );
+
+
+    link.click();
+
+
+    document.body.removeChild(
+      link
+    );
+
+
+    URL.revokeObjectURL(
+      url
+    );
+
+
+    setMessage(
+      "✓ Backup downloaded successfully."
+    );
+
+    setError("");
+
+  };
+
+
+  // =========================
+  // RESTORE DATA
+  // =========================
+
+  const restoreData = (e) => {
+
+    const file =
+      e.target.files[0];
+
+
+    if (!file) {
+      return;
+    }
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload = (event) => {
+
+      try {
+
+        const backup =
+          JSON.parse(
+            event.target.result
+          );
+
+
+        // Validate backup
+
+        if (
+          !backup ||
+          typeof backup !==
+            "object"
+        ) {
+
+          throw new Error(
+            "Invalid backup file."
+          );
+
+        }
+
+
+        // Restore products
+
+        if (
+          Array.isArray(
+            backup.products
+          )
+        ) {
+
+          localStorage.setItem(
+            "products",
+            JSON.stringify(
+              backup.products
+            )
+          );
+
+        }
+
+
+        // Restore sales
+
+        if (
+          Array.isArray(
+            backup.sales
+          )
+        ) {
+
+          localStorage.setItem(
+            "sales",
+            JSON.stringify(
+              backup.sales
+            )
+          );
+
+        }
+
+
+        // Restore settings
+
+        if (
+          backup.settings &&
+          typeof backup.settings ===
+            "object"
+        ) {
+
+          localStorage.setItem(
+            "settings",
+            JSON.stringify(
+              backup.settings
+            )
+          );
+
+        }
+
+
+        // Restore users
+
+        if (
+          Array.isArray(
+            backup.users
+          )
+        ) {
+
+          localStorage.setItem(
+            "users",
+            JSON.stringify(
+              backup.users
+            )
+          );
+
+        }
+
+
+        // Tell the application
+        // that the data changed
+
+        window.dispatchEvent(
+          new Event(
+            "productsUpdated"
+          )
+        );
+
+
+        window.dispatchEvent(
+          new Event(
+            "salesUpdated"
+          )
+        );
+
+
+        setMessage(
+          "✓ Data restored successfully. Refresh the page to see everything."
+        );
+
+        setError("");
+
+
+      } catch (error) {
+
+        console.log(error);
+
+        setError(
+          "Invalid backup file. Please select a valid Stock Count backup."
+        );
+
+        setMessage("");
+
+      }
+
+    };
+
+
+    reader.readAsText(
+      file
+    );
+
+
+    // Allow selecting
+    // the same file again
+
+    e.target.value = "";
+
+  };
+
+
+  // =========================
+  // CLEAR ALL DATA
+  // =========================
+
+  const clearAllData = () => {
+
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to delete ALL products, sales and shop data? This cannot be undone."
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    localStorage.removeItem(
+      "products"
+    );
+
+    localStorage.removeItem(
+      "sales"
+    );
+
+    localStorage.removeItem(
+      "settings"
+    );
+
+
+    window.dispatchEvent(
+      new Event(
+        "productsUpdated"
+      )
+    );
+
+
+    window.dispatchEvent(
+      new Event(
+        "salesUpdated"
+      )
+    );
+
+
+    setMessage(
+      "✓ Shop data cleared successfully."
+    );
+
+    setError("");
+
+  };
+
+
   return (
 
     <div className="settings-page">
@@ -428,10 +758,7 @@ function Settings() {
 
         <div className="settings-success">
 
-          ✓ {message.replace(
-            "✓ ",
-            ""
-          )}
+          {message}
 
         </div>
 
@@ -454,7 +781,9 @@ function Settings() {
       <div className="settings-card">
 
 
-        {/* PROFILE */}
+        {/* =========================
+            PROFILE
+        ========================= */}
 
         <section>
 
@@ -501,7 +830,9 @@ function Settings() {
         <hr />
 
 
-        {/* SHOP */}
+        {/* =========================
+            SHOP
+        ========================= */}
 
         <section>
 
@@ -613,7 +944,9 @@ function Settings() {
         <hr />
 
 
-        {/* APPEARANCE */}
+        {/* =========================
+            APPEARANCE
+        ========================= */}
 
         <section>
 
@@ -645,7 +978,9 @@ function Settings() {
         <hr />
 
 
-        {/* PASSWORD */}
+        {/* =========================
+            PASSWORD
+        ========================= */}
 
         <section>
 
@@ -705,6 +1040,70 @@ function Settings() {
         </button>
 
 
+        <hr />
+
+
+        {/* =========================
+            BACKUP & RESTORE
+        ========================= */}
+
+        <section>
+
+          <h2>
+            💾 Backup & Restore
+          </h2>
+
+          <p className="backup-description">
+
+            Protect your inventory by
+            downloading a backup of your
+            products, sales and shop settings.
+
+          </p>
+
+
+          <button
+            className="backup-btn"
+            onClick={backupData}
+          >
+
+            💾 Download Backup
+
+          </button>
+
+
+          <label
+            className="restore-btn"
+          >
+
+            📂 Restore Backup
+
+            <input
+              type="file"
+              accept=".json,application/json"
+              onChange={
+                restoreData
+              }
+              hidden
+            />
+
+          </label>
+
+
+          <button
+            className="clear-data-btn"
+            onClick={
+              clearAllData
+            }
+          >
+
+            🗑️ Clear Shop Data
+
+          </button>
+
+        </section>
+
+
       </div>
 
 
@@ -716,4 +1115,3 @@ function Settings() {
 
 
 export default Settings;
-

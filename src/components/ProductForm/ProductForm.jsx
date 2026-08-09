@@ -5,12 +5,12 @@ const initialForm = {
   name: "",
   brand: "",
   category: "Lighting",
-  quantity: "",
+  shelfQuantity: "",
+  storeQuantity: "",
   buyingPrice: "",
   sellingPrice: "",
   image: ""
 };
-
 
 function ProductForm({
   isOpen,
@@ -24,14 +24,25 @@ function ProductForm({
     useState(initialForm);
 
 
-  // Load product when editing
+  // =========================
+  // LOAD PRODUCT WHEN EDITING
+  // =========================
+
   useEffect(() => {
 
     if (editingProduct) {
 
       setFormData({
         ...initialForm,
-        ...editingProduct
+
+        ...editingProduct,
+
+        shelfQuantity:
+          editingProduct.shelfQuantity ?? 0,
+
+        storeQuantity:
+          editingProduct.storeQuantity ?? 0
+
       });
 
     } else {
@@ -46,7 +57,10 @@ function ProductForm({
   if (!isOpen) return null;
 
 
-  // Handle normal inputs
+  // =========================
+  // HANDLE INPUT CHANGES
+  // =========================
+
   const handleChange = (e) => {
 
     const {
@@ -66,16 +80,24 @@ function ProductForm({
   };
 
 
-  // Handle image
+  // =========================
+  // HANDLE IMAGE
+  // =========================
+
   const handleImage = (e) => {
 
-    const file = e.target.files[0];
+    const file =
+      e.target.files[0];
 
     if (!file) return;
 
 
-    // Optional file-size protection
-    if (file.size > 2 * 1024 * 1024) {
+    // Maximum image size: 2MB
+
+    if (
+      file.size >
+      2 * 1024 * 1024
+    ) {
 
       alert(
         "Please choose an image smaller than 2MB."
@@ -86,7 +108,8 @@ function ProductForm({
     }
 
 
-    const reader = new FileReader();
+    const reader =
+      new FileReader();
 
 
     reader.onloadend = () => {
@@ -95,7 +118,8 @@ function ProductForm({
 
         ...prev,
 
-        image: reader.result
+        image:
+          reader.result
 
       }));
 
@@ -107,42 +131,88 @@ function ProductForm({
   };
 
 
-  // Submit form
+  // =========================
+  // SUBMIT FORM
+  // =========================
+
   const handleSubmit = (e) => {
 
     e.preventDefault();
 
 
-    if (!formData.name.trim()) {
+    // Product name validation
 
-      alert("Please enter a product name.");
+    if (
+      !formData.name.trim()
+    ) {
+
+      alert(
+        "Please enter a product name."
+      );
 
       return;
 
     }
 
 
+    // Convert quantities to numbers
+
+    const shelfQuantity =
+      Number(
+        formData.shelfQuantity
+      ) || 0;
+
+
+    const storeQuantity =
+      Number(
+        formData.storeQuantity
+      ) || 0;
+
+
+    // Calculate total stock
+
+    const totalQuantity =
+      shelfQuantity +
+      storeQuantity;
+
+
+    // Create product object
+
     const product = {
 
       ...formData,
 
+      shelfQuantity,
+
+      storeQuantity,
+
       quantity:
-        Number(formData.quantity),
+        totalQuantity,
 
       buyingPrice:
-        Number(formData.buyingPrice),
+        Number(
+          formData.buyingPrice
+        ) || 0,
 
       sellingPrice:
-        Number(formData.sellingPrice)
+        Number(
+          formData.sellingPrice
+        ) || 0
 
     };
 
+
+    // UPDATE PRODUCT
 
     if (editingProduct) {
 
       onUpdate(product);
 
-    } else {
+    }
+
+    // ADD NEW PRODUCT
+
+    else {
 
       onSave({
 
@@ -155,7 +225,41 @@ function ProductForm({
     }
 
 
-    setFormData(initialForm);
+    // Reset form
+
+    setFormData(
+      initialForm
+    );
+
+  };
+
+
+  // =========================
+  // TOTAL STOCK PREVIEW
+  // =========================
+
+  const totalStock =
+
+    (Number(
+      formData.shelfQuantity
+    ) || 0) +
+
+    (Number(
+      formData.storeQuantity
+    ) || 0);
+
+
+  // =========================
+  // CLOSE FORM
+  // =========================
+
+  const handleClose = () => {
+
+    setFormData(
+      initialForm
+    );
+
+    onClose();
 
   };
 
@@ -167,6 +271,10 @@ function ProductForm({
       <div className="modal">
 
 
+        {/* =========================
+            TITLE
+        ========================= */}
+
         <h2>
 
           {editingProduct
@@ -176,10 +284,14 @@ function ProductForm({
         </h2>
 
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+        >
 
 
-          {/* PRODUCT NAME */}
+          {/* =========================
+              PRODUCT NAME
+          ========================= */}
 
           <input
 
@@ -189,16 +301,22 @@ function ProductForm({
 
             placeholder="Product Name"
 
-            value={formData.name}
+            value={
+              formData.name
+            }
 
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
 
             required
 
           />
 
 
-          {/* BRAND */}
+          {/* =========================
+              BRAND
+          ========================= */}
 
           <input
 
@@ -208,57 +326,78 @@ function ProductForm({
 
             placeholder="Brand"
 
-            value={formData.brand}
+            value={
+              formData.brand
+            }
 
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
 
           />
 
 
-          {/* CATEGORY */}
+          {/* =========================
+              CATEGORY
+          ========================= */}
 
-          <select
+{/* CATEGORY */}
 
-            name="category"
+<select
+  name="category"
+  value={formData.category}
+  onChange={handleChange}
+>
 
-            value={formData.category}
+  <option>Lighting</option>
 
-            onChange={handleChange}
+  <option>Switches</option>
 
-          >
+  <option>Sockets</option>
 
-            <option>Lighting</option>
+  <option>Cables</option>
 
-            <option>Switches</option>
+  <option>Circuit Breakers</option>
 
-            <option>Sockets</option>
+  <option>Tools</option>
 
-            <option>Cables</option>
+  <option>Batteries</option>
 
-            <option>Circuit Breakers</option>
+  <option>Chargers</option>
 
-            <option>Tools</option>
+  <option>Listening Aids</option>
 
-            <option>Batteries</option>
+  <option>Phone Lens</option>
 
-            <option>Other</option>
+  <option>Phone Charms</option>
 
-          </select>
+  <option>Other</option>
 
+</select>
 
-          {/* QUANTITY */}
+          {/* =========================
+              SHELF QUANTITY
+          ========================= */}
+
+          <label>
+            Shelf Quantity
+          </label>
 
           <input
 
             type="number"
 
-            name="quantity"
+            name="shelfQuantity"
 
-            placeholder="Quantity"
+            placeholder="Quantity on shelf"
 
-            value={formData.quantity}
+            value={
+              formData.shelfQuantity
+            }
 
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
 
             min="0"
 
@@ -267,7 +406,57 @@ function ProductForm({
           />
 
 
-          {/* BUYING PRICE */}
+          {/* =========================
+              STORE / BOX QUANTITY
+          ========================= */}
+
+          <label>
+            Store / Box Quantity
+          </label>
+
+          <input
+
+            type="number"
+
+            name="storeQuantity"
+
+            placeholder="Quantity in store / boxes"
+
+            value={
+              formData.storeQuantity
+            }
+
+            onChange={
+              handleChange
+            }
+
+            min="0"
+
+            required
+
+          />
+
+
+          {/* =========================
+              TOTAL STOCK
+          ========================= */}
+
+          <div className="quantity-preview">
+
+            <span>
+              Total Stock
+            </span>
+
+            <strong>
+              {totalStock}
+            </strong>
+
+          </div>
+
+
+          {/* =========================
+              BUYING PRICE
+          ========================= */}
 
           <input
 
@@ -277,9 +466,13 @@ function ProductForm({
 
             placeholder="Buying Price"
 
-            value={formData.buyingPrice}
+            value={
+              formData.buyingPrice
+            }
 
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
 
             min="0"
 
@@ -288,7 +481,9 @@ function ProductForm({
           />
 
 
-          {/* SELLING PRICE */}
+          {/* =========================
+              SELLING PRICE
+          ========================= */}
 
           <input
 
@@ -298,9 +493,13 @@ function ProductForm({
 
             placeholder="Selling Price"
 
-            value={formData.sellingPrice}
+            value={
+              formData.sellingPrice
+            }
 
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
 
             min="0"
 
@@ -309,9 +508,13 @@ function ProductForm({
           />
 
 
-          {/* IMAGE */}
+          {/* =========================
+              PRODUCT IMAGE
+          ========================= */}
 
-          <label className="image-label">
+          <label
+            className="image-label"
+          >
 
             Product Image
 
@@ -324,20 +527,28 @@ function ProductForm({
 
             accept="image/*"
 
-            onChange={handleImage}
+            onChange={
+              handleImage
+            }
 
           />
 
 
-          {/* IMAGE PREVIEW */}
+          {/* =========================
+              IMAGE PREVIEW
+          ========================= */}
 
           {formData.image && (
 
-            <div className="image-preview">
+            <div
+              className="image-preview"
+            >
 
               <img
 
-                src={formData.image}
+                src={
+                  formData.image
+                }
 
                 alt="Product Preview"
 
@@ -350,9 +561,13 @@ function ProductForm({
           )}
 
 
-          {/* BUTTONS */}
+          {/* =========================
+              BUTTONS
+          ========================= */}
 
-          <div className="modal-buttons">
+          <div
+            className="modal-buttons"
+          >
 
 
             <button
@@ -361,13 +576,9 @@ function ProductForm({
 
               className="cancel-btn"
 
-              onClick={() => {
-
-                setFormData(initialForm);
-
-                onClose();
-
-              }}
+              onClick={
+                handleClose
+              }
 
             >
 
@@ -398,6 +609,7 @@ function ProductForm({
 
         </form>
 
+
       </div>
 
     </div>
@@ -408,4 +620,3 @@ function ProductForm({
 
 
 export default ProductForm;
-

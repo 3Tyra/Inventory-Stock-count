@@ -102,6 +102,50 @@ function Dashboard() {
 
 
   // =========================
+  // HELPER
+  // GET TOTAL STOCK
+  // =========================
+
+  const getTotalStock = (product) => {
+
+    const shelfQuantity =
+      Number(
+        product.shelfQuantity
+      ) || 0;
+
+
+    const storeQuantity =
+      Number(
+        product.storeQuantity
+      ) || 0;
+
+
+    // New products
+    // Shelf + Store/Box
+
+    if (
+      product.shelfQuantity !== undefined ||
+      product.storeQuantity !== undefined
+    ) {
+
+      return (
+        shelfQuantity +
+        storeQuantity
+      );
+
+    }
+
+
+    // Support old products
+
+    return Number(
+      product.quantity
+    ) || 0;
+
+  };
+
+
+  // =========================
   // STATISTICS
   // =========================
 
@@ -113,7 +157,7 @@ function Dashboard() {
     products.reduce(
       (sum, product) =>
         sum +
-        Number(product.quantity || 0),
+        getTotalStock(product),
       0
     );
 
@@ -121,44 +165,58 @@ function Dashboard() {
   const lowStockProducts =
     products.filter(
       (product) =>
-        Number(product.quantity || 0) <=
+        getTotalStock(product) <=
         lowStockLimit
     );
 
 
   const inventoryValue =
     products.reduce(
-      (sum, product) =>
-        sum +
-        (
-          Number(
-            product.buyingPrice || 0
-          ) *
-          Number(
-            product.quantity || 0
+      (sum, product) => {
+
+        const quantity =
+          getTotalStock(product);
+
+
+        return (
+          sum +
+          (
+            Number(
+              product.buyingPrice || 0
+            ) *
+            quantity
           )
-        ),
+        );
+
+      },
       0
     );
 
 
   const potentialProfit =
     products.reduce(
-      (sum, product) =>
-        sum +
-        (
+      (sum, product) => {
+
+        const quantity =
+          getTotalStock(product);
+
+
+        return (
+          sum +
           (
-            Number(
-              product.sellingPrice || 0
-            ) -
-            Number(
-              product.buyingPrice || 0
-            )
-          ) *
-          Number(
-            product.quantity || 0
+            (
+              Number(
+                product.sellingPrice || 0
+              ) -
+              Number(
+                product.buyingPrice || 0
+              )
+            ) *
+            quantity
           )
-        ),
+        );
+
+      },
       0
     );
 
@@ -171,7 +229,9 @@ function Dashboard() {
     sales.reduce(
       (sum, sale) =>
         sum +
-        Number(sale.quantity || 0),
+        Number(
+          sale.quantity || 0
+        ),
       0
     );
 
@@ -180,7 +240,9 @@ function Dashboard() {
     sales.reduce(
       (sum, sale) =>
         sum +
-        Number(sale.revenue || 0),
+        Number(
+          sale.revenue || 0
+        ),
       0
     );
 
@@ -189,7 +251,9 @@ function Dashboard() {
     sales.reduce(
       (sum, sale) =>
         sum +
-        Number(sale.profit || 0),
+        Number(
+          sale.profit || 0
+        ),
       0
     );
 
@@ -235,7 +299,8 @@ function Dashboard() {
 
   sales.forEach((sale) => {
 
-    const date = sale.date;
+    const date =
+      sale.date;
 
 
     if (!chartData[date]) {
@@ -254,18 +319,28 @@ function Dashboard() {
 
 
     chartData[date].revenue +=
-      Number(sale.revenue || 0);
+      Number(
+        sale.revenue || 0
+      );
 
 
     chartData[date].profit +=
-      Number(sale.profit || 0);
+      Number(
+        sale.profit || 0
+      );
 
   });
 
 
   const salesChartData =
-    Object.values(chartData);
+    Object.values(
+      chartData
+    );
 
+
+  // =========================
+  // PAGE
+  // =========================
 
   return (
 
@@ -297,6 +372,8 @@ function Dashboard() {
       <div className="stats-container">
 
 
+        {/* TOTAL PRODUCTS */}
+
         <div className="stat-card">
 
           <h3>
@@ -309,6 +386,8 @@ function Dashboard() {
 
         </div>
 
+
+        {/* TOTAL STOCK */}
 
         <div className="stat-card">
 
@@ -323,6 +402,8 @@ function Dashboard() {
         </div>
 
 
+        {/* LOW STOCK */}
+
         <div className="stat-card">
 
           <h3>
@@ -335,6 +416,8 @@ function Dashboard() {
 
         </div>
 
+
+        {/* INVENTORY VALUE */}
 
         <div className="stat-card">
 
@@ -350,6 +433,8 @@ function Dashboard() {
         </div>
 
 
+        {/* POTENTIAL PROFIT */}
+
         <div className="stat-card">
 
           <h3>
@@ -364,6 +449,8 @@ function Dashboard() {
         </div>
 
 
+        {/* ITEMS SOLD */}
+
         <div className="stat-card">
 
           <h3>
@@ -376,6 +463,8 @@ function Dashboard() {
 
         </div>
 
+
+        {/* SALES REVENUE */}
 
         <div className="stat-card">
 
@@ -390,6 +479,8 @@ function Dashboard() {
 
         </div>
 
+
+        {/* PROFIT MADE */}
 
         <div className="stat-card">
 
@@ -474,6 +565,7 @@ function Dashboard() {
 
               <YAxis />
 
+
               <Tooltip
                 formatter={(value) =>
                   `KSh ${Number(
@@ -481,6 +573,7 @@ function Dashboard() {
                   ).toLocaleString()}`
                 }
               />
+
 
               <Line
                 type="monotone"
@@ -491,6 +584,7 @@ function Dashboard() {
                 dot={{ r: 4 }}
               />
 
+
               <Line
                 type="monotone"
                 dataKey="profit"
@@ -499,6 +593,7 @@ function Dashboard() {
                 name="Profit"
                 dot={{ r: 4 }}
               />
+
 
             </LineChart>
 
@@ -516,7 +611,9 @@ function Dashboard() {
       <div className="dashboard-grid">
 
 
-        {/* RECENT PRODUCTS */}
+        {/* =========================
+            RECENT PRODUCTS
+        ========================= */}
 
         <div className="dashboard-card">
 
@@ -555,7 +652,9 @@ function Dashboard() {
                     ) : (
 
                       <div className="dashboard-product-placeholder">
+
                         📦
+
                       </div>
 
                     )}
@@ -569,12 +668,18 @@ function Dashboard() {
 
 
                   <span>
-                    {product.quantity} pcs
+
+                    {getTotalStock(product)}
+                    {" "}
+                    pcs
+
                   </span>
+
 
                 </div>
 
               )
+
             )
 
           )}
@@ -582,7 +687,9 @@ function Dashboard() {
         </div>
 
 
-        {/* STOCK ALERTS */}
+        {/* =========================
+            STOCK ALERTS
+        ========================= */}
 
         <div className="dashboard-card">
 
@@ -612,12 +719,17 @@ function Dashboard() {
                   </span>
 
                   <span>
-                    {product.quantity} left
+
+                    {getTotalStock(product)}
+                    {" "}
+                    left
+
                   </span>
 
                 </div>
 
               )
+
             )
 
           )}
@@ -625,7 +737,9 @@ function Dashboard() {
         </div>
 
 
-        {/* CATEGORIES */}
+        {/* =========================
+            CATEGORIES
+        ========================= */}
 
         <div className="dashboard-card">
 
@@ -642,7 +756,9 @@ function Dashboard() {
 
           ) : (
 
-            Object.entries(categories).map(
+            Object.entries(
+              categories
+            ).map(
               ([category, count]) => (
 
                 <div
@@ -661,6 +777,7 @@ function Dashboard() {
                 </div>
 
               )
+
             )
 
           )}
@@ -679,4 +796,3 @@ function Dashboard() {
 
 
 export default Dashboard;
-

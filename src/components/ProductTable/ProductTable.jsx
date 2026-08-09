@@ -21,6 +21,10 @@ function ProductTable({
     useState(null);
 
 
+  // =========================
+  // GET STOCK STATUS
+  // =========================
+
   const getStatus = (quantity) => {
 
     if (quantity === 0) {
@@ -51,6 +55,10 @@ function ProductTable({
   };
 
 
+  // =========================
+  // CONFIRM DELETE
+  // =========================
+
   const confirmDelete = () => {
 
     if (!productToDelete) {
@@ -74,9 +82,16 @@ function ProductTable({
 
       <table className="product-table">
 
+
+        {/* =========================
+            TABLE HEADER
+        ========================= */}
+
         <thead>
 
           <tr>
+
+            <th>Image</th>
 
             <th>Product</th>
 
@@ -84,7 +99,11 @@ function ProductTable({
 
             <th>Category</th>
 
-            <th>Qty</th>
+            <th>Shelf</th>
+
+            <th>Store / Box</th>
+
+            <th>Total</th>
 
             <th>Buying</th>
 
@@ -99,6 +118,10 @@ function ProductTable({
         </thead>
 
 
+        {/* =========================
+            TABLE BODY
+        ========================= */}
+
         <tbody>
 
 
@@ -106,7 +129,7 @@ function ProductTable({
 
             <tr>
 
-              <td colSpan="8">
+              <td colSpan="11">
 
                 No products available.
 
@@ -119,11 +142,33 @@ function ProductTable({
             products.map((product) => {
 
 
+              // Make sure old products
+              // don't break the table
+
+              const shelfQuantity =
+                Number(
+                  product.shelfQuantity
+                ) || 0;
+
+
+              const storeQuantity =
+                Number(
+                  product.storeQuantity
+                ) || 0;
+
+
+              // Total stock
+
+              const totalQuantity =
+                shelfQuantity +
+                storeQuantity;
+
+
+              // Status based on TOTAL stock
+
               const status =
                 getStatus(
-                  Number(
-                    product.quantity
-                  )
+                  totalQuantity
                 );
 
 
@@ -134,41 +179,146 @@ function ProductTable({
                 >
 
 
+                  {/* =========================
+                      IMAGE
+                  ========================= */}
+
                   <td>
+
+                    {product.image ? (
+
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="product-image"
+                      />
+
+                    ) : (
+
+                      <div
+                        className="no-product-image"
+                      >
+
+                        📦
+
+                      </div>
+
+                    )}
+
+                  </td>
+
+
+                  {/* =========================
+                      PRODUCT
+                  ========================= */}
+
+                  <td>
+
                     {product.name}
+
                   </td>
 
 
+                  {/* =========================
+                      BRAND
+                  ========================= */}
+
                   <td>
-                    {product.brand}
+
+                    {product.brand || "—"}
+
                   </td>
 
 
+                  {/* =========================
+                      CATEGORY
+                  ========================= */}
+
                   <td>
+
                     {product.category}
+
                   </td>
 
 
+                  {/* =========================
+                      SHELF
+                  ========================= */}
+
                   <td>
-                    {product.quantity}
+
+                    <span className="stock-number shelf-stock">
+
+                      {shelfQuantity}
+
+                    </span>
+
                   </td>
 
 
+                  {/* =========================
+                      STORE / BOX
+                  ========================= */}
+
                   <td>
+
+                    <span className="stock-number store-stock">
+
+                      {storeQuantity}
+
+                    </span>
+
+                  </td>
+
+
+                  {/* =========================
+                      TOTAL
+                  ========================= */}
+
+                  <td>
+
+                    <strong className="total-stock">
+
+                      {totalQuantity}
+
+                    </strong>
+
+                  </td>
+
+
+                  {/* =========================
+                      BUYING PRICE
+                  ========================= */}
+
+                  <td>
+
                     KSh{" "}
+
                     {Number(
                       product.buyingPrice
                     ).toLocaleString()}
+
                   </td>
 
 
+                  {/* =========================
+                      SELLING PRICE
+                  ========================= */}
+
                   <td>
+
                     KSh{" "}
+
                     {Number(
                       product.sellingPrice
                     ).toLocaleString()}
+
                   </td>
 
+
+                  {/* =========================
+                      STATUS
+                  ========================= */}
 
                   <td>
 
@@ -185,20 +335,28 @@ function ProductTable({
                   </td>
 
 
+                  {/* =========================
+                      ACTIONS
+                  ========================= */}
+
                   <td className="actions">
 
 
                     {/* STOCK IN */}
 
                     <button
+
                       className="stock-in-btn"
+
                       onClick={() =>
                         onStockUpdate(
                           product.id,
                           1
                         )
                       }
+
                       title="Add stock"
+
                     >
 
                       +
@@ -209,14 +367,18 @@ function ProductTable({
                     {/* STOCK OUT */}
 
                     <button
+
                       className="stock-out-btn"
+
                       onClick={() =>
                         onStockUpdate(
                           product.id,
                           -1
                         )
                       }
+
                       title="Remove stock"
+
                     >
 
                       -
@@ -227,11 +389,15 @@ function ProductTable({
                     {/* SELL */}
 
                     <button
+
                       className="sell-btn"
+
                       onClick={() =>
                         onSell(product)
                       }
+
                       title="Sell product"
+
                     >
 
                       <FaShoppingCart />
@@ -242,11 +408,15 @@ function ProductTable({
                     {/* EDIT */}
 
                     <button
+
                       className="edit-btn"
+
                       onClick={() =>
                         onEdit(product)
                       }
+
                       title="Edit product"
+
                     >
 
                       <FaEdit />
@@ -257,13 +427,17 @@ function ProductTable({
                     {/* DELETE */}
 
                     <button
+
                       className="delete-btn"
+
                       onClick={() =>
                         setProductToDelete(
                           product
                         )
                       }
+
                       title="Delete product"
+
                     >
 
                       <FaTrash />
@@ -288,7 +462,9 @@ function ProductTable({
       </table>
 
 
-      {/* DELETE CONFIRMATION MODAL */}
+      {/* =========================
+          DELETE CONFIRMATION
+      ========================= */}
 
       {productToDelete && (
 
@@ -306,7 +482,9 @@ function ProductTable({
 
 
             <h2>
+
               Delete Product?
+
             </h2>
 
 
@@ -331,14 +509,21 @@ function ProductTable({
             </p>
 
 
-            <div className="delete-modal-buttons">
+            <div
+              className="delete-modal-buttons"
+            >
 
 
               <button
+
                 className="cancel-delete-btn"
+
                 onClick={() =>
-                  setProductToDelete(null)
+                  setProductToDelete(
+                    null
+                  )
                 }
+
               >
 
                 Cancel
@@ -347,8 +532,13 @@ function ProductTable({
 
 
               <button
+
                 className="confirm-delete-btn"
-                onClick={confirmDelete}
+
+                onClick={
+                  confirmDelete
+                }
+
               >
 
                 <FaTrash />

@@ -1,227 +1,554 @@
+/* ============================================
+   🚀 STOCKCOUNT LAYOUT v3.0
+   📱 Fully Responsive | Dark Red & Gold Theme
+   ============================================ */
+
+/* ============================================
+   1. 🎨 DESIGN TOKENS
+   ============================================ */
+:root {
+  /* ----- Dark Red Theme ----- */
+  --color-primary: #7f1d1d;
+  --color-primary-light: #991b1b;
+  --color-primary-dark: #450a0a;
+  --color-primary-50: #fef2f2;
+  --color-primary-100: #fee2e2;
+  --color-primary-200: #fecaca;
+  --color-primary-300: #fca5a5;
+  --color-primary-400: #f87171;
+  --color-primary-500: #ef4444;
+  --color-primary-600: #dc2626;
+  --color-primary-700: #b91c1c;
+  --color-primary-800: #991b1b;
+  --color-primary-900: #7f1d1d;
+
+  /* ----- Gold Accents ----- */
+  --color-gold: #d4a547;
+  --color-gold-light: #f0d080;
+  --color-gold-dark: #b8860b;
+
+  /* ----- Theme Colors ----- */
+  --bg-primary: #faf6f4;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #1a0a0a;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.04);
+  --bg-sidebar-active: rgba(127, 29, 29, 0.3);
+  
+  --text-primary: #1a0a0a;
+  --text-secondary: #5c2e2e;
+  --text-muted: #8a5a5a;
+  --text-sidebar: #f5ece8;
+  --text-sidebar-muted: rgba(245, 236, 232, 0.6);
+  --text-inverse: #ffffff;
+  
+  --border-color: rgba(127, 29, 29, 0.06);
+  --border-sidebar: rgba(255, 255, 255, 0.04);
+  
+  --shadow-sidebar: 0 0 40px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 2px 8px rgba(127, 29, 29, 0.04);
+  --shadow-md: 0 4px 16px rgba(127, 29, 29, 0.06);
+  
+  /* ----- Sizing ----- */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 0px;
+  
+  /* ----- Spacing ----- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
+  
+  /* ----- Border Radius ----- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+  
+  /* ----- Transitions ----- */
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================
+   2. 🌙 DARK THEME
+   ============================================ */
+[data-theme="dark"],
+.dark-mode {
+  --bg-primary: #0a0505;
+  --bg-secondary: #120a0a;
+  --bg-sidebar: #0a0505;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.03);
+  --bg-sidebar-active: rgba(127, 29, 29, 0.2);
+  
+  --text-primary: #fdf2f2;
+  --text-secondary: #d4a0a0;
+  --text-muted: #a07070;
+  --text-sidebar: #f5ece8;
+  --text-sidebar-muted: rgba(245, 236, 232, 0.5);
+  
+  --border-color: rgba(255, 255, 255, 0.04);
+  --border-sidebar: rgba(255, 255, 255, 0.03);
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-sidebar: 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   3. 📐 LAYOUT - THE CANVAS
+   ============================================ */
 .layout {
   display: flex;
   min-height: 100vh;
-  background: #f4f6fb;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background var(--transition);
+  position: relative;
 }
 
-/* Sidebar */
-
+/* ============================================
+   4. 🎨 SIDEBAR - THE MASTERPIECE
+   ============================================ */
 .sidebar {
-  width: 260px;
-  background: #1f2937;
-  color: white;
-  padding: 25px;
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  color: var(--text-sidebar);
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+  transition: transform var(--transition-spring),
+              width var(--transition-spring),
+              background var(--transition);
+  border-right: 1px solid var(--border-sidebar);
+  box-shadow: var(--shadow-sidebar);
 }
 
+/* Custom Scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 3px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-full);
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ----- Logo Section ----- */
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 40px;
-}
-
-.logo-icon {
-  font-size: 2rem;
+  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-sidebar);
+  flex-shrink: 0;
 }
 
 .logo h2 {
-  font-size: 1.5rem;
-}
-
-.nav-links {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--text-sidebar);
 }
 
-.nav-btn {
-  border: none;
-  background: transparent;
-  color: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: left;
-  font-size: 1rem;
-  transition: .3s;
+.logo h2 span {
+  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.nav-btn:hover {
-  background: #374151;
+.sidebar-user {
+  font-size: 0.85rem;
+  color: var(--text-sidebar-muted);
+  margin-top: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
-.nav-btn.active {
-  background: #4f46e5;
-}
-
-.main-content {
-  flex: 1;
-  padding: 40px;
-}
-
+/* ----- Navigation Menu ----- */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: var(--space-xs);
+  flex: 1;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  transition: 0.3s;
-  font-size: 1rem;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border: none;
+  background: transparent;
+  color: var(--text-sidebar);
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+  text-align: left;
+  position: relative;
 }
 
 .menu-item:hover {
-  background: #374151;
+  background: var(--bg-sidebar-hover);
+  transform: translateX(4px);
 }
 
 .menu-item.active {
-  background: #4f46e5;
+  background: var(--bg-sidebar-active);
+  color: var(--text-sidebar);
+  box-shadow: inset 0 0 20px rgba(127, 29, 29, 0.05);
 }
 
-.user-name{
-
-  color:white;
-
-  font-size:14px;
-
-  margin-top:10px;
-
-  opacity:.8;
-
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: linear-gradient(180deg, var(--color-gold), var(--color-primary-600));
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
 }
 
-
-
-.logout-btn{
-
-  margin-top:auto;
-
-  background:#ef4444;
-
+.menu-item:focus-visible {
+  outline: 2px solid var(--color-primary-400);
+  outline-offset: 2px;
 }
 
-
-
-.logout-btn:hover{
-
-  background:#dc2626;
-
-}
-
-.logged-user{
-
-    margin-top:12px;
-
-    font-size:14px;
-
-    color:#d8b4fe;
-
-    text-align:center;
-
-}
-
-
-
-.logout-btn{
-
-    margin-top:25px;
-
-    background:#dc2626;
-
-    color:white;
-
-}
-
-
-
-.logout-btn:hover{
-
-    background:#b91c1c;
-
-}
-
-.sidebar-user {
-  font-size: 14px;
-  margin-top: 8px;
-  opacity: 0.8;
-}
-
+/* ----- Logout Button ----- */
 .logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border: none;
+  background: transparent;
+  color: var(--text-sidebar);
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
   margin-top: auto;
   width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: transparent;
   text-align: left;
-  font-size: 15px;
+  border-top: 1px solid var(--border-sidebar);
+  padding-top: var(--space-lg);
+  margin-top: var(--space-md);
 }
 
 .logout-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-primary-400);
+  transform: translateX(4px);
 }
 
-
-/* =========================
-   DARK MODE
-========================= */
-
-.dark-mode {
-  background: #121212;
-  color: #f5f5f5;
+.logout-btn:focus-visible {
+  outline: 2px solid var(--color-primary-400);
+  outline-offset: 2px;
 }
 
-.dark-mode .content {
-  background: #121212;
+/* ============================================
+   5. 📦 MAIN CONTENT
+   ============================================ */
+.content {
+  flex: 1;
+  padding: var(--space-2xl);
+  min-width: 0;
+  transition: padding var(--transition);
+  background: var(--bg-primary);
 }
 
-.dark-mode .dashboard-card,
-.dark-mode .stat-card,
-.dark-mode .settings-card,
-.dark-mode .sale-card {
-  background: #1e1e1e;
-  color: #f5f5f5;
-  border-color: #333;
+/* ============================================
+   6. 📱 MOBILE SIDEBAR TOGGLE
+   ============================================ */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: var(--space-md);
+  left: var(--space-md);
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
+  align-items: center;
+  justify-content: center;
 }
 
-.dark-mode input,
-.dark-mode select {
-  background: #2a2a2a;
-  color: #fff;
-  border-color: #444;
+.sidebar-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
 }
 
-.dark-mode .dashboard-item {
-  border-color: #333;
+.sidebar-toggle:active {
+  transform: scale(0.95);
 }
 
-.dark-mode p {
-  color: #aaa;
+.sidebar-toggle:focus-visible {
+  outline: 2px solid var(--color-primary-400);
+  outline-offset: 2px;
 }
 
-.dark-mode .sales-summary-card {
-  background: #2a2a2a;
+/* ----- Mobile Overlay ----- */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
 }
 
-.dark-mode .product-table {
-  background: #1e1e1e;
-  color: #fff;
+.sidebar-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
 }
 
-.dark-mode .product-table th {
-  background: #2a2a2a;
+/* ============================================
+   7. 📱 RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* ----- Tablets & Small Laptops ----- */
+@media (max-width: 1024px) {
+  .content {
+    padding: var(--space-xl);
+  }
 }
 
-.dark-mode .product-table td {
-  border-color: #333;
+/* ----- Mobile & Small Tablets ----- */
+@media (max-width: 768px) {
+  /* Sidebar - Slide in from left */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    width: 280px;
+    height: 100vh;
+    border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+    box-shadow: 10px 0 50px rgba(0, 0, 0, 0.3);
+    padding: var(--space-lg);
+    transition: transform var(--transition-spring);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Show toggle button */
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  /* Show overlay */
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Content gets padding for toggle button */
+  .content {
+    padding: var(--space-lg);
+    padding-top: 80px;
+  }
+
+  /* Adjust logo size */
+  .logo h2 {
+    font-size: 1.2rem;
+  }
+
+  /* Adjust menu items */
+  .menu-item {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.9rem;
+  }
+
+  .logout-btn {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.9rem;
+  }
+}
+
+/* ----- Small Mobile ----- */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    border-radius: 0;
+    padding: var(--space-md);
+  }
+
+  .content {
+    padding: var(--space-md);
+    padding-top: 72px;
+  }
+
+  .sidebar-toggle {
+    top: var(--space-sm);
+    left: var(--space-sm);
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .logo h2 {
+    font-size: 1.1rem;
+  }
+
+  .menu-item {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.85rem;
+    gap: var(--space-sm);
+  }
+
+  .logout-btn {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.85rem;
+  }
+
+  .sidebar-user {
+    font-size: 0.75rem;
+  }
+}
+
+/* ============================================
+   8. ♿ ACCESSIBILITY
+   ============================================ */
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .sidebar,
+  .menu-item,
+  .logout-btn,
+  .sidebar-toggle {
+    transition: none !important;
+  }
+  
+  .menu-item:hover,
+  .logout-btn:hover,
+  .sidebar-toggle:hover {
+    transform: none !important;
+  }
+}
+
+/* High Contrast */
+@media (prefers-contrast: high) {
+  .sidebar {
+    background: #000 !important;
+    border-right: 2px solid #fff !important;
+  }
+  
+  .menu-item.active {
+    background: #1a1a2e !important;
+    border-left: 4px solid var(--color-gold) !important;
+  }
+  
+  .menu-item.active::before {
+    display: none !important;
+  }
+  
+  .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border: 2px solid var(--color-primary-400) !important;
+  }
+}
+
+/* ============================================
+   9. 🖨️ PRINT STYLES
+   ============================================ */
+@media print {
+  .sidebar {
+    display: none !important;
+  }
+  
+  .sidebar-toggle {
+    display: none !important;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+  }
+  
+  .content {
+    padding: 20px !important;
+  }
+  
+  .layout {
+    background: #fff !important;
+  }
+}
+
+/* ============================================
+   10. 🎭 UTILITY - SCROLLBAR
+   ============================================ */
+.content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: var(--color-primary-300);
+  border-radius: var(--radius-full);
+  transition: background var(--transition);
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-400);
+}
+
+/* ============================================
+   11. 🎨 DARK MODE OVERRIDES
+   ============================================ */
+[data-theme="dark"] .sidebar-toggle,
+.dark-mode .sidebar-toggle {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .sidebar-toggle:hover,
+.dark-mode .sidebar-toggle:hover {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .sidebar-overlay,
+.dark-mode .sidebar-overlay {
+  background: rgba(0, 0, 0, 0.7);
 }
