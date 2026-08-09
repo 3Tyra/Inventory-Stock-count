@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Layout.css";
+
 import {
   useNavigate,
   useLocation
@@ -17,7 +18,19 @@ function Layout({ children }) {
   const { user, logout } = useAuth();
 
 
+  // =========================
+  // DARK MODE
+  // =========================
+
   const [darkMode, setDarkMode] =
+    useState(false);
+
+
+  // =========================
+  // MOBILE SIDEBAR
+  // =========================
+
+  const [sidebarOpen, setSidebarOpen] =
     useState(false);
 
 
@@ -64,6 +77,17 @@ function Layout({ children }) {
 
 
   // =========================
+  // CLOSE SIDEBAR WHEN ROUTE CHANGES
+  // =========================
+
+  useEffect(() => {
+
+    setSidebarOpen(false);
+
+  }, [location.pathname]);
+
+
+  // =========================
   // LOGOUT
   // =========================
 
@@ -71,7 +95,22 @@ function Layout({ children }) {
 
     logout();
 
+    setSidebarOpen(false);
+
     navigate("/login");
+
+  };
+
+
+  // =========================
+  // NAVIGATION
+  // =========================
+
+  const goTo = (path) => {
+
+    navigate(path);
+
+    setSidebarOpen(false);
 
   };
 
@@ -87,18 +126,69 @@ function Layout({ children }) {
     >
 
 
-      {/* SIDEBAR */}
+      {/* =========================
+          MOBILE MENU BUTTON
+      ========================= */}
 
-      <aside className="sidebar">
+      <button
+        className="sidebar-toggle"
+        onClick={() =>
+          setSidebarOpen(
+            !sidebarOpen
+          )
+        }
+        aria-label={
+          sidebarOpen
+            ? "Close menu"
+            : "Open menu"
+        }
+        aria-expanded={sidebarOpen}
+      >
+
+        {sidebarOpen ? "✕" : "☰"}
+
+      </button>
 
 
-        {/* LOGO */}
+      {/* =========================
+          MOBILE OVERLAY
+      ========================= */}
+
+      <div
+        className={
+          sidebarOpen
+            ? "sidebar-overlay visible"
+            : "sidebar-overlay"
+        }
+        onClick={() =>
+          setSidebarOpen(false)
+        }
+      />
+
+
+      {/* =========================
+          SIDEBAR
+      ========================= */}
+
+      <aside
+        className={
+          sidebarOpen
+            ? "sidebar open"
+            : "sidebar"
+        }
+      >
+
+
+        {/* =========================
+            LOGO
+        ========================= */}
 
         <div className="logo">
 
           <h2>
             ⚡ Stock Count
           </h2>
+
 
           {user && (
 
@@ -113,7 +203,9 @@ function Layout({ children }) {
         </div>
 
 
-        {/* MENU */}
+        {/* =========================
+            MENU
+        ========================= */}
 
         <nav className="menu">
 
@@ -127,7 +219,7 @@ function Layout({ children }) {
                 : "menu-item"
             }
             onClick={() =>
-              navigate("/")
+              goTo("/")
             }
           >
 
@@ -145,7 +237,7 @@ function Layout({ children }) {
                 : "menu-item"
             }
             onClick={() =>
-              navigate("/products")
+              goTo("/products")
             }
           >
 
@@ -163,7 +255,7 @@ function Layout({ children }) {
                 : "menu-item"
             }
             onClick={() =>
-              navigate("/settings")
+              goTo("/settings")
             }
           >
 
@@ -175,7 +267,9 @@ function Layout({ children }) {
         </nav>
 
 
-        {/* LOGOUT */}
+        {/* =========================
+            LOGOUT
+        ========================= */}
 
         <button
           className="logout-btn"
@@ -190,7 +284,9 @@ function Layout({ children }) {
       </aside>
 
 
-      {/* MAIN CONTENT */}
+      {/* =========================
+          MAIN CONTENT
+      ========================= */}
 
       <main className="content">
 
@@ -207,4 +303,3 @@ function Layout({ children }) {
 
 
 export default Layout;
-
