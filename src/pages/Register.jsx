@@ -25,51 +25,117 @@ function Register() {
 
   const [error, setError] = useState("");
 
+  const [loading, setLoading] =
+    useState(false);
 
 
-const handleSubmit = (e) => {
+  // =========================
+  // REGISTER
+  // =========================
 
-  e.preventDefault();
+  const handleSubmit = async (e) => {
 
-  setError("");
+    e.preventDefault();
 
-  if (password !== confirmPassword) {
+    setError("");
 
-    setError("Passwords do not match.");
+    // =========================
+    // CHECK PASSWORDS
+    // =========================
 
-    toast.error("Passwords do not match.");
+    if (
+      password !==
+      confirmPassword
+    ) {
 
-    return;
+      setError(
+        "Passwords do not match."
+      );
 
-  }
+      toast.error(
+        "Passwords do not match."
+      );
 
-  const result = register({
-    name,
-    email,
-    password,
-  });
+      return;
 
-  if (result.success) {
+    }
 
-    toast.success("Account created successfully! 🎉");
 
-    setName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
+    setLoading(true);
 
-    navigate("/");
 
-  } else {
+    try {
 
-    setError(result.message);
+      const result =
+        await register({
 
-    toast.error(result.message);
+          name,
+          email,
+          password
 
-  }
+        });
 
-};
 
+      // =========================
+      // SUCCESS
+      // =========================
+
+      if (result.success) {
+
+        toast.success(
+          "Account created successfully! 🎉"
+        );
+
+
+        setName("");
+
+        setEmail("");
+
+        setPassword("");
+
+        setConfirmPassword("");
+
+
+        navigate("/");
+
+      }
+
+
+      // =========================
+      // ERROR
+      // =========================
+
+      else {
+
+        setError(
+          result.message
+        );
+
+        toast.error(
+          result.message
+        );
+
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      setError(
+        "Something went wrong. Please try again."
+      );
+
+      toast.error(
+        "Something went wrong. Please try again."
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
 
 
   return (
@@ -78,13 +144,34 @@ const handleSubmit = (e) => {
 
       <div className="register-card">
 
-        <h1>⚡ Stock Count</h1>
 
-        <h2>Create Account</h2>
+        {/* =========================
+            LOGO
+        ========================= */}
 
-        <p>Create your shop account</p>
+        <h1>
+          ⚡ Stock Count
+        </h1>
 
-        <form onSubmit={handleSubmit}>
+
+        <h2>
+          Create Account
+        </h2>
+
+
+        <p>
+          Create your shop account
+        </p>
+
+
+        <form
+          onSubmit={handleSubmit}
+        >
+
+
+          {/* =========================
+              NAME
+          ========================= */}
 
           <input
 
@@ -103,6 +190,9 @@ const handleSubmit = (e) => {
           />
 
 
+          {/* =========================
+              EMAIL
+          ========================= */}
 
           <input
 
@@ -121,6 +211,9 @@ const handleSubmit = (e) => {
           />
 
 
+          {/* =========================
+              PASSWORD
+          ========================= */}
 
           <div className="password-box">
 
@@ -137,12 +230,15 @@ const handleSubmit = (e) => {
               value={password}
 
               onChange={(e) =>
-                setPassword(e.target.value)
+                setPassword(
+                  e.target.value
+                )
               }
 
               required
 
             />
+
 
             <button
 
@@ -158,13 +254,20 @@ const handleSubmit = (e) => {
 
             >
 
-              {showPassword ? "🙈" : "👁"}
+              {
+                showPassword
+                  ? "🙈"
+                  : "👁"
+              }
 
             </button>
 
           </div>
 
 
+          {/* =========================
+              CONFIRM PASSWORD
+          ========================= */}
 
           <input
 
@@ -189,6 +292,9 @@ const handleSubmit = (e) => {
           />
 
 
+          {/* =========================
+              ERROR
+          ========================= */}
 
           {error && (
 
@@ -201,22 +307,39 @@ const handleSubmit = (e) => {
           )}
 
 
+          {/* =========================
+              REGISTER BUTTON
+          ========================= */}
 
           <button
+
+            type="submit"
+
             className="register-btn"
+
+            disabled={loading}
+
           >
 
-            Create Account
+            {loading
+              ? "Creating Account..."
+              : "Create Account"}
 
           </button>
+
 
         </form>
 
 
+        {/* =========================
+            LOGIN LINK
+        ========================= */}
 
         <p className="login-link">
 
           Already have an account?
+
+          {" "}
 
           <Link to="/login">
 
@@ -226,6 +349,7 @@ const handleSubmit = (e) => {
 
         </p>
 
+
       </div>
 
     </div>
@@ -234,4 +358,6 @@ const handleSubmit = (e) => {
 
 }
 
+
 export default Register;
+

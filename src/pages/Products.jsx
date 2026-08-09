@@ -8,118 +8,30 @@ import SalesModal from "../components/SalesModal/SalesModal";
 import SalesHistory from "../components/SalesHistory/SalesHistory";
 import StockHistory from "../components/StockHistory/StockHistory";
 
+import { supabase } from "../supabaseClient";
+import { useAuth } from "../context/AuthContext";
 
 function Products() {
+
+  const { user } = useAuth();
 
   // =========================
   // PRODUCTS
   // =========================
 
-  const [products, setProducts] = useState(() => {
-
-    try {
-
-      const savedProducts =
-        localStorage.getItem("products");
-
-      const parsedProducts = savedProducts
-        ? JSON.parse(savedProducts)
-        : [];
-
-
-      return parsedProducts.map((product) => {
-
-        const shelfQuantity =
-          Number(product.shelfQuantity) || 0;
-
-        const storeQuantity =
-          Number(product.storeQuantity) ||
-          (
-            Number(product.quantity) || 0
-          );
-
-
-        return {
-
-          ...product,
-
-          shelfQuantity,
-
-          storeQuantity,
-
-          quantity:
-            shelfQuantity +
-            storeQuantity
-
-        };
-
-      });
-
-    } catch (error) {
-
-      console.log(error);
-
-      return [];
-
-    }
-
-  });
-
+  const [products, setProducts] = useState([]);
 
   // =========================
   // SALES
   // =========================
 
-  const [sales, setSales] = useState(() => {
-
-    try {
-
-      const savedSales =
-        localStorage.getItem("sales");
-
-      return savedSales
-        ? JSON.parse(savedSales)
-        : [];
-
-    } catch (error) {
-
-      console.log(error);
-
-      return [];
-
-    }
-
-  });
-
+  const [sales, setSales] = useState([]);
 
   // =========================
   // STOCK HISTORY
   // =========================
 
-  const [stockHistory, setStockHistory] =
-    useState(() => {
-
-      try {
-
-        const savedHistory =
-          localStorage.getItem(
-            "stockHistory"
-          );
-
-        return savedHistory
-          ? JSON.parse(savedHistory)
-          : [];
-
-      } catch (error) {
-
-        console.log(error);
-
-        return [];
-
-      }
-
-    });
-
+  const [stockHistory, setStockHistory] = useState([]);
 
   // =========================
   // MODALS
@@ -128,18 +40,14 @@ function Products() {
   const [isModalOpen, setIsModalOpen] =
     useState(false);
 
-
   const [editingProduct, setEditingProduct] =
     useState(null);
-
 
   const [saleProduct, setSaleProduct] =
     useState(null);
 
-
   const [isSaleOpen, setIsSaleOpen] =
     useState(false);
-
 
   // =========================
   // SEARCH
@@ -148,113 +56,237 @@ function Products() {
   const [searchTerm, setSearchTerm] =
     useState("");
 
-
   const [categoryFilter, setCategoryFilter] =
     useState("All Categories");
 
-
   // =========================
-  // SAVE PRODUCTS
-  // =========================
-
-  useEffect(() => {
-
-    localStorage.setItem(
-      "products",
-      JSON.stringify(products)
-    );
-
-
-    window.dispatchEvent(
-      new Event("productsUpdated")
-    );
-
-  }, [products]);
-
-
-  // =========================
-  // SAVE SALES
+  // LOAD EVERYTHING FROM SUPABASE
   // =========================
 
   useEffect(() => {
 
-    localStorage.setItem(
-      "sales",
-      JSON.stringify(sales)
-    );
+    if (!user) {
+      setProducts([]);
+      setSales([]);
+      setStockHistory([]);
+      return;
+    }
+
+    loadData();
+
+  }, [user]);
+
+  const loadData = async () => {
+
+    try {
+
+      // =========================
+      // PRODUCTS
+      // =========================
+
+      const {
+        data: productData,
+        error: productError
+      } = await supabase
+        .from("products")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {
+          ascending: false
+        });
+
+      if (productError) {
+        console.error(
+          "Products error:",
+          productError
+        );
+      } else {
+
+        const formattedProducts =
+          (productData || []).map(
+            (product) => {
+
+              const shelfQuantity =
+                Number(
+                  product.shelf_quantity
+                ) || 0;
+
+              const storeQuantity =
+                Number(
+                  product.store_quantity
+                ) || 0;
+
+              return {
+
+                ...product,
+
+                shelfQuantity,
+
+                storeQuantity,
+
+                quantity:
+                  shelfQuantity +
+                  storeQuantity
+
+              };
+
+            }
+          );
+
+        setProducts(
+          formattedProducts
+        );
+
+      }
 
 
-    window.dispatchEvent(
-      new Event("salesUpdated")
-    );
+      // =========================
+      // SALES
+      // =========================
 
-  }, [sales]);
+      const {
+        data: salesData,
+        error: salesError
+      } = await supabase
+        .from("sales")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {
+          ascending: false
+        });
+
+      if (salesError) {
+
+        console.error(
+          "Sales error:",
+          salesError
+        );
+
+      } else {
+
+        setSales(
+          salesData || []
+        );
+
+      }
+
+
+      // =========================
+      // STOCK HISTORY
+      // =========================
+
+      const {
+        data: historyData,
+        error: historyError
+      } = await supabase
+        .from("stock_history")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {
+          ascending: false
+        });
+
+      if (historyError) {
+
+        console.error(
+          "Stock history error:",
+          historyError
+        );
+
+      } else {
+
+        setStockHistory(
+          historyData || []
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Loading data failed:",
+        error
+      );
+
+    }
+
+  };
 
 
   // =========================
-  // SAVE STOCK HISTORY
+  // ADD STOCK HISTORY
   // =========================
 
-  useEffect(() => {
-
-    localStorage.setItem(
-      "stockHistory",
-      JSON.stringify(stockHistory)
-    );
-
-
-    window.dispatchEvent(
-      new Event("stockHistoryUpdated")
-    );
-
-  }, [stockHistory]);
-
-
-  // =========================
-  // ADD STOCK HISTORY RECORD
-  // =========================
-
-  const addStockHistory = ({
+  const addStockHistory = async ({
     product,
     action,
     quantity,
     location
   }) => {
 
+    if (!user) {
+      return;
+    }
+
+    const now =
+      new Date();
+
     const historyRecord = {
 
-      id:
-        Date.now() + Math.random(),
+      user_id:
+        user.id,
 
-      productId:
+      product_id:
         product.id,
 
-      productName:
+      product_name:
         product.name,
 
       action,
 
-      quantity,
+      quantity:
+
+        Number(quantity) || 0,
 
       location,
 
       date:
-        new Date().toLocaleDateString(),
+        now.toLocaleDateString(),
 
       time:
-        new Date().toLocaleTimeString()
+        now.toLocaleTimeString()
 
     };
 
 
-    setStockHistory((prev) => {
+    const {
+      data,
+      error
+    } = await supabase
+      .from("stock_history")
+      .insert(historyRecord)
+      .select()
+      .single();
 
-      return [
-        historyRecord,
+
+    if (error) {
+
+      console.error(
+        "Stock history error:",
+        error
+      );
+
+      return;
+
+    }
+
+
+    setStockHistory(
+      (prev) => [
+        data,
         ...prev
-      ];
-
-    });
+      ]
+    );
 
   };
 
@@ -263,7 +295,12 @@ function Products() {
   // ADD PRODUCT
   // =========================
 
-  const addProduct = (product) => {
+  const addProduct = async (product) => {
+
+    if (!user) {
+      return;
+    }
+
 
     const shelfQuantity =
       Number(
@@ -284,39 +321,116 @@ function Products() {
 
     const newProduct = {
 
-      ...product,
+      user_id:
+        user.id,
 
-      shelfQuantity,
+      name:
+        product.name,
 
-      storeQuantity,
+      brand:
+        product.brand || null,
+
+      category:
+        product.category || null,
+
+      image:
+        product.image || null,
+
+      shelf_quantity:
+        shelfQuantity,
+
+      store_quantity:
+        storeQuantity,
 
       quantity:
-        totalQuantity
+        totalQuantity,
+
+      buying_price:
+        Number(
+          product.buyingPrice
+        ) || 0,
+
+      selling_price:
+        Number(
+          product.sellingPrice
+        ) || 0
 
     };
 
 
-    setProducts((prev) => {
-
-      return [
-
-        ...prev,
-
-        newProduct
-
-      ];
-
-    });
+    const {
+      data,
+      error
+    } = await supabase
+      .from("products")
+      .insert(newProduct)
+      .select()
+      .single();
 
 
-    // Record initial stock
+    if (error) {
+
+      console.error(
+        "Add product error:",
+        error
+      );
+
+      alert(
+        "Could not add product."
+      );
+
+      return;
+
+    }
+
+
+    const formattedProduct = {
+
+      ...data,
+
+      shelfQuantity:
+        Number(
+          data.shelf_quantity
+        ) || 0,
+
+      storeQuantity:
+        Number(
+          data.store_quantity
+        ) || 0,
+
+      quantity:
+        (
+          Number(
+            data.shelf_quantity
+          ) || 0
+        ) +
+        (
+          Number(
+            data.store_quantity
+          ) || 0
+        )
+
+    };
+
+
+    setProducts(
+      (prev) => [
+        formattedProduct,
+        ...prev
+      ]
+    );
+
+
+    // =========================
+    // INITIAL STOCK HISTORY
+    // =========================
 
     if (shelfQuantity > 0) {
 
-      addStockHistory({
+      await addStockHistory({
 
         product:
-          newProduct,
+          formattedProduct,
 
         action:
           "Initial Stock",
@@ -334,10 +448,10 @@ function Products() {
 
     if (storeQuantity > 0) {
 
-      addStockHistory({
+      await addStockHistory({
 
         product:
-          newProduct,
+          formattedProduct,
 
         action:
           "Initial Stock",
@@ -362,9 +476,14 @@ function Products() {
   // UPDATE PRODUCT
   // =========================
 
-  const updateProduct = (
+  const updateProduct = async (
     updatedProduct
   ) => {
+
+    if (!user) {
+      return;
+    }
+
 
     const shelfQuantity =
       Number(
@@ -383,38 +502,112 @@ function Products() {
       storeQuantity;
 
 
-    const updatedProductData = {
+    const updateData = {
 
-      ...updatedProduct,
+      name:
+        updatedProduct.name,
 
-      shelfQuantity,
+      brand:
+        updatedProduct.brand || null,
 
-      storeQuantity,
+      category:
+        updatedProduct.category || null,
+
+      image:
+        updatedProduct.image || null,
+
+      shelf_quantity:
+        shelfQuantity,
+
+      store_quantity:
+        storeQuantity,
 
       quantity:
-        totalQuantity
+        totalQuantity,
+
+      buying_price:
+        Number(
+          updatedProduct.buyingPrice
+        ) || 0,
+
+      selling_price:
+        Number(
+          updatedProduct.sellingPrice
+        ) || 0
 
     };
 
 
-    setProducts((prev) => {
+    const {
+      data,
+      error
+    } = await supabase
+      .from("products")
+      .update(updateData)
+      .eq("id", updatedProduct.id)
+      .eq("user_id", user.id)
+      .select()
+      .single();
 
-      return prev.map((product) =>
 
-        product.id ===
-        updatedProduct.id
+    if (error) {
 
-          ? updatedProductData
-
-          : product
-
+      console.error(
+        "Update product error:",
+        error
       );
 
-    });
+      alert(
+        "Could not update product."
+      );
+
+      return;
+
+    }
+
+
+    const formattedProduct = {
+
+      ...data,
+
+      shelfQuantity:
+        Number(
+          data.shelf_quantity
+        ) || 0,
+
+      storeQuantity:
+        Number(
+          data.store_quantity
+        ) || 0,
+
+      quantity:
+        (
+          Number(
+            data.shelf_quantity
+          ) || 0
+        ) +
+        (
+          Number(
+            data.store_quantity
+          ) || 0
+        )
+
+    };
+
+
+    setProducts(
+      (prev) =>
+        prev.map(
+          (product) =>
+            product.id ===
+            updatedProduct.id
+              ? formattedProduct
+              : product
+        )
+    );
 
 
     setEditingProduct(null);
-
     setIsModalOpen(false);
 
   };
@@ -424,16 +617,47 @@ function Products() {
   // DELETE PRODUCT
   // =========================
 
-  const deleteProduct = (id) => {
+  const deleteProduct = async (
+    id
+  ) => {
 
-    setProducts((prev) => {
+    if (!user) {
+      return;
+    }
 
-      return prev.filter(
-        (product) =>
-          product.id !== id
+
+    const {
+      error
+    } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+
+    if (error) {
+
+      console.error(
+        "Delete product error:",
+        error
       );
 
-    });
+      alert(
+        "Could not delete product."
+      );
+
+      return;
+
+    }
+
+
+    setProducts(
+      (prev) =>
+        prev.filter(
+          (product) =>
+            product.id !== id
+        )
+    );
 
   };
 
@@ -442,55 +666,192 @@ function Products() {
   // STOCK IN / STOCK OUT
   // =========================
 
-  const updateStock = (
+  const updateStock = async (
     id,
     amount
   ) => {
 
-    setProducts((prev) => {
+    if (!user) {
+      return;
+    }
 
-      return prev.map((product) => {
+
+    const product =
+      products.find(
+        (item) =>
+          item.id === id
+      );
+
+
+    if (!product) {
+      return;
+    }
+
+
+    let shelfQuantity =
+      Number(
+        product.shelfQuantity
+      ) || 0;
+
+
+    let storeQuantity =
+      Number(
+        product.storeQuantity
+      ) || 0;
+
+
+    // =========================
+    // STOCK IN
+    // =========================
+
+    if (amount > 0) {
+
+      storeQuantity +=
+        amount;
+
+
+      const totalQuantity =
+        shelfQuantity +
+        storeQuantity;
+
+
+      const {
+        error
+      } = await supabase
+        .from("products")
+        .update({
+
+          shelf_quantity:
+            shelfQuantity,
+
+          store_quantity:
+            storeQuantity,
+
+          quantity:
+            totalQuantity
+
+        })
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+
+      if (error) {
+
+        console.error(
+          error
+        );
+
+        return;
+
+      }
+
+
+      await addStockHistory({
+
+        product,
+
+        action:
+          "Stock Added",
+
+        quantity:
+          amount,
+
+        location:
+          "Store / Box"
+
+      });
+
+    }
+
+
+    // =========================
+    // STOCK OUT
+    // =========================
+
+    if (amount < 0) {
+
+      const amountToRemove =
+        Math.abs(amount);
+
+
+      const availableStock =
+        shelfQuantity +
+        storeQuantity;
+
+
+      if (
+        amountToRemove >
+        availableStock
+      ) {
+
+        alert(
+          "Not enough stock available."
+        );
+
+        return;
+
+      }
+
+
+      let remaining =
+        amountToRemove;
+
+
+      // Remove from store first
+
+      if (
+        storeQuantity >=
+        remaining
+      ) {
+
+        storeQuantity -=
+          remaining;
+
+
+        await addStockHistory({
+
+          product,
+
+          action:
+            "Stock Removed",
+
+          quantity:
+            remaining,
+
+          location:
+            "Store / Box"
+
+        });
+
+
+        remaining = 0;
+
+      } else {
+
+        const removedFromStore =
+          storeQuantity;
+
+
+        remaining -=
+          storeQuantity;
+
+
+        storeQuantity = 0;
+
 
         if (
-          product.id !== id
+          removedFromStore > 0
         ) {
 
-          return product;
-
-        }
-
-
-        let shelfQuantity =
-          Number(
-            product.shelfQuantity
-          ) || 0;
-
-
-        let storeQuantity =
-          Number(
-            product.storeQuantity
-          ) || 0;
-
-
-        // =========================
-        // STOCK IN
-        // =========================
-
-        if (amount > 0) {
-
-          storeQuantity +=
-            amount;
-
-
-          addStockHistory({
+          await addStockHistory({
 
             product,
 
             action:
-              "Stock Added",
+              "Stock Removed",
 
             quantity:
-              amount,
+              removedFromStore,
 
             location:
               "Store / Box"
@@ -499,141 +860,85 @@ function Products() {
 
         }
 
-
-        // =========================
-        // STOCK OUT
-        // =========================
-
-        if (amount < 0) {
-
-          const amountToRemove =
-            Math.abs(amount);
+      }
 
 
-          // Remove from store first
+      // Remove remaining from shelf
 
-          if (
-            storeQuantity >=
-            amountToRemove
-          ) {
+      if (
+        remaining > 0
+      ) {
 
-            storeQuantity -=
-              amountToRemove;
-
-
-            addStockHistory({
-
-              product,
-
-              action:
-                "Stock Removed",
-
-              quantity:
-                amountToRemove,
-
-              location:
-                "Store / Box"
-
-            });
-
-          } else {
-
-            const removedFromStore =
-              storeQuantity;
+        const removedFromShelf =
+          Math.min(
+            shelfQuantity,
+            remaining
+          );
 
 
-            const remaining =
-              amountToRemove -
-              storeQuantity;
+        shelfQuantity -=
+          removedFromShelf;
 
 
-            storeQuantity = 0;
+        await addStockHistory({
+
+          product,
+
+          action:
+            "Stock Removed",
+
+          quantity:
+            removedFromShelf,
+
+          location:
+            "Shelf"
+
+        });
+
+      }
 
 
-            const removedFromShelf =
-              Math.min(
-                shelfQuantity,
-                remaining
-              );
+      const totalQuantity =
+        shelfQuantity +
+        storeQuantity;
 
 
-            shelfQuantity =
-              Math.max(
-                0,
-                shelfQuantity -
-                remaining
-              );
+      const {
+        error
+      } = await supabase
+        .from("products")
+        .update({
 
+          shelf_quantity:
+            shelfQuantity,
 
-            if (
-              removedFromStore > 0
-            ) {
-
-              addStockHistory({
-
-                product,
-
-                action:
-                  "Stock Removed",
-
-                quantity:
-                  removedFromStore,
-
-                location:
-                  "Store / Box"
-
-              });
-
-            }
-
-
-            if (
-              removedFromShelf > 0
-            ) {
-
-              addStockHistory({
-
-                product,
-
-                action:
-                  "Stock Removed",
-
-                quantity:
-                  removedFromShelf,
-
-                location:
-                  "Shelf"
-
-              });
-
-            }
-
-          }
-
-        }
-
-
-        const totalQuantity =
-          shelfQuantity +
-          storeQuantity;
-
-
-        return {
-
-          ...product,
-
-          shelfQuantity,
-
-          storeQuantity,
+          store_quantity:
+            storeQuantity,
 
           quantity:
             totalQuantity
 
-        };
+        })
+        .eq("id", id)
+        .eq("user_id", user.id);
 
-      });
 
-    });
+      if (error) {
+
+        console.error(
+          error
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    // Refresh products
+
+    await loadData();
 
   };
 
@@ -642,10 +947,15 @@ function Products() {
   // SELL PRODUCT
   // =========================
 
-  const sellProduct = (
+  const sellProduct = async (
     product,
     quantity
   ) => {
+
+    if (!user) {
+      return;
+    }
+
 
     const soldQuantity =
       Number(quantity);
@@ -661,13 +971,21 @@ function Products() {
     }
 
 
+    const shelfQuantity =
+      Number(
+        product.shelfQuantity
+      ) || 0;
+
+
+    const storeQuantity =
+      Number(
+        product.storeQuantity
+      ) || 0;
+
+
     const availableStock =
-      Number(
-        product.shelfQuantity || 0
-      ) +
-      Number(
-        product.storeQuantity || 0
-      );
+      shelfQuantity +
+      storeQuantity;
 
 
     if (
@@ -703,15 +1021,15 @@ function Products() {
       soldQuantity;
 
 
-    const newSale = {
+    const sale = {
 
-      id:
-        Date.now(),
+      user_id:
+        user.id,
 
-      productId:
+      product_id:
         product.id,
 
-      productName:
+      product_name:
         product.name,
 
       quantity:
@@ -729,185 +1047,198 @@ function Products() {
 
 
     // =========================
-    // ADD SALE
+    // SAVE SALE
     // =========================
 
-    setSales((prev) => {
+    const {
+      data: saleData,
+      error: saleError
+    } = await supabase
+      .from("sales")
+      .insert(sale)
+      .select()
+      .single();
 
-      return [
 
+    if (saleError) {
+
+      console.error(
+        "Sale error:",
+        saleError
+      );
+
+      alert(
+        "Could not complete sale."
+      );
+
+      return;
+
+    }
+
+
+    setSales(
+      (prev) => [
         ...prev,
-
-        newSale
-
-      ];
-
-    });
+        saleData
+      ]
+    );
 
 
     // =========================
-    // REMOVE SOLD STOCK
+    // REMOVE STOCK
     // =========================
 
-    setProducts((prev) => {
-
-      return prev.map((item) => {
-
-        if (
-          item.id !==
-          product.id
-        ) {
-
-          return item;
-
-        }
+    let newShelfQuantity =
+      shelfQuantity;
 
 
-        let shelfQuantity =
-          Number(
-            item.shelfQuantity
-          ) || 0;
+    let newStoreQuantity =
+      storeQuantity;
 
 
-        let storeQuantity =
-          Number(
-            item.storeQuantity
-          ) || 0;
+    let remaining =
+      soldQuantity;
 
 
-        let remaining =
-          soldQuantity;
+    // Shelf first
+
+    if (
+      newShelfQuantity >=
+      remaining
+    ) {
+
+      newShelfQuantity -=
+        remaining;
 
 
-        // =========================
-        // REMOVE FROM SHELF FIRST
-        // =========================
+      await addStockHistory({
 
-        if (
-          shelfQuantity >=
-          remaining
-        ) {
+        product,
 
-          shelfQuantity -=
-            remaining;
+        action:
+          "Sold",
 
+        quantity:
+          remaining,
 
-          addStockHistory({
-
-            product:
-              item,
-
-            action:
-              "Sold",
-
-            quantity:
-              remaining,
-
-            location:
-              "Shelf"
-
-          });
-
-
-          remaining = 0;
-
-        } else {
-
-          const removedFromShelf =
-            shelfQuantity;
-
-
-          remaining -=
-            shelfQuantity;
-
-
-          shelfQuantity = 0;
-
-
-          if (
-            removedFromShelf > 0
-          ) {
-
-            addStockHistory({
-
-              product:
-                item,
-
-              action:
-                "Sold",
-
-              quantity:
-                removedFromShelf,
-
-              location:
-                "Shelf"
-
-            });
-
-          }
-
-        }
-
-
-        // =========================
-        // REMOVE REST FROM STORE
-        // =========================
-
-        if (
-          remaining > 0
-        ) {
-
-          const removedFromStore =
-            Math.min(
-              storeQuantity,
-              remaining
-            );
-
-
-          storeQuantity -=
-            removedFromStore;
-
-
-          addStockHistory({
-
-            product:
-              item,
-
-            action:
-              "Sold",
-
-            quantity:
-              removedFromStore,
-
-            location:
-              "Store / Box"
-
-          });
-
-        }
-
-
-        const totalQuantity =
-          shelfQuantity +
-          storeQuantity;
-
-
-        return {
-
-          ...item,
-
-          shelfQuantity,
-
-          storeQuantity,
-
-          quantity:
-            totalQuantity
-
-        };
+        location:
+          "Shelf"
 
       });
 
-    });
+
+      remaining = 0;
+
+    } else {
+
+      const removedFromShelf =
+        newShelfQuantity;
+
+
+      remaining -=
+        newShelfQuantity;
+
+
+      newShelfQuantity = 0;
+
+
+      if (
+        removedFromShelf > 0
+      ) {
+
+        await addStockHistory({
+
+          product,
+
+          action:
+            "Sold",
+
+          quantity:
+            removedFromShelf,
+
+          location:
+            "Shelf"
+
+        });
+
+      }
+
+    }
+
+
+    // Store
+
+    if (
+      remaining > 0
+    ) {
+
+      const removedFromStore =
+        Math.min(
+          newStoreQuantity,
+          remaining
+        );
+
+
+      newStoreQuantity -=
+        removedFromStore;
+
+
+      await addStockHistory({
+
+        product,
+
+        action:
+          "Sold",
+
+        quantity:
+          removedFromStore,
+
+        location:
+          "Store / Box"
+
+      });
+
+    }
+
+
+    const totalQuantity =
+      newShelfQuantity +
+      newStoreQuantity;
+
+
+    const {
+      error: stockError
+    } = await supabase
+      .from("products")
+      .update({
+
+        shelf_quantity:
+          newShelfQuantity,
+
+        store_quantity:
+          newStoreQuantity,
+
+        quantity:
+          totalQuantity
+
+      })
+      .eq("id", product.id)
+      .eq("user_id", user.id);
+
+
+    if (stockError) {
+
+      console.error(
+        "Stock update error:",
+        stockError
+      );
+
+      return;
+
+    }
+
+
+    await loadData();
 
   };
 
@@ -916,9 +1247,14 @@ function Products() {
   // DELETE SALE
   // =========================
 
-  const deleteSale = (
+  const deleteSale = async (
     saleId
   ) => {
+
+    if (!user) {
+      return;
+    }
+
 
     const saleToDelete =
       sales.find(
@@ -927,101 +1263,127 @@ function Products() {
       );
 
 
-    if (
-      !saleToDelete
-    ) {
+    if (!saleToDelete) {
+      return;
+    }
+
+
+    const {
+      error
+    } = await supabase
+      .from("sales")
+      .delete()
+      .eq("id", saleId)
+      .eq("user_id", user.id);
+
+
+    if (error) {
+
+      console.error(
+        "Delete sale error:",
+        error
+      );
 
       return;
 
     }
 
 
-    // Remove sale
+    // Restore stock
 
-    setSales((prev) => {
-
-      return prev.filter(
-        (sale) =>
-          sale.id !== saleId
+    const product =
+      products.find(
+        (item) =>
+          item.id ===
+          saleToDelete.product_id
       );
 
-    });
+
+    if (product) {
+
+      const shelfQuantity =
+        Number(
+          product.shelfQuantity
+        ) || 0;
 
 
-    // Restore quantity
-    // back to shelf
-
-    setProducts((prev) => {
-
-      return prev.map((product) => {
-
-        if (
-          product.id !==
-          saleToDelete.productId
-        ) {
-
-          return product;
-
-        }
+      const storeQuantity =
+        Number(
+          product.storeQuantity
+        ) || 0;
 
 
-        const shelfQuantity =
-          Number(
-            product.shelfQuantity
-          ) || 0;
+      const restoredQuantity =
+        Number(
+          saleToDelete.quantity
+        );
 
 
-        const storeQuantity =
-          Number(
-            product.storeQuantity
-          ) || 0;
+      const restoredShelf =
+        shelfQuantity +
+        restoredQuantity;
 
 
-        const restoredQuantity =
-          Number(
-            saleToDelete.quantity
-          );
+      const {
+        error:
+          restoreError
+      } = await supabase
+        .from("products")
+        .update({
 
-
-        const restoredShelf =
-          shelfQuantity +
-          restoredQuantity;
-
-
-        addStockHistory({
-
-          product,
-
-          action:
-            "Sale Reversed",
-
-          quantity:
-            restoredQuantity,
-
-          location:
-            "Shelf"
-
-        });
-
-
-        return {
-
-          ...product,
-
-          shelfQuantity:
+          shelf_quantity:
             restoredShelf,
 
-          storeQuantity,
+          store_quantity:
+            storeQuantity,
 
           quantity:
             restoredShelf +
             storeQuantity
 
-        };
+        })
+        .eq(
+          "id",
+          product.id
+        )
+        .eq(
+          "user_id",
+          user.id
+        );
+
+
+      if (
+        restoreError
+      ) {
+
+        console.error(
+          restoreError
+        );
+
+        return;
+
+      }
+
+
+      await addStockHistory({
+
+        product,
+
+        action:
+          "Sale Reversed",
+
+        quantity:
+          restoredQuantity,
+
+        location:
+          "Shelf"
 
       });
 
-    });
+    }
+
+
+    await loadData();
 
   };
 
@@ -1030,18 +1392,44 @@ function Products() {
   // DELETE STOCK HISTORY
   // =========================
 
-  const deleteHistory = (
+  const deleteHistory = async (
     historyId
   ) => {
 
-    setStockHistory((prev) => {
+    if (!user) {
+      return;
+    }
 
-      return prev.filter(
-        (record) =>
-          record.id !== historyId
+
+    const {
+      error
+    } = await supabase
+      .from("stock_history")
+      .delete()
+      .eq("id", historyId)
+      .eq("user_id", user.id);
+
+
+    if (error) {
+
+      console.error(
+        "Delete history error:",
+        error
       );
 
-    });
+      return;
+
+    }
+
+
+    setStockHistory(
+      (prev) =>
+        prev.filter(
+          (record) =>
+            record.id !==
+            historyId
+        )
+    );
 
   };
 
@@ -1092,10 +1480,7 @@ function Products() {
 
     <div className="products">
 
-
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <div className="products-header">
 
@@ -1134,9 +1519,7 @@ function Products() {
       </div>
 
 
-      {/* =========================
-          SEARCH
-      ========================= */}
+      {/* SEARCH */}
 
       <SearchBar
 
@@ -1159,9 +1542,7 @@ function Products() {
       />
 
 
-      {/* =========================
-          PRODUCT TABLE
-      ========================= */}
+      {/* PRODUCT TABLE */}
 
       <div className="product-table-wrapper">
 
@@ -1179,7 +1560,6 @@ function Products() {
             updateStock
           }
 
-
           onSell={(product) => {
 
             setSaleProduct(
@@ -1191,7 +1571,6 @@ function Products() {
             );
 
           }}
-
 
           onEdit={(product) => {
 
@@ -1210,9 +1589,7 @@ function Products() {
       </div>
 
 
-      {/* =========================
-          PRODUCT FORM
-      ========================= */}
+      {/* PRODUCT FORM */}
 
       <ProductForm
 
@@ -1223,7 +1600,6 @@ function Products() {
         editingProduct={
           editingProduct
         }
-
 
         onClose={() => {
 
@@ -1237,7 +1613,6 @@ function Products() {
 
         }}
 
-
         onSave={
           addProduct
         }
@@ -1249,9 +1624,7 @@ function Products() {
       />
 
 
-      {/* =========================
-          SALES MODAL
-      ========================= */}
+      {/* SALES MODAL */}
 
       <SalesModal
 
@@ -1262,7 +1635,6 @@ function Products() {
         isOpen={
           isSaleOpen
         }
-
 
         onClose={() => {
 
@@ -1276,7 +1648,6 @@ function Products() {
 
         }}
 
-
         onSell={
           sellProduct
         }
@@ -1284,9 +1655,7 @@ function Products() {
       />
 
 
-      {/* =========================
-          SALES HISTORY
-      ========================= */}
+      {/* SALES HISTORY */}
 
       <SalesHistory
 
@@ -1301,9 +1670,7 @@ function Products() {
       />
 
 
-      {/* =========================
-          STOCK HISTORY
-      ========================= */}
+      {/* STOCK HISTORY */}
 
       <StockHistory
 
@@ -1317,12 +1684,10 @@ function Products() {
 
       />
 
-
     </div>
 
   );
 
 }
-
 
 export default Products;

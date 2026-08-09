@@ -20,30 +20,71 @@ function Login() {
 
   const [error, setError] = useState("");
 
+  const [loading, setLoading] =
+    useState(false);
 
 
-  const handleSubmit = (e) => {
+  // =========================
+  // LOGIN
+  // =========================
 
-  e.preventDefault();
+  const handleSubmit = async (e) => {
 
-  const result = login(email, password);
+    e.preventDefault();
 
-  if (result.success) {
+    setError("");
 
-    toast.success("Welcome back! 👋");
+    setLoading(true);
 
-    navigate("/");
 
-  } else {
+    try {
 
-    setError(result.message);
+      const result =
+        await login(
+          email,
+          password
+        );
 
-    toast.error(result.message);
 
-  }
+      if (result.success) {
 
-};
+        toast.success(
+          "Welcome back! 👋"
+        );
 
+        navigate("/");
+
+      } else {
+
+        setError(
+          result.message
+        );
+
+        toast.error(
+          result.message
+        );
+
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      setError(
+        "Something went wrong. Please try again."
+      );
+
+      toast.error(
+        "Something went wrong. Please try again."
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
 
 
   return (
@@ -52,13 +93,28 @@ function Login() {
 
       <div className="login-card">
 
-        <h1>⚡ Stock Count</h1>
 
-        <h2>Welcome Back</h2>
+        <h1>
+          ⚡ Stock Count
+        </h1>
 
-        <p>Sign in to continue</p>
 
-        <form onSubmit={handleSubmit}>
+        <h2>
+          Welcome Back
+        </h2>
+
+
+        <p>
+          Sign in to continue
+        </p>
+
+
+        <form
+          onSubmit={handleSubmit}
+        >
+
+
+          {/* EMAIL */}
 
           <input
 
@@ -77,6 +133,7 @@ function Login() {
           />
 
 
+          {/* PASSWORD */}
 
           <div className="password-box">
 
@@ -93,12 +150,15 @@ function Login() {
               value={password}
 
               onChange={(e) =>
-                setPassword(e.target.value)
+                setPassword(
+                  e.target.value
+                )
               }
 
               required
 
             />
+
 
             <button
 
@@ -114,13 +174,18 @@ function Login() {
 
             >
 
-              {showPassword ? "🙈" : "👁"}
+              {
+                showPassword
+                  ? "🙈"
+                  : "👁"
+              }
 
             </button>
 
           </div>
 
 
+          {/* ERROR */}
 
           {error && (
 
@@ -133,22 +198,35 @@ function Login() {
           )}
 
 
+          {/* LOGIN BUTTON */}
 
           <button
+
+            type="submit"
+
             className="login-btn"
+
+            disabled={loading}
+
           >
 
-            Login
+            {loading
+              ? "Logging in..."
+              : "Login"}
 
           </button>
+
 
         </form>
 
 
+        {/* REGISTER */}
 
         <p className="register-link">
 
           Don't have an account?
+
+          {" "}
 
           <Link to="/register">
 
@@ -158,6 +236,7 @@ function Login() {
 
         </p>
 
+
       </div>
 
     </div>
@@ -165,5 +244,6 @@ function Login() {
   );
 
 }
+
 
 export default Login;
