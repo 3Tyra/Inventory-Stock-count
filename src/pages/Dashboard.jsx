@@ -455,7 +455,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            📦 Total Products
+             Total Products
           </h3>
 
           <h2>
@@ -469,7 +469,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            📊 Total Stock
+            Total Stock
           </h3>
 
           <h2>
@@ -483,7 +483,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            ⚠️ Low Stock
+            Low Stock
           </h3>
 
           <h2>
@@ -497,7 +497,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            💰 Inventory Value
+             Inventory Value
           </h3>
 
           <h2>
@@ -512,7 +512,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            📈 Potential Profit
+             Potential Profit
           </h3>
 
           <h2>
@@ -541,7 +541,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            💵 Sales Revenue
+            Sales Revenue
           </h3>
 
           <h2>
@@ -556,7 +556,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            📈 Profit Made
+             Profit Made
           </h3>
 
           <h2>
@@ -744,7 +744,7 @@ function Dashboard() {
         <div className="dashboard-card">
 
           <h2>
-            ⚠️ Stock Alerts
+             Stock Alerts
           </h2>
 
           {lowStockProducts.length === 0 ? (

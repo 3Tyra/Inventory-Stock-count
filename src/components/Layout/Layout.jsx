@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Layout.css";
+import Footer from "../Footer/Footer";
 
 import {
   useNavigate,
@@ -8,35 +9,15 @@ import {
 
 import { useAuth } from "../../context/AuthContext";
 
-
 function Layout({ children }) {
 
   const navigate = useNavigate();
-
   const location = useLocation();
 
   const { user, logout } = useAuth();
 
-
-  // =========================
-  // DARK MODE
-  // =========================
-
-  const [darkMode, setDarkMode] =
-    useState(false);
-
-
-  // =========================
-  // MOBILE SIDEBAR
-  // =========================
-
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
-
-
-  // =========================
-  // LOAD SETTINGS
-  // =========================
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
 
@@ -47,22 +28,18 @@ function Layout({ children }) {
           localStorage.getItem("settings")
         ) || {};
 
-
       setDarkMode(
         savedSettings.darkMode === true
       );
 
     };
 
-
     loadSettings();
-
 
     window.addEventListener(
       "settingsUpdated",
       loadSettings
     );
-
 
     return () => {
 
@@ -75,21 +52,11 @@ function Layout({ children }) {
 
   }, []);
 
-
-  // =========================
-  // CLOSE SIDEBAR WHEN ROUTE CHANGES
-  // =========================
-
   useEffect(() => {
 
     setSidebarOpen(false);
 
   }, [location.pathname]);
-
-
-  // =========================
-  // LOGOUT
-  // =========================
 
   const handleLogout = () => {
 
@@ -101,11 +68,6 @@ function Layout({ children }) {
 
   };
 
-
-  // =========================
-  // NAVIGATION
-  // =========================
-
   const goTo = (path) => {
 
     navigate(path);
@@ -113,7 +75,6 @@ function Layout({ children }) {
     setSidebarOpen(false);
 
   };
-
 
   return (
 
@@ -125,34 +86,19 @@ function Layout({ children }) {
       }
     >
 
-
-      {/* =========================
-          MOBILE MENU BUTTON
-      ========================= */}
+      {/* MOBILE BUTTON */}
 
       <button
         className="sidebar-toggle"
         onClick={() =>
-          setSidebarOpen(
-            !sidebarOpen
-          )
+          setSidebarOpen(!sidebarOpen)
         }
-        aria-label={
-          sidebarOpen
-            ? "Close menu"
-            : "Open menu"
-        }
-        aria-expanded={sidebarOpen}
       >
-
         {sidebarOpen ? "✕" : "☰"}
-
       </button>
 
 
-      {/* =========================
-          MOBILE OVERLAY
-      ========================= */}
+      {/* OVERLAY */}
 
       <div
         className={
@@ -166,9 +112,7 @@ function Layout({ children }) {
       />
 
 
-      {/* =========================
-          SIDEBAR
-      ========================= */}
+      {/* SIDEBAR */}
 
       <aside
         className={
@@ -178,39 +122,22 @@ function Layout({ children }) {
         }
       >
 
-
-        {/* =========================
-            LOGO
-        ========================= */}
-
         <div className="logo">
 
           <h2>
-            ⚡ Stock Count
+            ⚡ TIMELINE ELECTRONICS STOCK-COUNT APP
           </h2>
 
-
           {user && (
-
             <p className="sidebar-user">
-
               👋 {user.name}
-
             </p>
-
           )}
 
         </div>
 
 
-        {/* =========================
-            MENU
-        ========================= */}
-
         <nav className="menu">
-
-
-          {/* DASHBOARD */}
 
           <button
             className={
@@ -218,17 +145,11 @@ function Layout({ children }) {
                 ? "menu-item active"
                 : "menu-item"
             }
-            onClick={() =>
-              goTo("/")
-            }
+            onClick={() => goTo("/")}
           >
-
             🏠 Dashboard
-
           </button>
 
-
-          {/* PRODUCTS */}
 
           <button
             className={
@@ -236,17 +157,11 @@ function Layout({ children }) {
                 ? "menu-item active"
                 : "menu-item"
             }
-            onClick={() =>
-              goTo("/products")
-            }
+            onClick={() => goTo("/products")}
           >
-
             📦 Products
-
           </button>
 
-
-          {/* SETTINGS */}
 
           <button
             className={
@@ -254,52 +169,38 @@ function Layout({ children }) {
                 ? "menu-item active"
                 : "menu-item"
             }
-            onClick={() =>
-              goTo("/settings")
-            }
+            onClick={() => goTo("/settings")}
           >
-
             ⚙️ Settings
-
           </button>
-
 
         </nav>
 
-
-        {/* =========================
-            LOGOUT
-        ========================= */}
 
         <button
           className="logout-btn"
           onClick={handleLogout}
         >
-
           🚪 Logout
-
         </button>
-
 
       </aside>
 
 
-      {/* =========================
-          MAIN CONTENT
-      ========================= */}
+      {/* MAIN AREA */}
 
       <main className="content">
 
         {children}
 
-      </main>
+        <Footer />
 
+      </main>
 
     </div>
 
   );
 
 }
-
 
 export default Layout;

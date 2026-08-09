@@ -95,7 +95,7 @@ function Login() {
 
 
         <h1>
-          ⚡ Stock Count
+          TIMELINE ELECTRONICS STOCK-COUNT APP
         </h1>
 
 

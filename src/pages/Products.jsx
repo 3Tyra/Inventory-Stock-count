@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import "./Products.css";
 
@@ -38,28 +37,21 @@ function Products() {
   // =========================
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
 
-  const [editingProduct, setEditingProduct] =
-    useState(null);
-
-  const [saleProduct, setSaleProduct] =
-    useState(null);
-
-  const [isSaleOpen, setIsSaleOpen] =
-    useState(false);
+  const [saleProduct, setSaleProduct] = useState(null);
+  const [isSaleOpen, setIsSaleOpen] = useState(false);
 
   // =========================
   // SEARCH
   // =========================
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] =
     useState("All Categories");
 
   // =========================
-  // LOAD EVERYTHING
+  // LOAD DATA
   // =========================
 
   useEffect(() => {
@@ -83,13 +75,13 @@ function Products() {
 
       const {
         data: productData,
-        error: productError,
+        error: productError
       } = await supabase
         .from("products")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", {
-          ascending: false,
+          ascending: false
         });
 
       if (productError) {
@@ -121,7 +113,7 @@ function Products() {
 
               quantity:
                 shelfQuantity +
-                storeQuantity,
+                storeQuantity
             };
           });
 
@@ -134,13 +126,13 @@ function Products() {
 
       const {
         data: salesData,
-        error: salesError,
+        error: salesError
       } = await supabase
         .from("sales")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", {
-          ascending: false,
+          ascending: false
         });
 
       if (salesError) {
@@ -158,13 +150,13 @@ function Products() {
 
       const {
         data: historyData,
-        error: historyError,
+        error: historyError
       } = await supabase
         .from("stock_history")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", {
-          ascending: false,
+          ascending: false
         });
 
       if (historyError) {
@@ -175,6 +167,7 @@ function Products() {
       } else {
         setStockHistory(historyData || []);
       }
+
     } catch (error) {
       console.error(
         "Loading data failed:",
@@ -191,7 +184,7 @@ function Products() {
     product,
     action,
     quantity,
-    location,
+    location
   }) => {
     if (!user) return;
 
@@ -199,25 +192,18 @@ function Products() {
 
     const historyRecord = {
       user_id: user.id,
-
       product_id: product.id,
-
       product_name: product.name,
-
       action,
-
       quantity: Number(quantity) || 0,
-
       location,
-
       date: now.toLocaleDateString(),
-
-      time: now.toLocaleTimeString(),
+      time: now.toLocaleTimeString()
     };
 
     const {
       data,
-      error,
+      error
     } = await supabase
       .from("stock_history")
       .insert(historyRecord)
@@ -229,12 +215,13 @@ function Products() {
         "Stock history error:",
         error
       );
+
       return;
     }
 
     setStockHistory((prev) => [
       data,
-      ...prev,
+      ...prev
     ]);
   };
 
@@ -260,11 +247,14 @@ function Products() {
 
       name: product.name,
 
-      brand: product.brand || null,
+      brand:
+        product.brand || null,
 
-      category: product.category || null,
+      category:
+        product.category || null,
 
-      image: product.image || null,
+      image:
+        product.image || null,
 
       shelf_quantity:
         shelfQuantity,
@@ -279,12 +269,12 @@ function Products() {
         Number(product.buyingPrice) || 0,
 
       selling_price:
-        Number(product.sellingPrice) || 0,
+        Number(product.sellingPrice) || 0
     };
 
     const {
       data,
-      error,
+      error
     } = await supabase
       .from("products")
       .insert(newProduct)
@@ -322,39 +312,33 @@ function Products() {
 
       quantity:
         (Number(data.shelf_quantity) || 0) +
-        (Number(data.store_quantity) || 0),
+        (Number(data.store_quantity) || 0)
     };
 
     setProducts((prev) => [
       formattedProduct,
-      ...prev,
+      ...prev
     ]);
 
     // =========================
-    // INITIAL STOCK HISTORY
+    // INITIAL HISTORY
     // =========================
 
     if (shelfQuantity > 0) {
       await addStockHistory({
         product: formattedProduct,
-
         action: "Initial Stock",
-
         quantity: shelfQuantity,
-
-        location: "Shelf",
+        location: "Shelf"
       });
     }
 
     if (storeQuantity > 0) {
       await addStockHistory({
         product: formattedProduct,
-
         action: "Initial Stock",
-
         quantity: storeQuantity,
-
-        location: "Store / Box",
+        location: "Store / Box"
       });
     }
 
@@ -385,7 +369,8 @@ function Products() {
       storeQuantity;
 
     const updateData = {
-      name: updatedProduct.name,
+      name:
+        updatedProduct.name,
 
       brand:
         updatedProduct.brand || null,
@@ -413,17 +398,23 @@ function Products() {
       selling_price:
         Number(
           updatedProduct.sellingPrice
-        ) || 0,
+        ) || 0
     };
 
     const {
       data,
-      error,
+      error
     } = await supabase
       .from("products")
       .update(updateData)
-      .eq("id", updatedProduct.id)
-      .eq("user_id", user.id)
+      .eq(
+        "id",
+        updatedProduct.id
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
       .select()
       .single();
 
@@ -458,20 +449,18 @@ function Products() {
 
       quantity:
         (Number(data.shelf_quantity) || 0) +
-        (Number(data.store_quantity) || 0),
+        (Number(data.store_quantity) || 0)
     };
 
     setProducts((prev) =>
       prev.map((product) =>
-        product.id ===
-        updatedProduct.id
+        product.id === updatedProduct.id
           ? formattedProduct
           : product
       )
     );
 
     setEditingProduct(null);
-
     setIsModalOpen(false);
   };
 
@@ -483,7 +472,7 @@ function Products() {
     if (!user) return;
 
     const {
-      error,
+      error
     } = await supabase
       .from("products")
       .delete()
@@ -510,7 +499,6 @@ function Products() {
       )
     );
 
-    // Remove related history from UI
     setStockHistory((prev) =>
       prev.filter(
         (record) =>
@@ -520,7 +508,7 @@ function Products() {
   };
 
   // =========================
-  // STOCK IN / STOCK OUT
+  // STOCK UPDATE
   // =========================
 
   const updateStock = async (
@@ -559,7 +547,7 @@ function Products() {
         storeQuantity;
 
       const {
-        error,
+        error
       } = await supabase
         .from("products")
         .update({
@@ -570,10 +558,13 @@ function Products() {
             storeQuantity,
 
           quantity:
-            totalQuantity,
+            totalQuantity
         })
         .eq("id", id)
-        .eq("user_id", user.id);
+        .eq(
+          "user_id",
+          user.id
+        );
 
       if (error) {
         console.error(
@@ -590,12 +581,9 @@ function Products() {
 
       await addStockHistory({
         product,
-
         action: "Stock Added",
-
         quantity: amount,
-
-        location: "Store / Box",
+        location: "Store / Box"
       });
     }
 
@@ -636,16 +624,15 @@ function Products() {
 
         await addStockHistory({
           product,
-
           action: "Stock Removed",
-
           quantity: remaining,
-
-          location: "Store / Box",
+          location: "Store / Box"
         });
 
         remaining = 0;
+
       } else {
+
         const removedFromStore =
           storeQuantity;
 
@@ -659,15 +646,11 @@ function Products() {
         ) {
           await addStockHistory({
             product,
-
-            action:
-              "Stock Removed",
-
+            action: "Stock Removed",
             quantity:
               removedFromStore,
-
             location:
-              "Store / Box",
+              "Store / Box"
           });
         }
       }
@@ -689,15 +672,11 @@ function Products() {
         ) {
           await addStockHistory({
             product,
-
-            action:
-              "Stock Removed",
-
+            action: "Stock Removed",
             quantity:
               removedFromShelf,
-
             location:
-              "Shelf",
+              "Shelf"
           });
         }
       }
@@ -707,7 +686,7 @@ function Products() {
         storeQuantity;
 
       const {
-        error,
+        error
       } = await supabase
         .from("products")
         .update({
@@ -718,10 +697,13 @@ function Products() {
             storeQuantity,
 
           quantity:
-            totalQuantity,
+            totalQuantity
         })
         .eq("id", id)
-        .eq("user_id", user.id);
+        .eq(
+          "user_id",
+          user.id
+        );
 
       if (error) {
         console.error(
@@ -816,16 +798,12 @@ function Products() {
 
       date:
         new Date()
-          .toLocaleDateString(),
+          .toLocaleDateString()
     };
-
-    // =========================
-    // SAVE SALE
-    // =========================
 
     const {
       data: saleData,
-      error: saleError,
+      error: saleError
     } = await supabase
       .from("sales")
       .insert(sale)
@@ -848,12 +826,8 @@ function Products() {
 
     setSales((prev) => [
       saleData,
-      ...prev,
+      ...prev
     ]);
-
-    // =========================
-    // REMOVE STOCK
-    // =========================
 
     let newShelfQuantity =
       shelfQuantity;
@@ -875,16 +849,15 @@ function Products() {
 
       await addStockHistory({
         product,
-
         action: "Sold",
-
         quantity: remaining,
-
-        location: "Shelf",
+        location: "Shelf"
       });
 
       remaining = 0;
+
     } else {
+
       const removedFromShelf =
         newShelfQuantity;
 
@@ -898,13 +871,11 @@ function Products() {
       ) {
         await addStockHistory({
           product,
-
           action: "Sold",
-
           quantity:
             removedFromShelf,
-
-          location: "Shelf",
+          location:
+            "Shelf"
         });
       }
     }
@@ -926,14 +897,11 @@ function Products() {
       ) {
         await addStockHistory({
           product,
-
           action: "Sold",
-
           quantity:
             removedFromStore,
-
           location:
-            "Store / Box",
+            "Store / Box"
         });
       }
     }
@@ -943,7 +911,7 @@ function Products() {
       newStoreQuantity;
 
     const {
-      error: stockError,
+      error: stockError
     } = await supabase
       .from("products")
       .update({
@@ -954,10 +922,16 @@ function Products() {
           newStoreQuantity,
 
         quantity:
-          totalQuantity,
+          totalQuantity
       })
-      .eq("id", product.id)
-      .eq("user_id", user.id);
+      .eq(
+        "id",
+        product.id
+      )
+      .eq(
+        "user_id",
+        user.id
+      );
 
     if (stockError) {
       console.error(
@@ -992,12 +966,18 @@ function Products() {
     if (!saleToDelete) return;
 
     const {
-      error,
+      error
     } = await supabase
       .from("sales")
       .delete()
-      .eq("id", saleId)
-      .eq("user_id", user.id);
+      .eq(
+        "id",
+        saleId
+      )
+      .eq(
+        "user_id",
+        user.id
+      );
 
     if (error) {
       console.error(
@@ -1011,8 +991,6 @@ function Products() {
 
       return;
     }
-
-    // Restore stock
 
     const product =
       products.find(
@@ -1043,7 +1021,7 @@ function Products() {
 
       const {
         error:
-          restoreError,
+          restoreError
       } = await supabase
         .from("products")
         .update({
@@ -1055,7 +1033,7 @@ function Products() {
 
           quantity:
             restoredShelf +
-            storeQuantity,
+            storeQuantity
         })
         .eq(
           "id",
@@ -1085,7 +1063,7 @@ function Products() {
           restoredQuantity,
 
         location:
-          "Shelf",
+          "Shelf"
       });
     }
 
@@ -1093,7 +1071,7 @@ function Products() {
   };
 
   // =========================
-  // DELETE STOCK HISTORY
+  // DELETE HISTORY
   // =========================
 
   const deleteHistory = async (
@@ -1102,12 +1080,18 @@ function Products() {
     if (!user) return;
 
     const {
-      error,
+      error
     } = await supabase
       .from("stock_history")
       .delete()
-      .eq("id", historyId)
-      .eq("user_id", user.id);
+      .eq(
+        "id",
+        historyId
+      )
+      .eq(
+        "user_id",
+        user.id
+      );
 
     if (error) {
       console.error(
@@ -1164,9 +1148,11 @@ function Products() {
   // =========================
 
   return (
-    <div className="products">
+    <div className="products-page">
 
-      {/* HEADER */}
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <div className="products-header">
 
@@ -1176,8 +1162,7 @@ function Products() {
           </h1>
 
           <p>
-            Manage all electrical
-            products.
+            Manage all electrical products.
           </p>
         </div>
 
@@ -1193,7 +1178,9 @@ function Products() {
 
       </div>
 
-      {/* SEARCH */}
+      {/* =========================
+          SEARCH
+      ========================= */}
 
       <SearchBar
         searchTerm={searchTerm}
@@ -1204,14 +1191,18 @@ function Products() {
         }
       />
 
-      {/* PRODUCT TABLE */}
+      {/* =========================
+          PRODUCT TABLE
+      ========================= */}
 
       <div className="product-table-wrapper">
 
         <ProductTable
           products={filteredProducts}
 
-          onDelete={deleteProduct}
+          onDelete={
+            deleteProduct
+          }
 
           onStockUpdate={
             updateStock
@@ -1230,7 +1221,9 @@ function Products() {
 
       </div>
 
-      {/* PRODUCT FORM */}
+      {/* =========================
+          PRODUCT FORM
+      ========================= */}
 
       <ProductForm
         isOpen={isModalOpen}
@@ -1244,12 +1237,18 @@ function Products() {
           setEditingProduct(null);
         }}
 
-        onSave={addProduct}
+        onSave={
+          addProduct
+        }
 
-        onUpdate={updateProduct}
+        onUpdate={
+          updateProduct
+        }
       />
 
-      {/* SALES MODAL */}
+      {/* =========================
+          SALES MODAL
+      ========================= */}
 
       <SalesModal
         product={saleProduct}
@@ -1261,10 +1260,14 @@ function Products() {
           setSaleProduct(null);
         }}
 
-        onSell={sellProduct}
+        onSell={
+          sellProduct
+        }
       />
 
-      {/* SALES HISTORY */}
+      {/* =========================
+          SALES HISTORY
+      ========================= */}
 
       <SalesHistory
         sales={sales}
@@ -1273,7 +1276,9 @@ function Products() {
         }
       />
 
-      {/* STOCK HISTORY */}
+      {/* =========================
+          STOCK HISTORY
+      ========================= */}
 
       <StockHistory
         history={stockHistory}
@@ -1287,4 +1292,3 @@ function Products() {
 }
 
 export default Products;
-
