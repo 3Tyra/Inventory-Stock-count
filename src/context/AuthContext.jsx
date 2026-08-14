@@ -64,7 +64,8 @@ export function AuthProvider({ children }) {
         );
 
 
-        // Still keep the Auth user
+        // Keep authenticated user
+        // even if profile cannot load
 
         setUser({
 
@@ -72,7 +73,10 @@ export function AuthProvider({ children }) {
             authUser.id,
 
           email:
-            authUser.email
+            authUser.email,
+
+          name:
+            authUser.user_metadata?.name || ""
 
         });
 
@@ -93,7 +97,10 @@ export function AuthProvider({ children }) {
             authUser.id,
 
           email:
-            authUser.email
+            authUser.email,
+
+          name:
+            authUser.user_metadata?.name || ""
 
         });
 
@@ -107,13 +114,19 @@ export function AuthProvider({ children }) {
       );
 
 
+      // Keep the user logged in
+      // even if profile loading fails
+
       setUser({
 
         id:
           authUser.id,
 
         email:
-          authUser.email
+          authUser.email,
+
+        name:
+          authUser.user_metadata?.name || ""
 
       });
 
@@ -138,7 +151,8 @@ export function AuthProvider({ children }) {
         const {
           data,
           error
-        } = await supabase.auth.getSession();
+        } =
+          await supabase.auth.getSession();
 
 
         if (error) {
@@ -147,6 +161,7 @@ export function AuthProvider({ children }) {
             "Session error:",
             error
           );
+
 
           if (mounted) {
 
@@ -163,6 +178,10 @@ export function AuthProvider({ children }) {
           data?.session;
 
 
+        // =========================
+        // NO SESSION
+        // =========================
+
         if (!session) {
 
           if (mounted) {
@@ -175,6 +194,10 @@ export function AuthProvider({ children }) {
 
         }
 
+
+        // =========================
+        // SESSION EXISTS
+        // =========================
 
         await loadProfile(
           session.user
@@ -224,9 +247,15 @@ export function AuthProvider({ children }) {
         ) => {
 
           if (!mounted) {
+
             return;
+
           }
 
+
+          // =========================
+          // LOGGED OUT
+          // =========================
 
           if (!session) {
 
@@ -238,6 +267,10 @@ export function AuthProvider({ children }) {
 
           }
 
+
+          // =========================
+          // LOGGED IN
+          // =========================
 
           await loadProfile(
             session.user
@@ -283,8 +316,14 @@ export function AuthProvider({ children }) {
         name.trim();
 
       const cleanEmail =
-        email.trim().toLowerCase();
+        email
+          .trim()
+          .toLowerCase();
 
+
+      // =========================
+      // VALIDATION
+      // =========================
 
       if (!cleanName) {
 
@@ -355,7 +394,18 @@ export function AuthProvider({ children }) {
           email:
             cleanEmail,
 
-          password
+          password,
+
+          options: {
+
+            data: {
+
+              name:
+                cleanName
+
+            }
+
+          }
 
         });
 
@@ -484,7 +534,9 @@ export function AuthProvider({ children }) {
     try {
 
       const cleanEmail =
-        email.trim().toLowerCase();
+        email
+          .trim()
+          .toLowerCase();
 
 
       const {
@@ -561,7 +613,10 @@ export function AuthProvider({ children }) {
             data.user.id,
 
           email:
-            data.user.email
+            data.user.email,
+
+          name:
+            data.user.user_metadata?.name || ""
 
         });
 
@@ -577,7 +632,10 @@ export function AuthProvider({ children }) {
             data.user.id,
 
           email:
-            data.user.email
+            data.user.email,
+
+          name:
+            data.user.user_metadata?.name || ""
 
         });
 
@@ -632,6 +690,7 @@ export function AuthProvider({ children }) {
           "Logout error:",
           error
         );
+
 
         return {
 
@@ -709,6 +768,10 @@ export function AuthProvider({ children }) {
           ?.trim()
           .toLowerCase();
 
+
+      // =========================
+      // VALIDATION
+      // =========================
 
       if (!cleanName) {
 
