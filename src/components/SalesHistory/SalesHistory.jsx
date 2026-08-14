@@ -17,16 +17,11 @@ function SalesHistory({
     useState(null);
 
   // =========================
-  // OPEN DELETE CONFIRMATION
+  // OPEN DELETE MODAL
   // =========================
 
-  const handleDeleteClick = (e, sale) => {
-
-    e.preventDefault();
-    e.stopPropagation();
-
+  const handleDeleteClick = (sale) => {
     setSaleToDelete(sale);
-
   };
 
   // =========================
@@ -35,41 +30,26 @@ function SalesHistory({
 
   const confirmDelete = () => {
 
-    if (!saleToDelete) {
-      return;
-    }
+    if (!saleToDelete) return;
 
-    if (
-      typeof onDeleteSale !== "function"
-    ) {
+    if (typeof onDeleteSale !== "function") {
       console.error(
         "onDeleteSale is not a function"
       );
-
       return;
     }
 
-    onDeleteSale(
-      saleToDelete.id
-    );
+    onDeleteSale(saleToDelete.id);
 
     setSaleToDelete(null);
-
   };
 
   // =========================
-  // CANCEL DELETE
+  // CANCEL
   // =========================
 
-  const cancelDelete = (e) => {
-
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
+  const cancelDelete = () => {
     setSaleToDelete(null);
-
   };
 
   return (
@@ -85,11 +65,8 @@ function SalesHistory({
         <div>
 
           <h2>
-
             <FiFileText />
-
             Sales History
-
           </h2>
 
           <p>
@@ -146,21 +123,15 @@ function SalesHistory({
                   </h3>
 
                   <p>
-
                     Quantity sold:{" "}
-
                     <strong>
                       {sale.quantity}
                     </strong>
-
                   </p>
 
                   <p>
-
                     Date:{" "}
-
                     {sale.date}
-
                   </p>
 
                 </div>
@@ -173,36 +144,23 @@ function SalesHistory({
                 <div className="sale-money">
 
                   <p>
-
                     Revenue:{" "}
-
                     <strong>
-
                       KSh{" "}
-
                       {Number(
                         sale.revenue || 0
                       ).toLocaleString()}
-
                     </strong>
-
                   </p>
 
-
                   <p>
-
                     Profit:{" "}
-
                     <strong>
-
                       KSh{" "}
-
                       {Number(
                         sale.profit || 0
                       ).toLocaleString()}
-
                     </strong>
-
                   </p>
 
                 </div>
@@ -213,35 +171,14 @@ function SalesHistory({
                 ========================= */}
 
                 <button
-
                   type="button"
-
                   className="delete-sale-btn"
-
-                  onClick={(e) =>
-                    handleDeleteClick(
-                      e,
-                      sale
-                    )
+                  onClick={() =>
+                    handleDeleteClick(sale)
                   }
-
-                  onTouchEnd={(e) => {
-
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    setSaleToDelete(sale);
-
-                  }}
-
-                  title="Delete sale"
-
                   aria-label={`Delete sale for ${sale.product_name}`}
-
                 >
-
                   <FiTrash2 />
-
                 </button>
 
               </div>
@@ -254,32 +191,16 @@ function SalesHistory({
 
 
       {/* =========================
-          DELETE SALE MODAL
+          DELETE MODAL
       ========================= */}
 
       {saleToDelete && (
 
-        <div
+        <div className="sale-delete-overlay">
 
-          className="sale-delete-overlay"
+          <div className="sale-delete-modal">
 
-          onClick={cancelDelete}
-
-        >
-
-          <div
-
-            className="sale-delete-modal"
-
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-
-          >
-
-            {/* =========================
-                WARNING ICON
-            ========================= */}
+            {/* WARNING ICON */}
 
             <div className="sale-delete-icon">
 
@@ -288,18 +209,14 @@ function SalesHistory({
             </div>
 
 
-            {/* =========================
-                TITLE
-            ========================= */}
+            {/* TITLE */}
 
             <h2>
               Delete Sale?
             </h2>
 
 
-            {/* =========================
-                MESSAGE
-            ========================= */}
+            {/* MESSAGE */}
 
             <p>
 
@@ -309,76 +226,44 @@ function SalesHistory({
               <strong>
                 "{saleToDelete.product_name}"
               </strong>
-
               ?
 
             </p>
 
 
-            {/* =========================
-                RESTORE MESSAGE
-            ========================= */}
+            {/* RESTORE MESSAGE */}
 
             <p className="restore-message">
 
               <FiPackage />
 
               <span>
-
                 {saleToDelete.quantity}
                 {" "}
                 item(s) will be returned
                 to stock.
-
               </span>
 
             </p>
 
 
-            {/* =========================
-                BUTTONS
-            ========================= */}
+            {/* BUTTONS */}
 
             <div className="sale-delete-buttons">
 
-              {/* CANCEL */}
-
               <button
-
                 type="button"
-
                 className="cancel-sale-delete"
-
                 onClick={cancelDelete}
-
-                onTouchEnd={cancelDelete}
-
               >
-
                 Cancel
-
               </button>
 
 
-              {/* CONFIRM */}
-
               <button
-
                 type="button"
-
                 className="confirm-sale-delete"
-
                 onClick={confirmDelete}
-
-                onTouchEnd={(e) => {
-
-                  e.preventDefault();
-                  e.stopPropagation();
-
-                  confirmDelete();
-
-                }}
-
               >
 
                 <FiTrash2 />
