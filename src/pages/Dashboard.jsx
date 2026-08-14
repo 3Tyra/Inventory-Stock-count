@@ -15,6 +15,18 @@ import "./Dashboard.css";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 
+import {
+  FiBarChart2,
+  FiPackage,
+  FiAlertTriangle,
+  FiDollarSign,
+  FiShoppingCart,
+  FiTrendingUp,
+  FiPlusCircle,
+  FiTag,
+  FiBox
+} from "react-icons/fi";
+
 function Dashboard() {
   const { user } = useAuth();
 
@@ -407,7 +419,8 @@ function Dashboard() {
         <div className="dashboard-header">
 
           <h1>
-            📊 Dashboard
+            <FiBarChart2 />
+            Dashboard
           </h1>
 
           <p>
@@ -434,7 +447,8 @@ function Dashboard() {
       <div className="dashboard-header">
 
         <h1>
-          📊 Dashboard
+          <FiBarChart2 />
+          Dashboard
         </h1>
 
         <p>
@@ -455,7 +469,8 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-             Total Products
+            <FiPackage />
+            Total Products
           </h3>
 
           <h2>
@@ -469,6 +484,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
+            <FiBox />
             Total Stock
           </h3>
 
@@ -483,6 +499,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
+            <FiAlertTriangle />
             Low Stock
           </h3>
 
@@ -497,7 +514,8 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-             Inventory Value
+            <FiDollarSign />
+            Inventory Value
           </h3>
 
           <h2>
@@ -512,7 +530,8 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-             Potential Profit
+            <FiTrendingUp />
+            Potential Profit
           </h3>
 
           <h2>
@@ -527,7 +546,8 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-            🛒 Items Sold
+            <FiShoppingCart />
+            Items Sold
           </h3>
 
           <h2>
@@ -541,6 +561,7 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
+            <FiDollarSign />
             Sales Revenue
           </h3>
 
@@ -556,7 +577,8 @@ function Dashboard() {
         <div className="stat-card">
 
           <h3>
-             Profit Made
+            <FiTrendingUp />
+            Profit Made
           </h3>
 
           <h2>
@@ -577,7 +599,8 @@ function Dashboard() {
         <div className="card-header">
 
           <h2>
-            📈 Sales Overview
+            <FiTrendingUp />
+            Sales Overview
           </h2>
 
           <p>
@@ -591,7 +614,7 @@ function Dashboard() {
           <div className="empty-chart">
 
             <span>
-              📊
+              <FiBarChart2 />
             </span>
 
             <p>
@@ -679,7 +702,8 @@ function Dashboard() {
         <div className="dashboard-card">
 
           <h2>
-            🆕 Recent Products
+            <FiPlusCircle />
+            Recent Products
           </h2>
 
           {recentProducts.length === 0 ? (
@@ -711,7 +735,7 @@ function Dashboard() {
                     ) : (
 
                       <div className="dashboard-product-placeholder">
-                        📦
+                        <FiPackage />
                       </div>
 
                     )}
@@ -744,13 +768,14 @@ function Dashboard() {
         <div className="dashboard-card">
 
           <h2>
-             Stock Alerts
+            <FiAlertTriangle />
+            Stock Alerts
           </h2>
 
           {lowStockProducts.length === 0 ? (
 
             <p>
-              Everything is well stocked 🎉
+              Everything is well stocked.
             </p>
 
           ) : (
@@ -789,7 +814,8 @@ function Dashboard() {
         <div className="dashboard-card">
 
           <h2>
-            🏷 Categories
+            <FiTag />
+            Categories
           </h2>
 
           {Object.keys(
@@ -836,4 +862,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

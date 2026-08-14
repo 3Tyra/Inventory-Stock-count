@@ -1,33 +1,34 @@
 import { useEffect, useState } from "react";
 import "./SalesModal.css";
 
+import {
+  FiShoppingCart,
+  FiAlertTriangle,
+  FiCheck
+} from "react-icons/fi";
+
 function SalesModal({
   product,
   isOpen,
   onClose,
   onSell
 }) {
-
   const [quantity, setQuantity] = useState("");
   const [error, setError] = useState("");
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] =
+    useState(false);
 
   // =========================
   // RESET MODAL
   // =========================
 
   useEffect(() => {
-
     if (isOpen) {
-
       setQuantity("");
       setError("");
       setShowConfirmation(false);
-
     }
-
   }, [isOpen, product]);
-
 
   // =========================
   // HIDE MODAL
@@ -36,7 +37,6 @@ function SalesModal({
   if (!isOpen || !product) {
     return null;
   }
-
 
   // =========================
   // VALUES
@@ -61,64 +61,48 @@ function SalesModal({
     (sellingPrice - buyingPrice) *
     soldQuantity;
 
-
   // =========================
   // VALIDATE SALE
   // =========================
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
 
     setError("");
 
-
     if (!quantity) {
-
       setError(
         "Please enter the quantity sold."
       );
 
       return;
-
     }
 
-
     if (soldQuantity <= 0) {
-
       setError(
         "Quantity must be greater than 0."
       );
 
       return;
-
     }
 
-
     if (soldQuantity > availableStock) {
-
       setError(
         `Only ${availableStock} units are available.`
       );
 
       return;
-
     }
 
-
     // Show confirmation screen
-
     setShowConfirmation(true);
-
   };
-
 
   // =========================
   // COMPLETE SALE
   // =========================
 
   const confirmSale = () => {
-
     onSell(
       product,
       soldQuantity
@@ -129,31 +113,24 @@ function SalesModal({
     setShowConfirmation(false);
 
     onClose();
-
   };
-
 
   // =========================
   // CANCEL CONFIRMATION
   // =========================
 
   const cancelConfirmation = () => {
-
     setShowConfirmation(false);
-
   };
-
 
   // =========================
   // PAGE
   // =========================
 
   return (
-
     <div className="sales-overlay">
 
       <div className="sales-modal">
-
 
         {!showConfirmation ? (
 
@@ -162,15 +139,14 @@ function SalesModal({
                 SELL FORM
             ========================= */}
 
-            <h2>
-              🛒 Sell Product
+            <h2 className="sales-title">
+              <FiShoppingCart />
+              Sell Product
             </h2>
-
 
             <h3>
               {product.name}
             </h3>
-
 
             <p>
               Available Stock:{" "}
@@ -178,7 +154,6 @@ function SalesModal({
                 {availableStock}
               </strong>
             </p>
-
 
             <p>
               Selling Price:{" "}
@@ -188,7 +163,6 @@ function SalesModal({
               </strong>
             </p>
 
-
             <form
               onSubmit={handleSubmit}
             >
@@ -197,7 +171,6 @@ function SalesModal({
                 Quantity Sold
               </label>
 
-
               <input
                 type="number"
                 min="1"
@@ -205,41 +178,36 @@ function SalesModal({
                 placeholder="Enter quantity"
                 value={quantity}
                 onChange={(e) => {
-
                   setQuantity(
                     e.target.value
                   );
 
                   setError("");
-
                 }}
               />
-
 
               {/* =========================
                   ERROR
               ========================= */}
 
               {error && (
-
                 <p className="sale-error">
-                  ⚠️ {error}
+                  <FiAlertTriangle />
+                  {error}
                 </p>
-
               )}
-
 
               {/* =========================
                   SALE PREVIEW
               ========================= */}
 
               {soldQuantity > 0 &&
-                soldQuantity <= availableStock && (
+                soldQuantity <=
+                  availableStock && (
 
                   <div className="sale-preview">
 
                     <div>
-
                       <span>
                         Quantity
                       </span>
@@ -247,12 +215,9 @@ function SalesModal({
                       <strong>
                         {soldQuantity}
                       </strong>
-
                     </div>
 
-
                     <div>
-
                       <span>
                         Revenue
                       </span>
@@ -261,12 +226,9 @@ function SalesModal({
                         KSh{" "}
                         {revenue.toLocaleString()}
                       </strong>
-
                     </div>
 
-
                     <div>
-
                       <span>
                         Profit
                       </span>
@@ -275,13 +237,10 @@ function SalesModal({
                         KSh{" "}
                         {profit.toLocaleString()}
                       </strong>
-
                     </div>
 
                   </div>
-
                 )}
-
 
               {/* =========================
                   BUTTONS
@@ -295,7 +254,6 @@ function SalesModal({
                 >
                   Cancel
                 </button>
-
 
                 <button
                   type="submit"
@@ -318,17 +276,14 @@ function SalesModal({
           <div className="sale-confirmation">
 
             <div className="confirmation-icon">
-              🛒
+              <FiShoppingCart />
             </div>
-
 
             <h2>
               Complete Sale?
             </h2>
 
-
             <p>
-
               You are about to sell{" "}
 
               <strong>
@@ -339,9 +294,7 @@ function SalesModal({
               {soldQuantity !== 1
                 ? "s"
                 : ""}.
-
             </p>
-
 
             {/* =========================
                 SUMMARY
@@ -350,7 +303,6 @@ function SalesModal({
             <div className="confirmation-summary">
 
               <div>
-
                 <span>
                   Quantity
                 </span>
@@ -358,12 +310,9 @@ function SalesModal({
                 <strong>
                   {soldQuantity}
                 </strong>
-
               </div>
 
-
               <div>
-
                 <span>
                   Revenue
                 </span>
@@ -372,12 +321,9 @@ function SalesModal({
                   KSh{" "}
                   {revenue.toLocaleString()}
                 </strong>
-
               </div>
 
-
               <div>
-
                 <span>
                   Profit
                 </span>
@@ -386,11 +332,9 @@ function SalesModal({
                   KSh{" "}
                   {profit.toLocaleString()}
                 </strong>
-
               </div>
 
             </div>
-
 
             {/* =========================
                 WARNING
@@ -402,7 +346,6 @@ function SalesModal({
               {soldQuantity}.
 
             </p>
-
 
             {/* =========================
                 CONFIRM BUTTONS
@@ -419,13 +362,13 @@ function SalesModal({
                 Go Back
               </button>
 
-
               <button
                 type="button"
                 className="confirm-sale-btn"
                 onClick={confirmSale}
               >
-                ✓ Complete Sale
+                <FiCheck />
+                Complete Sale
               </button>
 
             </div>
@@ -437,9 +380,7 @@ function SalesModal({
       </div>
 
     </div>
-
   );
-
 }
 
 export default SalesModal;

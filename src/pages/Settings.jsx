@@ -4,6 +4,20 @@ import "./Settings.css";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 
+import {
+  FiSettings,
+  FiUser,
+  FiShoppingBag,
+  FiMoon,
+  FiLock,
+  FiSave,
+  FiDownload,
+  FiUpload,
+  FiTrash2,
+  FiAlertTriangle,
+  FiX
+} from "react-icons/fi";
+
 function Settings() {
   const { user, updateProfile } = useAuth();
 
@@ -30,6 +44,13 @@ function Settings() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // =========================
+  // DELETE CONFIRMATION
+  // =========================
+
+  const [showDeleteModal, setShowDeleteModal] =
+    useState(false);
 
   // =========================
   // LOAD USER + SETTINGS
@@ -61,25 +82,59 @@ function Settings() {
         .maybeSingle();
 
       if (error) {
-        console.error("Settings load error:", error);
-        setError("Could not load your settings.");
+        console.error(
+          "Settings load error:",
+          error
+        );
+
+        setError(
+          "Could not load your settings."
+        );
+
         return;
       }
 
       if (data) {
         setSettings({
-          shopName: data.shop_name || "Stock Count",
-          phone: data.phone || "",
-          location: data.location || "",
-          currency: data.currency || "KSh",
+          shopName:
+            data.shop_name ||
+            "Stock Count",
+
+          phone:
+            data.phone ||
+            "",
+
+          location:
+            data.location ||
+            "",
+
+          currency:
+            data.currency ||
+            "KSh",
+
           lowStockLimit:
-            Number(data.low_stock_limit) || 10,
-          darkMode: Boolean(data.dark_mode)
+            Number(
+              data.low_stock_limit
+            ) || 10,
+
+          darkMode:
+            Boolean(
+              data.dark_mode
+            )
         });
       }
+
     } catch (err) {
-      console.error("Settings loading failed:", err);
-      setError("Could not load your settings.");
+
+      console.error(
+        "Settings loading failed:",
+        err
+      );
+
+      setError(
+        "Could not load your settings."
+      );
+
     }
   };
 
@@ -88,6 +143,7 @@ function Settings() {
   // =========================
 
   const handleSettings = (e) => {
+
     const {
       name,
       value,
@@ -97,6 +153,7 @@ function Settings() {
 
     setSettings((prev) => ({
       ...prev,
+
       [name]:
         type === "checkbox"
           ? checked
@@ -112,9 +169,12 @@ function Settings() {
   // =========================
 
   const handleProfile = (e) => {
+
     setProfile((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+
+      [e.target.name]:
+        e.target.value
     }));
 
     setMessage("");
@@ -126,9 +186,12 @@ function Settings() {
   // =========================
 
   const handlePassword = (e) => {
+
     setPassword((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+
+      [e.target.name]:
+        e.target.value
     }));
 
     setMessage("");
@@ -140,8 +203,13 @@ function Settings() {
   // =========================
 
   const saveAll = async () => {
+
     if (!user) {
-      setError("You must be logged in.");
+
+      setError(
+        "You must be logged in."
+      );
+
       return;
     }
 
@@ -150,19 +218,30 @@ function Settings() {
     setLoading(true);
 
     try {
+
       // =========================
       // VALIDATE PROFILE
       // =========================
 
       if (!profile.name.trim()) {
-        setError("Please enter your name.");
+
+        setError(
+          "Please enter your name."
+        );
+
         setLoading(false);
+
         return;
       }
 
       if (!profile.email.trim()) {
-        setError("Please enter your email.");
+
+        setError(
+          "Please enter your email."
+        );
+
         setLoading(false);
+
         return;
       }
 
@@ -171,25 +250,33 @@ function Settings() {
       // =========================
 
       const settingsData = {
-        user_id: user.id,
+
+        user_id:
+          user.id,
 
         shop_name:
           settings.shopName.trim(),
 
         phone:
-          settings.phone.trim() || null,
+          settings.phone.trim() ||
+          null,
 
         location:
-          settings.location.trim() || null,
+          settings.location.trim() ||
+          null,
 
         currency:
           settings.currency,
 
         low_stock_limit:
-          Number(settings.lowStockLimit) || 10,
+          Number(
+            settings.lowStockLimit
+          ) || 10,
 
         dark_mode:
-          Boolean(settings.darkMode)
+          Boolean(
+            settings.darkMode
+          )
       };
 
       const {
@@ -199,11 +286,13 @@ function Settings() {
         .upsert(
           settingsData,
           {
-            onConflict: "user_id"
+            onConflict:
+              "user_id"
           }
         );
 
       if (settingsError) {
+
         console.error(
           "Settings save error:",
           settingsError
@@ -214,6 +303,7 @@ function Settings() {
         );
 
         setLoading(false);
+
         return;
       }
 
@@ -224,20 +314,26 @@ function Settings() {
       const profileResult =
         await updateProfile({
           ...user,
-          name: profile.name.trim(),
-          email: profile.email.trim()
+
+          name:
+            profile.name.trim(),
+
+          email:
+            profile.email.trim()
         });
 
       if (
         profileResult &&
         !profileResult.success
       ) {
+
         setError(
           profileResult.message ||
-            "Could not update profile."
+          "Could not update profile."
         );
 
         setLoading(false);
+
         return;
       }
 
@@ -250,32 +346,39 @@ function Settings() {
         password.newPassword ||
         password.confirm
       ) {
+
         if (!password.current) {
+
           setError(
             "Please enter your current password."
           );
 
           setLoading(false);
+
           return;
         }
 
         if (!password.newPassword) {
+
           setError(
             "Please enter a new password."
           );
 
           setLoading(false);
+
           return;
         }
 
         if (
           password.newPassword.length < 6
         ) {
+
           setError(
             "New password must be at least 6 characters."
           );
 
           setLoading(false);
+
           return;
         }
 
@@ -283,28 +386,26 @@ function Settings() {
           password.newPassword !==
           password.confirm
         ) {
+
           setError(
             "New passwords do not match."
           );
 
           setLoading(false);
+
           return;
         }
 
-        // Supabase does not require
-        // the current password here.
-        // The current password field
-        // is kept as a confirmation field
-        // for the UI.
-
         const {
           error: passwordError
-        } = await supabase.auth.updateUser({
-          password:
-            password.newPassword
-        });
+        } =
+          await supabase.auth.updateUser({
+            password:
+              password.newPassword
+          });
 
         if (passwordError) {
+
           console.error(
             "Password update error:",
             passwordError
@@ -312,10 +413,11 @@ function Settings() {
 
           setError(
             passwordError.message ||
-              "Could not update password."
+            "Could not update password."
           );
 
           setLoading(false);
+
           return;
         }
       }
@@ -335,10 +437,17 @@ function Settings() {
       // =========================
 
       setMessage(
-        "✓ Settings updated successfully."
+        "Settings updated successfully."
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "settingsUpdated"
+        )
       );
 
     } catch (err) {
+
       console.error(
         "Save settings failed:",
         err
@@ -347,6 +456,7 @@ function Settings() {
       setError(
         "Something went wrong while saving."
       );
+
     }
 
     setLoading(false);
@@ -357,35 +467,51 @@ function Settings() {
   // =========================
 
   const backupData = async () => {
+
     if (!user) return;
 
     try {
+
       const [
         productsResult,
         salesResult,
         historyResult,
         settingsResult
       ] = await Promise.all([
+
         supabase
           .from("products")
           .select("*")
-          .eq("user_id", user.id),
+          .eq(
+            "user_id",
+            user.id
+          ),
 
         supabase
           .from("sales")
           .select("*")
-          .eq("user_id", user.id),
+          .eq(
+            "user_id",
+            user.id
+          ),
 
         supabase
           .from("stock_history")
           .select("*")
-          .eq("user_id", user.id),
+          .eq(
+            "user_id",
+            user.id
+          ),
 
         supabase
           .from("settings")
           .select("*")
-          .eq("user_id", user.id)
+          .eq(
+            "user_id",
+            user.id
+          )
           .maybeSingle()
+
       ]);
 
       if (productsResult.error) {
@@ -405,17 +531,23 @@ function Settings() {
       }
 
       const backup = {
+
         products:
-          productsResult.data || [],
+          productsResult.data ||
+          [],
 
         sales:
-          salesResult.data || [],
+          salesResult.data ||
+          [],
 
         stockHistory:
-          historyResult.data || [],
+          historyResult.data ||
+          [],
 
         settings:
-          settingsResult.data || null
+          settingsResult.data ||
+          null
+
       };
 
       const data =
@@ -435,31 +567,42 @@ function Settings() {
         );
 
       const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+          blob
+        );
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
       link.href = url;
 
       link.download =
         "stock-count-backup.json";
 
-      document.body.appendChild(link);
+      document.body.appendChild(
+        link
+      );
 
       link.click();
 
-      document.body.removeChild(link);
+      document.body.removeChild(
+        link
+      );
 
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(
+        url
+      );
 
       setMessage(
-        "✓ Backup downloaded successfully."
+        "Backup downloaded successfully."
       );
 
       setError("");
 
     } catch (err) {
+
       console.error(
         "Backup error:",
         err
@@ -476,6 +619,7 @@ function Settings() {
   // =========================
 
   const restoreData = (e) => {
+
     const file =
       e.target.files[0];
 
@@ -486,158 +630,188 @@ function Settings() {
     const reader =
       new FileReader();
 
-    reader.onload = async (event) => {
-      try {
-        const backup =
-          JSON.parse(
-            event.target.result
+    reader.onload =
+      async (event) => {
+
+        try {
+
+          const backup =
+            JSON.parse(
+              event.target.result
+            );
+
+          if (
+            !backup ||
+            typeof backup !==
+              "object"
+          ) {
+
+            throw new Error(
+              "Invalid backup."
+            );
+          }
+
+          // =========================
+          // RESTORE PRODUCTS
+          // =========================
+
+          if (
+            Array.isArray(
+              backup.products
+            )
+          ) {
+
+            const products =
+              backup.products.map(
+                (product) => ({
+                  ...product,
+
+                  user_id:
+                    user.id
+                })
+              );
+
+            const {
+              error
+            } = await supabase
+              .from("products")
+              .upsert(
+                products
+              );
+
+            if (error) {
+              throw error;
+            }
+          }
+
+          // =========================
+          // RESTORE SALES
+          // =========================
+
+          if (
+            Array.isArray(
+              backup.sales
+            )
+          ) {
+
+            const sales =
+              backup.sales.map(
+                (sale) => ({
+                  ...sale,
+
+                  user_id:
+                    user.id
+                })
+              );
+
+            const {
+              error
+            } = await supabase
+              .from("sales")
+              .upsert(
+                sales
+              );
+
+            if (error) {
+              throw error;
+            }
+          }
+
+          // =========================
+          // RESTORE STOCK HISTORY
+          // =========================
+
+          if (
+            Array.isArray(
+              backup.stockHistory
+            )
+          ) {
+
+            const history =
+              backup.stockHistory.map(
+                (record) => ({
+                  ...record,
+
+                  user_id:
+                    user.id
+                })
+              );
+
+            const {
+              error
+            } = await supabase
+              .from("stock_history")
+              .upsert(
+                history
+              );
+
+            if (error) {
+              throw error;
+            }
+          }
+
+          // =========================
+          // RESTORE SETTINGS
+          // =========================
+
+          if (
+            backup.settings &&
+            typeof backup.settings ===
+              "object"
+          ) {
+
+            const restoredSettings = {
+              ...backup.settings,
+
+              user_id:
+                user.id
+            };
+
+            const {
+              error
+            } = await supabase
+              .from("settings")
+              .upsert(
+                restoredSettings,
+                {
+                  onConflict:
+                    "user_id"
+                }
+              );
+
+            if (error) {
+              throw error;
+            }
+          }
+
+          await loadSettings();
+
+          setMessage(
+            "Data restored successfully."
           );
 
-        if (
-          !backup ||
-          typeof backup !== "object"
-        ) {
-          throw new Error(
-            "Invalid backup."
+          setError("");
+
+          window.dispatchEvent(
+            new Event(
+              "settingsUpdated"
+            )
           );
+
+        } catch (err) {
+
+          console.error(
+            "Restore error:",
+            err
+          );
+
+          setError(
+            "Invalid backup file or restore failed."
+          );
+
+          setMessage("");
         }
-
-        // =========================
-        // RESTORE PRODUCTS
-        // =========================
-
-        if (
-          Array.isArray(
-            backup.products
-          )
-        ) {
-          const products =
-            backup.products.map(
-              (product) => ({
-                ...product,
-                user_id: user.id
-              })
-            );
-
-          const {
-            error
-          } = await supabase
-            .from("products")
-            .upsert(products);
-
-          if (error) {
-            throw error;
-          }
-        }
-
-        // =========================
-        // RESTORE SALES
-        // =========================
-
-        if (
-          Array.isArray(
-            backup.sales
-          )
-        ) {
-          const sales =
-            backup.sales.map(
-              (sale) => ({
-                ...sale,
-                user_id: user.id
-              })
-            );
-
-          const {
-            error
-          } = await supabase
-            .from("sales")
-            .upsert(sales);
-
-          if (error) {
-            throw error;
-          }
-        }
-
-        // =========================
-        // RESTORE STOCK HISTORY
-        // =========================
-
-        if (
-          Array.isArray(
-            backup.stockHistory
-          )
-        ) {
-          const history =
-            backup.stockHistory.map(
-              (record) => ({
-                ...record,
-                user_id: user.id
-              })
-            );
-
-          const {
-            error
-          } = await supabase
-            .from("stock_history")
-            .upsert(history);
-
-          if (error) {
-            throw error;
-          }
-        }
-
-        // =========================
-        // RESTORE SETTINGS
-        // =========================
-
-        if (
-          backup.settings &&
-          typeof backup.settings ===
-            "object"
-        ) {
-          const restoredSettings = {
-            ...backup.settings,
-            user_id: user.id
-          };
-
-          const {
-            error
-          } = await supabase
-            .from("settings")
-            .upsert(
-              restoredSettings,
-              {
-                onConflict:
-                  "user_id"
-              }
-            );
-
-          if (error) {
-            throw error;
-          }
-        }
-
-        await loadSettings();
-
-        setMessage(
-          "✓ Data restored successfully."
-        );
-
-        setError("");
-
-      } catch (err) {
-        console.error(
-          "Restore error:",
-          err
-        );
-
-        setError(
-          "Invalid backup file or restore failed."
-        );
-
-        setMessage("");
-      }
-    };
+      };
 
     reader.readAsText(file);
 
@@ -645,102 +819,183 @@ function Settings() {
   };
 
   // =========================
+  // OPEN DELETE MODAL
+  // =========================
+
+  const openDeleteModal = () => {
+
+    setMessage("");
+    setError("");
+
+    setShowDeleteModal(true);
+  };
+
+  // =========================
+  // CLOSE DELETE MODAL
+  // =========================
+
+  const closeDeleteModal = () => {
+
+    if (loading) return;
+
+    setShowDeleteModal(false);
+  };
+
+  // =========================
   // CLEAR ALL DATA
   // =========================
 
   const clearAllData = async () => {
-    if (!user) return;
 
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to delete ALL products, sales and shop data? This cannot be undone."
+    if (!user) {
+
+      setError(
+        "You must be logged in."
       );
 
-    if (!confirmed) return;
+      return;
+    }
 
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
-      // Delete sales
+
+      // =========================
+      // DELETE SALES
+      // =========================
 
       const {
         error: salesError
       } = await supabase
         .from("sales")
         .delete()
-        .eq("user_id", user.id);
+        .eq(
+          "user_id",
+          user.id
+        );
 
       if (salesError) {
         throw salesError;
       }
 
-      // Delete stock history
+      // =========================
+      // DELETE STOCK HISTORY
+      // =========================
 
       const {
         error: historyError
       } = await supabase
         .from("stock_history")
         .delete()
-        .eq("user_id", user.id);
+        .eq(
+          "user_id",
+          user.id
+        );
 
       if (historyError) {
         throw historyError;
       }
 
-      // Delete products
+      // =========================
+      // DELETE PRODUCTS
+      // =========================
 
       const {
         error: productsError
       } = await supabase
         .from("products")
         .delete()
-        .eq("user_id", user.id);
+        .eq(
+          "user_id",
+          user.id
+        );
 
       if (productsError) {
         throw productsError;
       }
 
-      // Delete settings
+      // =========================
+      // DELETE SETTINGS
+      // =========================
 
       const {
         error: settingsError
       } = await supabase
         .from("settings")
         .delete()
-        .eq("user_id", user.id);
+        .eq(
+          "user_id",
+          user.id
+        );
 
       if (settingsError) {
         throw settingsError;
       }
 
+      // =========================
+      // RESET SETTINGS UI
+      // =========================
+
       setSettings({
-        shopName: "Stock Count",
+
+        shopName:
+          "Stock Count",
+
         phone: "",
+
         location: "",
-        currency: "KSh",
-        lowStockLimit: 10,
-        darkMode: false
+
+        currency:
+          "KSh",
+
+        lowStockLimit:
+          10,
+
+        darkMode:
+          false
+
       });
 
+      // =========================
+      // CLOSE MODAL
+      // =========================
+
+      setShowDeleteModal(
+        false
+      );
+
+      // =========================
+      // SUCCESS
+      // =========================
+
       setMessage(
-        "✓ Shop data cleared successfully."
+        "Shop data cleared successfully."
       );
 
       setError("");
 
+      window.dispatchEvent(
+        new Event(
+          "settingsUpdated"
+        )
+      );
+
     } catch (err) {
+
       console.error(
         "Clear data error:",
         err
       );
 
       setError(
+        err.message ||
         "Could not clear shop data."
       );
 
     } finally {
+
       setLoading(false);
     }
   };
@@ -750,12 +1005,21 @@ function Settings() {
   // =========================
 
   return (
+
     <div className="settings-page">
+
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <div className="settings-header">
 
         <h1>
-          ⚙️ Settings
+
+          <FiSettings />
+
+          Settings
+
         </h1>
 
         <p>
@@ -764,23 +1028,41 @@ function Settings() {
 
       </div>
 
-      {/* SUCCESS */}
+
+      {/* =========================
+          SUCCESS
+      ========================= */}
 
       {message && (
+
         <div className="settings-success">
+
           {message}
+
         </div>
+
       )}
 
-      {/* ERROR */}
+
+      {/* =========================
+          ERROR
+      ========================= */}
 
       {error && (
+
         <div className="settings-error">
-          ⚠️ {error}
+
+          <FiAlertTriangle />
+
+          {error}
+
         </div>
+
       )}
 
+
       <div className="settings-card">
+
 
         {/* =========================
             PROFILE
@@ -789,8 +1071,13 @@ function Settings() {
         <section>
 
           <h2>
-            👤 Profile
+
+            <FiUser />
+
+            Profile
+
           </h2>
+
 
           <label>
             Name
@@ -801,6 +1088,7 @@ function Settings() {
             value={profile.name}
             onChange={handleProfile}
           />
+
 
           <label>
             Email
@@ -815,7 +1103,9 @@ function Settings() {
 
         </section>
 
+
         <hr />
+
 
         {/* =========================
             SHOP
@@ -824,8 +1114,13 @@ function Settings() {
         <section>
 
           <h2>
-            🏪 Shop
+
+            <FiShoppingBag />
+
+            Shop
+
           </h2>
+
 
           <label>
             Shop Name
@@ -836,6 +1131,7 @@ function Settings() {
             value={settings.shopName}
             onChange={handleSettings}
           />
+
 
           <label>
             Phone
@@ -848,6 +1144,7 @@ function Settings() {
             placeholder="07xxxxxxxx"
           />
 
+
           <label>
             Location
           </label>
@@ -858,6 +1155,7 @@ function Settings() {
             onChange={handleSettings}
             placeholder="Shop location"
           />
+
 
           <label>
             Currency
@@ -883,6 +1181,7 @@ function Settings() {
 
           </select>
 
+
           <label>
             Low Stock Alert
           </label>
@@ -891,13 +1190,19 @@ function Settings() {
             type="number"
             name="lowStockLimit"
             min="1"
-            value={settings.lowStockLimit}
-            onChange={handleSettings}
+            value={
+              settings.lowStockLimit
+            }
+            onChange={
+              handleSettings
+            }
           />
 
         </section>
 
+
         <hr />
+
 
         {/* =========================
             APPEARANCE
@@ -906,16 +1211,25 @@ function Settings() {
         <section>
 
           <h2>
-            🌙 Appearance
+
+            <FiMoon />
+
+            Appearance
+
           </h2>
+
 
           <label className="switch">
 
             <input
               type="checkbox"
               name="darkMode"
-              checked={settings.darkMode}
-              onChange={handleSettings}
+              checked={
+                settings.darkMode
+              }
+              onChange={
+                handleSettings
+              }
             />
 
             Enable Dark Mode
@@ -924,7 +1238,9 @@ function Settings() {
 
         </section>
 
+
         <hr />
+
 
         {/* =========================
             PASSWORD
@@ -933,34 +1249,58 @@ function Settings() {
         <section>
 
           <h2>
-            🔒 Change Password
+
+            <FiLock />
+
+            Change Password
+
           </h2>
+
 
           <input
             type="password"
             name="current"
             placeholder="Current Password"
-            value={password.current}
-            onChange={handlePassword}
+            value={
+              password.current
+            }
+            onChange={
+              handlePassword
+            }
           />
+
 
           <input
             type="password"
             name="newPassword"
             placeholder="New Password"
-            value={password.newPassword}
-            onChange={handlePassword}
+            value={
+              password.newPassword
+            }
+            onChange={
+              handlePassword
+            }
           />
+
 
           <input
             type="password"
             name="confirm"
             placeholder="Confirm New Password"
-            value={password.confirm}
-            onChange={handlePassword}
+            value={
+              password.confirm
+            }
+            onChange={
+              handlePassword
+            }
           />
 
         </section>
+
+
+        {/* =========================
+            SAVE BUTTON
+        ========================= */}
 
         <button
           className="save-settings-btn"
@@ -968,13 +1308,27 @@ function Settings() {
           disabled={loading}
         >
 
-          {loading
-            ? "Saving..."
-            : "💾 Save Changes"}
+          {loading ? (
+
+            "Saving..."
+
+          ) : (
+
+            <>
+
+              <FiSave />
+
+              Save Changes
+
+            </>
+
+          )}
 
         </button>
 
+
         <hr />
+
 
         {/* =========================
             BACKUP & RESTORE
@@ -983,8 +1337,13 @@ function Settings() {
         <section>
 
           <h2>
-            💾 Backup & Restore
+
+            <FiSave />
+
+            Backup & Restore
+
           </h2>
+
 
           <p className="backup-description">
 
@@ -994,18 +1353,24 @@ function Settings() {
 
           </p>
 
+
           <button
             className="backup-btn"
             onClick={backupData}
           >
 
-            💾 Download Backup
+            <FiDownload />
+
+            Download Backup
 
           </button>
 
+
           <label className="restore-btn">
 
-            📂 Restore Backup
+            <FiUpload />
+
+            Restore Backup
 
             <input
               type="file"
@@ -1016,13 +1381,18 @@ function Settings() {
 
           </label>
 
+
           <button
             className="clear-data-btn"
-            onClick={clearAllData}
+            onClick={
+              openDeleteModal
+            }
             disabled={loading}
           >
 
-            🗑️ Clear Shop Data
+            <FiTrash2 />
+
+            Clear Shop Data
 
           </button>
 
@@ -1030,9 +1400,156 @@ function Settings() {
 
       </div>
 
+
+      {/* =====================================================
+          DELETE CONFIRMATION MODAL
+      ===================================================== */}
+
+      {showDeleteModal && (
+
+        <div
+          className="delete-data-overlay"
+          onClick={closeDeleteModal}
+        >
+
+          <div
+            className="delete-data-modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            {/* ICON */}
+
+            <div className="delete-data-icon">
+
+              <FiAlertTriangle />
+
+            </div>
+
+
+            {/* TITLE */}
+
+            <h2>
+              Clear Shop Data?
+            </h2>
+
+
+            {/* MESSAGE */}
+
+            <p>
+
+              This will permanently delete
+              all of your shop data.
+
+            </p>
+
+
+            {/* WHAT WILL BE DELETED */}
+
+            <div className="delete-data-warning">
+
+              <div>
+
+                <FiTrash2 />
+
+                <span>
+                  All products
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <FiTrash2 />
+
+                <span>
+                  All sales
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <FiTrash2 />
+
+                <span>
+                  Stock history
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <FiTrash2 />
+
+                <span>
+                  Shop settings
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <p className="delete-data-final-warning">
+
+              This action cannot be undone.
+
+            </p>
+
+
+            {/* BUTTONS */}
+
+            <div className="delete-data-buttons">
+
+              <button
+                type="button"
+                className="cancel-delete-btn"
+                onClick={
+                  closeDeleteModal
+                }
+                disabled={loading}
+              >
+
+                <FiX />
+
+                Cancel
+
+              </button>
+
+
+              <button
+                type="button"
+                className="confirm-delete-btn"
+                onClick={
+                  clearAllData
+                }
+                disabled={loading}
+              >
+
+                <FiTrash2 />
+
+                {loading
+                  ? "Deleting..."
+                  : "Yes, Clear Everything"}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
+
   );
 }
 
 export default Settings;
-

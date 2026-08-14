@@ -722,3 +722,48 @@
   75% { transform: translate(50px, 50px) rotate(270deg); }
   100% { transform: translate(0, 0) rotate(360deg); }
 }
+
+.dashboard-header h1,
+.stat-card h3,
+.dashboard-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-header h1 svg {
+  width: 26px;
+  height: 26px;
+}
+
+.stat-card h3 svg {
+  width: 18px;
+  height: 18px;
+}
+
+.dashboard-card h2 svg {
+  width: 21px;
+  height: 21px;
+}
+
+.empty-chart span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-chart svg {
+  width: 40px;
+  height: 40px;
+}
+
+.dashboard-product-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-product-placeholder svg {
+  width: 22px;
+  height: 22px;
+}

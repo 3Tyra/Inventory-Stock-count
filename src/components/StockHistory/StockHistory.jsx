@@ -1,5 +1,11 @@
 import "./StockHistory.css";
 
+import {
+  FiPackage,
+  FiTrash2,
+  FiClipboard
+} from "react-icons/fi";
+
 function StockHistory({
   history,
   onDeleteHistory
@@ -20,7 +26,8 @@ function StockHistory({
           <div>
 
             <h2>
-              📋 Stock Movement History
+              <FiClipboard />
+              Stock Movement History
             </h2>
 
             <p>
@@ -35,7 +42,7 @@ function StockHistory({
         <div className="stock-history-empty">
 
           <div className="empty-history-icon">
-            📦
+            <FiPackage />
           </div>
 
           <h3>
@@ -70,7 +77,8 @@ function StockHistory({
         <div>
 
           <h2>
-            📋 Stock Movement History
+            <FiClipboard />
+            Stock Movement History
           </h2>
 
           <p>
@@ -97,7 +105,6 @@ function StockHistory({
       <div className="stock-history-table-wrapper">
 
         <table className="stock-history-table">
-
 
           <thead>
 
@@ -168,7 +175,7 @@ function StockHistory({
 
                       <div className="history-product-icon">
 
-                        📦
+                        <FiPackage />
 
                       </div>
 
@@ -285,7 +292,7 @@ function StockHistory({
 
                     >
 
-                      🗑️
+                      <FiTrash2 />
 
                     </button>
 
@@ -312,4 +319,3 @@ function StockHistory({
 }
 
 export default StockHistory;
-

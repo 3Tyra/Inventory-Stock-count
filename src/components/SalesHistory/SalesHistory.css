@@ -784,3 +784,61 @@
     border-color: #ffb6c1 !important;
   }
 }
+
+.sales-history-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sales-history-header h2 svg {
+  width: 22px;
+  height: 22px;
+}
+
+.empty-sales > svg {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 12px;
+}
+
+.delete-sale-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-sale-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sale-delete-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sale-delete-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.restore-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.restore-message svg {
+  width: 18px;
+  height: 18px;
+}
+
+.confirm-sale-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

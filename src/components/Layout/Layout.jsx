@@ -9,15 +9,38 @@ import {
 
 import { useAuth } from "../../context/AuthContext";
 
+import {
+  FaBolt,
+  FaBars,
+  FaTimes,
+  FaHome,
+  FaBox,
+  FaCog,
+  FaSignOutAlt,
+  FaUser
+} from "react-icons/fa";
+
+
 function Layout({ children }) {
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, logout } = useAuth();
+  const {
+    user,
+    logout
+  } = useAuth();
 
-  const [darkMode, setDarkMode] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [darkMode, setDarkMode] =
+    useState(false);
+
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false);
+
+
+  // =========================
+  // LOAD SETTINGS
+  // =========================
 
   useEffect(() => {
 
@@ -28,18 +51,22 @@ function Layout({ children }) {
           localStorage.getItem("settings")
         ) || {};
 
+
       setDarkMode(
         savedSettings.darkMode === true
       );
 
     };
 
+
     loadSettings();
+
 
     window.addEventListener(
       "settingsUpdated",
       loadSettings
     );
+
 
     return () => {
 
@@ -52,21 +79,36 @@ function Layout({ children }) {
 
   }, []);
 
+
+  // =========================
+  // CLOSE SIDEBAR
+  // =========================
+
   useEffect(() => {
 
     setSidebarOpen(false);
 
   }, [location.pathname]);
 
-  const handleLogout = () => {
 
-    logout();
+  // =========================
+  // LOGOUT
+  // =========================
+
+  const handleLogout = async () => {
+
+    await logout();
 
     setSidebarOpen(false);
 
     navigate("/login");
 
   };
+
+
+  // =========================
+  // NAVIGATION
+  // =========================
 
   const goTo = (path) => {
 
@@ -75,6 +117,7 @@ function Layout({ children }) {
     setSidebarOpen(false);
 
   };
+
 
   return (
 
@@ -86,19 +129,35 @@ function Layout({ children }) {
       }
     >
 
-      {/* MOBILE BUTTON */}
+
+      {/* =========================
+          MOBILE BUTTON
+      ========================= */}
 
       <button
         className="sidebar-toggle"
         onClick={() =>
           setSidebarOpen(!sidebarOpen)
         }
+        aria-label={
+          sidebarOpen
+            ? "Close menu"
+            : "Open menu"
+        }
       >
-        {sidebarOpen ? "✕" : "☰"}
+
+        {sidebarOpen ? (
+          <FaTimes />
+        ) : (
+          <FaBars />
+        )}
+
       </button>
 
 
-      {/* OVERLAY */}
+      {/* =========================
+          OVERLAY
+      ========================= */}
 
       <div
         className={
@@ -112,7 +171,9 @@ function Layout({ children }) {
       />
 
 
-      {/* SIDEBAR */}
+      {/* =========================
+          SIDEBAR
+      ========================= */}
 
       <aside
         className={
@@ -122,22 +183,46 @@ function Layout({ children }) {
         }
       >
 
+
+        {/* =========================
+            LOGO
+        ========================= */}
+
         <div className="logo">
 
           <h2>
-            ⚡ TIMELINE ELECTRONICS STOCK-COUNT APP
+
+            <FaBolt className="logo-icon" />
+
+            TIMELINE ELECTRONICS STOCK-COUNT APP
+            <span></span>
+
           </h2>
 
+
           {user && (
+
             <p className="sidebar-user">
-              👋 {user.name}
+
+              <FaUser className="user-icon" />
+
+              {user.name}
+
             </p>
+
           )}
 
         </div>
 
 
+        {/* =========================
+            NAVIGATION
+        ========================= */}
+
         <nav className="menu">
+
+
+          {/* DASHBOARD */}
 
           <button
             className={
@@ -145,49 +230,93 @@ function Layout({ children }) {
                 ? "menu-item active"
                 : "menu-item"
             }
-            onClick={() => goTo("/")}
+            onClick={() =>
+              goTo("/")
+            }
           >
-            🏠 Dashboard
+
+            <FaHome />
+
+            <span>
+              Dashboard
+            </span>
+
           </button>
 
+
+          {/* PRODUCTS */}
 
           <button
             className={
-              location.pathname === "/products"
+              location.pathname ===
+              "/products"
                 ? "menu-item active"
                 : "menu-item"
             }
-            onClick={() => goTo("/products")}
+            onClick={() =>
+              goTo("/products")
+            }
           >
-            📦 Products
+
+            <FaBox />
+
+            <span>
+              Products
+            </span>
+
           </button>
 
+
+          {/* SETTINGS */}
 
           <button
             className={
-              location.pathname === "/settings"
+              location.pathname ===
+              "/settings"
                 ? "menu-item active"
                 : "menu-item"
             }
-            onClick={() => goTo("/settings")}
+            onClick={() =>
+              goTo("/settings")
+            }
           >
-            ⚙️ Settings
+
+            <FaCog />
+
+            <span>
+              Settings
+            </span>
+
           </button>
+
 
         </nav>
 
+
+        {/* =========================
+            LOGOUT
+        ========================= */}
 
         <button
           className="logout-btn"
           onClick={handleLogout}
         >
-          🚪 Logout
+
+          <FaSignOutAlt />
+
+          <span>
+            Logout
+          </span>
+
         </button>
+
 
       </aside>
 
 
-      {/* MAIN AREA */}
+      {/* =========================
+          MAIN AREA
+      ========================= */}
 
       <main className="content">
 
@@ -197,10 +326,12 @@ function Layout({ children }) {
 
       </main>
 
+
     </div>
 
   );
 
 }
+
 
 export default Layout;

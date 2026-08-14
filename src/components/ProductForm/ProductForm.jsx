@@ -282,33 +282,53 @@ function ProductForm({
               handleChange
             }
           >
-            <option value="Lighting">
-              Lighting
-            </option>
+<option value="Lighting">
+  Lighting
+</option>
 
-            <option value="Switches">
-              Switches
-            </option>
+<option value="Switches">
+  Switches
+</option>
 
-            <option value="Sockets">
-              Sockets
-            </option>
+<option value="Sockets">
+  Sockets
+</option>
 
-            <option value="Cables">
-              Cables
-            </option>
+<option value="Cables">
+  Cables
+</option>
 
-            <option value="Circuit Breakers">
-              Circuit Breakers
-            </option>
+<option value="Circuit Breakers">
+  Circuit Breakers
+</option>
 
-            <option value="Tools">
-              Tools
-            </option>
+<option value="Tools">
+  Tools
+</option>
 
-            <option value="Other">
-              Other
-            </option>
+<option value="Batteries">
+  Batteries
+</option>
+
+<option value="Chargers">
+  Chargers
+</option>
+
+<option value="Listening Aids">
+  Listening Aids
+</option>
+
+<option value="Phone Lenses">
+  Phone Lenses
+</option>
+
+<option value="Phone Charms">
+  Phone Charms
+</option>
+
+<option value="Other">
+  Other
+</option>
           </select>
 
           {/* SHELF QUANTITY */}

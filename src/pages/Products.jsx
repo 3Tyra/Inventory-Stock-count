@@ -11,6 +11,8 @@ import StockHistory from "../components/StockHistory/StockHistory";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 
+import { FaBox } from "react-icons/fa";
+
 function Products() {
   const { user } = useAuth();
 
@@ -1158,9 +1160,9 @@ function Products() {
 
         <div>
           <h1>
-            📦 Products
-          </h1>
-
+  <FaBox className="page-title-icon" />
+  Products
+</h1>
           <p>
             Manage all electrical products.
           </p>

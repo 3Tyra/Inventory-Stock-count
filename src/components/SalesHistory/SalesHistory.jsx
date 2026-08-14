@@ -1,6 +1,13 @@
 import { useState } from "react";
 import "./SalesHistory.css";
 
+import {
+  FiFileText,
+  FiTrash2,
+  FiAlertTriangle,
+  FiPackage
+} from "react-icons/fi";
+
 function SalesHistory({
   sales,
   onDeleteSale
@@ -20,11 +27,9 @@ function SalesHistory({
       return;
     }
 
-
     onDeleteSale(
       saleToDelete.id
     );
-
 
     setSaleToDelete(null);
 
@@ -45,7 +50,8 @@ function SalesHistory({
         <div>
 
           <h2>
-            🧾 Sales History
+            <FiFileText />
+            Sales History
           </h2>
 
           <p>
@@ -65,9 +71,7 @@ function SalesHistory({
 
         <div className="empty-sales">
 
-          <span>
-            🧾
-          </span>
+          <FiFileText />
 
           <p>
             No sales recorded yet.
@@ -172,18 +176,14 @@ function SalesHistory({
                 ========================= */}
 
                 <button
-
                   className="delete-sale-btn"
-
                   onClick={() =>
                     setSaleToDelete(sale)
                   }
-
                   title="Delete sale"
-
                 >
 
-                  🗑️
+                  <FiTrash2 />
 
                 </button>
 
@@ -205,13 +205,12 @@ function SalesHistory({
 
         <div className="sale-delete-overlay">
 
-
           <div className="sale-delete-modal">
 
 
             <div className="sale-delete-icon">
 
-              ⚠️
+              <FiAlertTriangle />
 
             </div>
 
@@ -227,9 +226,7 @@ function SalesHistory({
               delete the sale for{" "}
 
               <strong>
-
                 "{saleToDelete.product_name}"
-
               </strong>
 
               ?
@@ -239,7 +236,9 @@ function SalesHistory({
 
             <p className="restore-message">
 
-              📦 {saleToDelete.quantity} item(s)
+              <FiPackage />
+
+              {saleToDelete.quantity} item(s)
               will be returned to stock.
 
             </p>
@@ -251,13 +250,10 @@ function SalesHistory({
               {/* CANCEL */}
 
               <button
-
                 className="cancel-sale-delete"
-
                 onClick={() =>
                   setSaleToDelete(null)
                 }
-
               >
 
                 Cancel
@@ -268,14 +264,13 @@ function SalesHistory({
               {/* CONFIRM */}
 
               <button
-
                 className="confirm-sale-delete"
-
                 onClick={confirmDelete}
-
               >
 
-                🗑️ Delete Sale
+                <FiTrash2 />
+
+                Delete Sale
 
               </button>
 
@@ -285,11 +280,9 @@ function SalesHistory({
 
           </div>
 
-
         </div>
 
       )}
-
 
     </div>
 
@@ -298,4 +291,3 @@ function SalesHistory({
 }
 
 export default SalesHistory;
-
