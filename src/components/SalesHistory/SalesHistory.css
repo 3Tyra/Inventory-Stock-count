@@ -842,3 +842,125 @@
   justify-content: center;
   gap: 8px;
 }
+
+/* =========================================
+   MOBILE DELETE BUTTON FIX
+   ========================================= */
+
+.delete-sale-btn {
+  position: relative;
+  z-index: 20;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+
+  pointer-events: auto;
+
+  border: none;
+}
+
+
+/* Make the icon itself ignore pointer events
+   so the button receives the tap */
+
+.delete-sale-btn svg {
+  pointer-events: none;
+}
+
+
+/* =========================================
+   DELETE MODAL
+   ========================================= */
+
+.sale-delete-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  touch-action: manipulation;
+}
+
+.sale-delete-modal {
+  position: relative;
+  z-index: 10000;
+
+  touch-action: manipulation;
+}
+
+.sale-delete-buttons button {
+  position: relative;
+  z-index: 10001;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+
+  cursor: pointer;
+}
+
+.sale-delete-buttons button svg {
+  pointer-events: none;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  .delete-sale-btn {
+
+    min-width: 44px;
+    min-height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px;
+
+  }
+
+  .delete-sale-btn svg {
+
+    width: 20px;
+    height: 20px;
+
+  }
+
+  .sale-delete-overlay {
+
+    padding: 20px;
+
+  }
+
+  .sale-delete-modal {
+
+    width: 100%;
+    max-width: 420px;
+
+  }
+
+  .sale-delete-buttons {
+
+    width: 100%;
+
+    display: flex;
+    gap: 10px;
+
+  }
+
+  .sale-delete-buttons button {
+
+    min-height: 48px;
+
+    flex: 1;
+
+  }
+
+}

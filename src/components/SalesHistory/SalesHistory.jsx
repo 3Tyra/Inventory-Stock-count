@@ -9,13 +9,25 @@ import {
 } from "react-icons/fi";
 
 function SalesHistory({
-  sales,
+  sales = [],
   onDeleteSale
 }) {
 
   const [saleToDelete, setSaleToDelete] =
     useState(null);
 
+  // =========================
+  // OPEN DELETE CONFIRMATION
+  // =========================
+
+  const handleDeleteClick = (e, sale) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    setSaleToDelete(sale);
+
+  };
 
   // =========================
   // CONFIRM DELETE
@@ -27,6 +39,16 @@ function SalesHistory({
       return;
     }
 
+    if (
+      typeof onDeleteSale !== "function"
+    ) {
+      console.error(
+        "onDeleteSale is not a function"
+      );
+
+      return;
+    }
+
     onDeleteSale(
       saleToDelete.id
     );
@@ -35,11 +57,24 @@ function SalesHistory({
 
   };
 
+  // =========================
+  // CANCEL DELETE
+  // =========================
+
+  const cancelDelete = (e) => {
+
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    setSaleToDelete(null);
+
+  };
 
   return (
 
     <div className="sales-history">
-
 
       {/* =========================
           HEADER
@@ -50,8 +85,11 @@ function SalesHistory({
         <div>
 
           <h2>
+
             <FiFileText />
+
             Sales History
+
           </h2>
 
           <p>
@@ -96,7 +134,6 @@ function SalesHistory({
                 className="sale-card"
                 key={sale.id}
               >
-
 
                 {/* =========================
                     SALE INFO
@@ -176,17 +213,36 @@ function SalesHistory({
                 ========================= */}
 
                 <button
+
+                  type="button"
+
                   className="delete-sale-btn"
-                  onClick={() =>
-                    setSaleToDelete(sale)
+
+                  onClick={(e) =>
+                    handleDeleteClick(
+                      e,
+                      sale
+                    )
                   }
+
+                  onTouchEnd={(e) => {
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    setSaleToDelete(sale);
+
+                  }}
+
                   title="Delete sale"
+
+                  aria-label={`Delete sale for ${sale.product_name}`}
+
                 >
 
                   <FiTrash2 />
 
                 </button>
-
 
               </div>
 
@@ -203,10 +259,27 @@ function SalesHistory({
 
       {saleToDelete && (
 
-        <div className="sale-delete-overlay">
+        <div
 
-          <div className="sale-delete-modal">
+          className="sale-delete-overlay"
 
+          onClick={cancelDelete}
+
+        >
+
+          <div
+
+            className="sale-delete-modal"
+
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+
+          >
+
+            {/* =========================
+                WARNING ICON
+            ========================= */}
 
             <div className="sale-delete-icon">
 
@@ -215,10 +288,18 @@ function SalesHistory({
             </div>
 
 
+            {/* =========================
+                TITLE
+            ========================= */}
+
             <h2>
               Delete Sale?
             </h2>
 
+
+            {/* =========================
+                MESSAGE
+            ========================= */}
 
             <p>
 
@@ -234,26 +315,44 @@ function SalesHistory({
             </p>
 
 
+            {/* =========================
+                RESTORE MESSAGE
+            ========================= */}
+
             <p className="restore-message">
 
               <FiPackage />
 
-              {saleToDelete.quantity} item(s)
-              will be returned to stock.
+              <span>
+
+                {saleToDelete.quantity}
+                {" "}
+                item(s) will be returned
+                to stock.
+
+              </span>
 
             </p>
 
 
-            <div className="sale-delete-buttons">
+            {/* =========================
+                BUTTONS
+            ========================= */}
 
+            <div className="sale-delete-buttons">
 
               {/* CANCEL */}
 
               <button
+
+                type="button"
+
                 className="cancel-sale-delete"
-                onClick={() =>
-                  setSaleToDelete(null)
-                }
+
+                onClick={cancelDelete}
+
+                onTouchEnd={cancelDelete}
+
               >
 
                 Cancel
@@ -264,8 +363,22 @@ function SalesHistory({
               {/* CONFIRM */}
 
               <button
+
+                type="button"
+
                 className="confirm-sale-delete"
+
                 onClick={confirmDelete}
+
+                onTouchEnd={(e) => {
+
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  confirmDelete();
+
+                }}
+
               >
 
                 <FiTrash2 />
@@ -274,9 +387,7 @@ function SalesHistory({
 
               </button>
 
-
             </div>
-
 
           </div>
 
