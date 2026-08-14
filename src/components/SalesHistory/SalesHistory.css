@@ -1,568 +1,714 @@
-/* SALES HISTORY - EXAGGERATED PINK/DARK RED/WHITE THEME */
-/* ULTRA PREMIUM SOFTWARE ENGINEER AESTHETIC */
+/* =========================================================
+   SALES HISTORY
+   ========================================================= */
 
-/* ===== MAIN CONTAINER ===== */
 .sales-history {
   padding: 2rem;
-  background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+  background: linear-gradient(
+    135deg,
+    #fff5f5 0%,
+    #ffe8e8 100%
+  );
+
   border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(180, 20, 40, 0.25);
+
+  box-shadow:
+    0 20px 60px rgba(180, 20, 40, 0.25);
+
   margin: 2rem auto;
+
   max-width: 1200px;
-  backdrop-filter: blur(10px);
+
   border: 2px solid rgba(200, 30, 50, 0.15);
+
   position: relative;
+
   overflow: hidden;
+
+  box-sizing: border-box;
 }
 
-.sales-history::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 182, 193, 0.05) 0%, transparent 70%);
-  pointer-events: none;
-  animation: shimmerFloat 8s ease-in-out infinite;
-}
 
-@keyframes shimmerFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-20px, 20px) scale(1.2); }
-}
+/* =========================================================
+   HEADER
+   ========================================================= */
 
-/* ===== HEADER ===== */
 .sales-history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 3px solid rgba(204, 0, 51, 0.15);
+
+  border-bottom: 3px solid
+    rgba(204, 0, 51, 0.15);
+
   position: relative;
 }
 
-.sales-history-header::after {
-  content: '';
-  position: absolute;
-  bottom: -3px;
-  left: 0;
-  width: 120px;
-  height: 3px;
-  background: linear-gradient(90deg, #cc0033, #ff69b4, #ffb6c1);
-  border-radius: 100px;
-  animation: headerLinePulse 3s ease-in-out infinite;
-}
-
-@keyframes headerLinePulse {
-  0%, 100% { width: 120px; opacity: 0.8; }
-  50% { width: 200px; opacity: 1; }
-}
-
 .sales-history-header h2 {
+  margin: 0;
+
   font-size: 2.4rem;
+
   font-weight: 900;
+
   color: #8b0000;
-  text-shadow: 0 2px 12px rgba(139, 0, 0, 0.1);
-  letter-spacing: -0.5px;
+
   display: flex;
   align-items: center;
+
   gap: 12px;
 }
 
-.sales-history-header h2 span {
-  background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-  padding: 4px 12px;
-  border-radius: 100px;
-  font-size: 1rem;
-  color: #6b0000;
-  border: 2px solid #cc0033;
+.sales-history-header h2 svg {
+  width: 28px;
+  height: 28px;
 }
 
 .sales-history-header p {
   color: #6b4a4a;
+
   font-size: 1.05rem;
+
   font-weight: 500;
-  margin-top: 4px;
+
+  margin: 6px 0 0;
 }
 
-/* ===== EMPTY STATE ===== */
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
 .empty-sales {
   text-align: center;
+
   padding: 80px 20px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.6
+  );
+
   border-radius: 24px;
-  border: 3px dashed rgba(204, 0, 51, 0.2);
-  animation: emptyPulse 3s ease-in-out infinite;
+
+  border: 3px dashed
+    rgba(204, 0, 51, 0.2);
+
+  box-sizing: border-box;
 }
 
-@keyframes emptyPulse {
-  0%, 100% { border-color: rgba(204, 0, 51, 0.2); }
-  50% { border-color: rgba(204, 0, 51, 0.4); }
-}
+.empty-sales > svg {
+  width: 48px;
+  height: 48px;
 
-.empty-sales span {
-  font-size: 4.5rem;
-  display: block;
+  color: #cc0033;
+
   margin-bottom: 16px;
-  animation: floatIcon 4s ease-in-out infinite;
-}
-
-@keyframes floatIcon {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-12px) rotate(4deg); }
 }
 
 .empty-sales p {
   font-size: 1.6rem;
+
   font-weight: 700;
+
   color: #8b0000;
-  margin-bottom: 8px;
+
+  margin: 0 0 8px;
 }
 
 .empty-sales small {
   font-size: 1rem;
+
   color: #b08888;
-  font-weight: 500;
-  display: block;
 }
 
-/* ===== SALES LIST ===== */
+
+/* =========================================================
+   SALES LIST
+   ========================================================= */
+
 .sales-list {
   display: flex;
+
   flex-direction: column;
+
   gap: 16px;
+
   max-height: 600px;
+
   overflow-y: auto;
+
   padding-right: 4px;
 }
 
-/* ===== SALE CARD ===== */
-.sale-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border-radius: 20px;
-  padding: 24px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  border: 2px solid rgba(204, 0, 51, 0.08);
-  box-shadow: 0 2px 12px rgba(139, 0, 0, 0.06);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
 
-.sale-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.05), transparent);
-  opacity: 0;
-  transition: all 0.4s;
+/* =========================================================
+   SALE CARD
+   ========================================================= */
+
+.sale-card {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.92
+  );
+
+  border-radius: 20px;
+
+  padding: 24px 28px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border: 2px solid
+    rgba(204, 0, 51, 0.08);
+
+  box-shadow:
+    0 2px 12px
+    rgba(139, 0, 0, 0.06);
+
+  position: relative;
+
+  box-sizing: border-box;
+
+  width: 100%;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .sale-card:hover {
-  transform: translateX(8px) scale(1.01);
-  box-shadow: 0 8px 32px rgba(139, 0, 0, 0.12);
-  border-color: rgba(204, 0, 51, 0.2);
-  background: rgba(255, 255, 255, 0.98);
+  transform: translateX(5px);
+
+  box-shadow:
+    0 8px 32px
+    rgba(139, 0, 0, 0.12);
 }
 
-.sale-card:hover::before {
-  opacity: 1;
-}
 
-/* Card accent line */
-.sale-card::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #cc0033, #ff69b4, #ffb6c1);
-  border-radius: 0 4px 4px 0;
-  opacity: 0;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* =========================================================
+   SALE INFO
+   ========================================================= */
 
-.sale-card:hover::after {
-  opacity: 1;
-}
-
-/* ===== SALE INFO ===== */
 .sale-info {
   flex: 1;
-  min-width: 150px;
+
+  min-width: 0;
 }
 
 .sale-info h3 {
+  margin: 0 0 6px;
+
   font-size: 1.2rem;
+
   font-weight: 800;
+
   color: #2d1b1b;
-  margin-bottom: 6px;
+
+  word-break: break-word;
+
   display: flex;
+
   align-items: center;
+
   gap: 8px;
 }
 
 .sale-info h3::before {
-  content: '📦';
-  font-size: 1.1rem;
+  content: "📦";
+
+  font-size: 1rem;
 }
 
 .sale-info p {
+  margin: 3px 0;
+
   color: #6b4a4a;
+
   font-size: 0.95rem;
-  margin-bottom: 2px;
 }
 
 .sale-info p strong {
   color: #8b0000;
-  font-weight: 700;
 }
 
-/* ===== SALE MONEY ===== */
+
+/* =========================================================
+   SALE MONEY
+   ========================================================= */
+
 .sale-money {
-  flex: 0 0 auto;
-  text-align: right;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.08), rgba(204, 0, 51, 0.04));
-  border-radius: 16px;
-  border: 1px solid rgba(204, 0, 51, 0.06);
-  min-width: 180px;
-  transition: all 0.3s;
-}
+  flex: 0 0 180px;
 
-.sale-card:hover .sale-money {
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.15), rgba(204, 0, 51, 0.08));
-  border-color: rgba(204, 0, 51, 0.15);
+  text-align: right;
+
+  padding: 12px 20px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.08),
+    rgba(204, 0, 51, 0.04)
+  );
+
+  border-radius: 16px;
+
+  border: 1px solid
+    rgba(204, 0, 51, 0.06);
+
+  box-sizing: border-box;
 }
 
 .sale-money p {
+  margin: 3px 0;
+
   font-size: 0.95rem;
+
   color: #6b4a4a;
-  margin-bottom: 2px;
 }
 
 .sale-money p:first-child strong {
   color: #008000;
-  font-size: 1.05rem;
 }
 
 .sale-money p:last-child strong {
   color: #cc0033;
-  font-size: 1.05rem;
 }
 
-/* ===== DELETE SALE BUTTON ===== */
+
+/* =========================================================
+   DELETE BUTTON
+   ========================================================= */
+
 .delete-sale-btn {
-  width: 48px;
-  height: 48px;
-  border: none;
+  width: 52px;
+
+  height: 52px;
+
+  min-width: 52px;
+
+  min-height: 52px;
+
+  padding: 0;
+
+  border: 2px solid
+    rgba(204, 0, 51, 0.15);
+
   border-radius: 16px;
-  background: linear-gradient(135deg, #ffe8e8, #ffd4d4);
-  color: #8b0000;
-  font-size: 1.4rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid rgba(204, 0, 51, 0.1);
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
 
-.delete-sale-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
-  opacity: 0;
-  transition: all 0.3s;
-}
-
-.delete-sale-btn:hover::before {
-  opacity: 1;
-}
-
-.delete-sale-btn:hover {
-  transform: scale(1.15) rotate(8deg);
-  background: linear-gradient(135deg, #cc0033, #8b0000);
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(139, 0, 0, 0.4);
-  border-color: #ffb6c1;
-}
-
-.delete-sale-btn:active {
-  transform: scale(0.9);
-}
-
-/* ===== SCROLLBAR FOR SALES LIST ===== */
-.sales-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.sales-list::-webkit-scrollbar-track {
-  background: rgba(255, 182, 193, 0.15);
-  border-radius: 100px;
-  margin: 4px 0;
-}
-
-.sales-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #cc0033, #8b0000);
-  border-radius: 100px;
-  border: 2px solid #ffb6c1;
-  transition: all 0.3s;
-}
-
-.sales-list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #ff0033, #4a0000);
-}
-
-/* ===== DELETE MODAL ===== */
-.sale-delete-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(139, 0, 0, 0.6);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-  animation: overlayFade 0.4s ease-out;
-}
-
-@keyframes overlayFade {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(12px);
-  }
-}
-
-.sale-delete-modal {
-  background: linear-gradient(145deg, #fff8f8, #ffe8e8);
-  padding: 48px 52px;
-  border-radius: 40px;
-  max-width: 520px;
-  width: 90%;
-  text-align: center;
-  box-shadow: 0 40px 80px rgba(139, 0, 0, 0.4);
-  border: 3px solid rgba(204, 0, 51, 0.2);
-  animation: modalPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.sale-delete-modal::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    rgba(255, 182, 193, 0.05),
-    transparent,
-    rgba(204, 0, 51, 0.05),
-    transparent
+  background: linear-gradient(
+    135deg,
+    #ffe8e8,
+    #ffd4d4
   );
-  animation: modalBorderRotate 8s linear infinite;
+
+  color: #8b0000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+
+  position: relative;
+
+  z-index: 5;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.delete-sale-btn svg {
+  width: 21px;
+
+  height: 21px;
+
   pointer-events: none;
 }
 
-@keyframes modalBorderRotate {
-  to { transform: rotate(360deg); }
+.delete-sale-btn:hover {
+  background: linear-gradient(
+    135deg,
+    #cc0033,
+    #8b0000
+  );
+
+  color: white;
+
+  transform: scale(1.08);
 }
 
-@keyframes modalPop {
-  from {
-    transform: scale(0.7) rotate(-4deg);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
+.delete-sale-btn:active {
+  transform: scale(0.92);
 }
 
-/* ===== MODAL ICON ===== */
+
+/* =========================================================
+   DELETE OVERLAY
+   THIS IS THE IMPORTANT FIX
+   ========================================================= */
+
+.sale-delete-overlay {
+  position: fixed !important;
+
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+
+  width: 100vw !important;
+  height: 100vh !important;
+
+  min-height: 100dvh;
+
+  background: rgba(
+    20,
+    0,
+    0,
+    0.72
+  );
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  z-index: 2147483647 !important;
+
+  overflow-y: auto;
+
+  isolation: isolate;
+
+  -webkit-overflow-scrolling: touch;
+
+  animation: overlayFade 0.2s ease;
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.sale-delete-modal {
+  position: relative;
+
+  width: min(
+    520px,
+    calc(100vw - 40px)
+  );
+
+  max-width: 520px;
+
+  max-height: calc(
+    100dvh - 40px
+  );
+
+  overflow-y: auto;
+
+  box-sizing: border-box;
+
+  padding: 42px;
+
+  background: linear-gradient(
+    145deg,
+    #fff8f8,
+    #ffe8e8
+  );
+
+  border-radius: 32px;
+
+  text-align: center;
+
+  border: 3px solid
+    rgba(204, 0, 51, 0.2);
+
+  box-shadow:
+    0 30px 80px
+    rgba(0, 0, 0, 0.45);
+
+  z-index: 2147483647;
+
+  transform: translateZ(0);
+
+  animation: modalPop 0.25s ease;
+}
+
+
+/* =========================================================
+   MODAL ICON
+   ========================================================= */
+
 .sale-delete-icon {
-  font-size: 4.5rem;
-  margin-bottom: 16px;
-  animation: shakeWarning 1.5s ease-in-out infinite;
-  position: relative;
-  z-index: 1;
+  width: 72px;
+
+  height: 72px;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #ffe0e0,
+    #ffc4c4
+  );
+
+  color: #cc0033;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
 }
 
-@keyframes shakeWarning {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-12deg) scale(1.1); }
-  75% { transform: rotate(12deg) scale(1.1); }
+.sale-delete-icon svg {
+  width: 36px;
+
+  height: 36px;
 }
 
-/* ===== MODAL TEXT ===== */
+
+/* =========================================================
+   MODAL TEXT
+   ========================================================= */
+
 .sale-delete-modal h2 {
+  margin: 0 0 14px;
+
   color: #8b0000;
-  font-size: 2.2rem;
+
+  font-size: 2rem;
+
   font-weight: 900;
-  margin-bottom: 12px;
-  position: relative;
-  z-index: 1;
-  text-shadow: 0 2px 12px rgba(139, 0, 0, 0.08);
 }
 
-.sale-delete-modal p {
+.sale-delete-modal > p {
+  margin: 0 0 12px;
+
   color: #4a2a2a;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  position: relative;
-  z-index: 1;
+
+  font-size: 1rem;
+
+  line-height: 1.6;
 }
 
 .sale-delete-modal p strong {
   color: #cc0033;
-  font-weight: 800;
 }
 
-/* ===== RESTORE MESSAGE ===== */
+
+/* =========================================================
+   RESTORE MESSAGE
+   ========================================================= */
+
 .restore-message {
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.15), rgba(204, 0, 51, 0.06));
-  padding: 16px 20px;
-  border-radius: 16px;
-  border: 2px solid rgba(204, 0, 51, 0.15);
-  margin: 16px 0 24px !important;
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
+
+  margin: 20px 0 26px;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  background: rgba(
+    204,
+    0,
+    51,
+    0.06
+  );
+
+  border: 2px solid
+    rgba(204, 0, 51, 0.12);
+
+  color: #6b0000;
+
+  font-size: 0.95rem;
+
   font-weight: 600;
-  color: #6b0000 !important;
-  font-size: 1rem !important;
-  position: relative;
-  z-index: 1;
-  animation: restoreGlow 2s ease-in-out infinite;
+
+  line-height: 1.4;
 }
 
-@keyframes restoreGlow {
-  0%, 100% { border-color: rgba(204, 0, 51, 0.15); }
-  50% { border-color: rgba(204, 0, 51, 0.3); box-shadow: 0 0 20px rgba(204, 0, 51, 0.05); }
+.restore-message svg {
+  width: 20px;
+
+  height: 20px;
+
+  flex-shrink: 0;
 }
 
-/* ===== MODAL BUTTONS ===== */
+
+/* =========================================================
+   MODAL BUTTONS
+   ========================================================= */
+
 .sale-delete-buttons {
   display: flex;
-  gap: 16px;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
+
+  gap: 14px;
+
+  width: 100%;
 }
 
 .sale-delete-buttons button {
-  padding: 16px 32px;
-  border: none;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: inherit;
+  min-height: 52px;
+
   flex: 1;
+
+  padding: 14px 20px;
+
+  border-radius: 14px;
+
+  font-family: inherit;
+
+  font-size: 1rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
   justify-content: center;
+
+  gap: 8px;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+  box-sizing: border-box;
 }
 
-/* Cancel Button */
+
+/* CANCEL */
+
 .cancel-sale-delete {
-  background: linear-gradient(135deg, #ffe8e8, #ffd4d4);
+  background: #ffe8e8;
+
   color: #8b0000;
-  border: 2px solid rgba(204, 0, 51, 0.15) !important;
+
+  border: 2px solid
+    rgba(204, 0, 51, 0.15);
 }
 
 .cancel-sale-delete:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(139, 0, 0, 0.12);
-  background: linear-gradient(135deg, #ffd4d4, #ffb6c1);
-  border-color: #cc0033 !important;
+  background: #ffd4d4;
 }
 
-/* Confirm Delete Button */
+
+/* CONFIRM */
+
 .confirm-sale-delete {
-  background: linear-gradient(135deg, #cc0033, #8b0000);
-  color: #ffffff;
-  border: 2px solid #ffb6c1 !important;
-  box-shadow: 0 4px 16px rgba(204, 0, 51, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.confirm-sale-delete::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    rgba(255, 255, 255, 0.08),
-    transparent,
-    rgba(255, 255, 255, 0.08),
-    transparent
+  background: linear-gradient(
+    135deg,
+    #cc0033,
+    #8b0000
   );
-  animation: btnSpin 4s linear infinite;
-  pointer-events: none;
-}
 
-@keyframes btnSpin {
-  to { transform: rotate(360deg); }
+  color: white;
+
+  border: 2px solid
+    #ffb6c1;
+
+  box-shadow:
+    0 6px 20px
+    rgba(204, 0, 51, 0.3);
 }
 
 .confirm-sale-delete:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 32px rgba(204, 0, 51, 0.4);
-  background: linear-gradient(135deg, #ff0033, #8b0000);
-  border-color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    #ff0033,
+    #8b0000
+  );
 }
 
-.confirm-sale-delete:active {
-  transform: scale(0.95);
+.confirm-sale-delete svg {
+  width: 18px;
+
+  height: 18px;
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 1024px) {
-  .sales-history {
-    padding: 1.5rem;
-    margin: 1rem;
-    border-radius: 24px;
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes overlayFade {
+  from {
+    opacity: 0;
   }
 
-  .sale-card {
-    padding: 20px;
-    flex-wrap: wrap;
-  }
-
-  .sale-money {
-    min-width: 140px;
-    padding: 10px 16px;
+  to {
+    opacity: 1;
   }
 }
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+
+    transform: scale(0.92)
+      translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: scale(1)
+      translateY(0);
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 768px) {
+
   .sales-history {
     padding: 1rem;
+
     margin: 0.5rem;
+
     border-radius: 20px;
   }
 
@@ -571,10 +717,13 @@
   }
 
   .sale-card {
-    padding: 16px;
     flex-direction: column;
+
     align-items: stretch;
-    gap: 12px;
+
+    padding: 18px;
+
+    gap: 14px;
   }
 
   .sale-info {
@@ -586,48 +735,74 @@
   }
 
   .sale-money {
+    flex: none;
+
+    width: 100%;
+
     text-align: center;
-    min-width: unset;
   }
 
   .delete-sale-btn {
     align-self: center;
-    width: 44px;
-    height: 44px;
+
+    width: 52px;
+
+    height: 52px;
+
+    min-width: 52px;
+  }
+
+  /*
+     MODAL ON PHONE
+  */
+
+  .sale-delete-overlay {
+    padding: 16px !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
   }
 
   .sale-delete-modal {
-    padding: 32px 24px;
-    margin: 16px;
+    width: 100%;
+
+    max-width: 420px;
+
+    padding: 30px 22px;
+
+    border-radius: 24px;
+  }
+
+  .sale-delete-modal h2 {
+    font-size: 1.7rem;
   }
 
   .sale-delete-buttons {
     flex-direction: column;
+
+    gap: 10px;
   }
 
   .sale-delete-buttons button {
-    padding: 14px 24px;
-  }
+    width: 100%;
 
-  .sales-history-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .sales-history-header::after {
-    width: 80px;
-  }
-
-  @keyframes headerLinePulse {
-    0%, 100% { width: 80px; }
-    50% { width: 140px; }
+    min-height: 54px;
   }
 }
 
+
+/* =========================================================
+   SMALL PHONE
+   ========================================================= */
+
 @media (max-width: 480px) {
+
   .sales-history {
     padding: 0.75rem;
+
+    margin: 0.4rem;
+
     border-radius: 16px;
   }
 
@@ -637,6 +812,12 @@
 
   .sales-history-header p {
     font-size: 0.9rem;
+  }
+
+  .sale-card {
+    padding: 16px;
+
+    border-radius: 16px;
   }
 
   .sale-info h3 {
@@ -651,28 +832,75 @@
     font-size: 0.85rem;
   }
 
-  .empty-sales span {
-    font-size: 3rem;
+  /*
+     MODAL
+  */
+
+  .sale-delete-overlay {
+    padding: 12px !important;
   }
 
-  .empty-sales p {
-    font-size: 1.2rem;
+  .sale-delete-modal {
+    width: 100%;
+
+    max-width: none;
+
+    padding: 28px 18px;
+
+    border-radius: 22px;
+  }
+
+  .sale-delete-icon {
+    width: 60px;
+
+    height: 60px;
+
+    margin-bottom: 14px;
+  }
+
+  .sale-delete-icon svg {
+    width: 30px;
+
+    height: 30px;
   }
 
   .sale-delete-modal h2 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 
-  .sale-delete-modal p {
+  .sale-delete-modal > p {
+    font-size: 0.9rem;
+  }
+
+  .restore-message {
+    font-size: 0.85rem;
+
+    padding: 12px;
+  }
+
+  .sale-delete-buttons button {
+    min-height: 52px;
+
     font-size: 0.95rem;
   }
 }
 
-/* ===== DARK MODE SUPPORT ===== */
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
 @media (prefers-color-scheme: dark) {
+
   .sales-history {
-    background: linear-gradient(135deg, #2d1b1b, #1a0a0a);
-    border-color: rgba(255, 182, 193, 0.1);
+    background: linear-gradient(
+      135deg,
+      #2d1b1b,
+      #1a0a0a
+    );
+
+    border-color:
+      rgba(255, 182, 193, 0.1);
   }
 
   .sales-history-header h2 {
@@ -683,18 +911,16 @@
     color: #b08888;
   }
 
-  .sales-history-header {
-    border-bottom-color: rgba(255, 182, 193, 0.1);
-  }
-
   .sale-card {
-    background: rgba(45, 27, 27, 0.8);
-    border-color: rgba(255, 182, 193, 0.08);
-  }
+    background: rgba(
+      45,
+      27,
+      27,
+      0.9
+    );
 
-  .sale-card:hover {
-    background: rgba(45, 27, 27, 0.95);
-    border-color: rgba(255, 182, 193, 0.2);
+    border-color:
+      rgba(255, 182, 193, 0.08);
   }
 
   .sale-info h3 {
@@ -710,36 +936,38 @@
   }
 
   .sale-money {
-    background: rgba(255, 182, 193, 0.05);
-    border-color: rgba(255, 182, 193, 0.05);
+    background: rgba(
+      255,
+      182,
+      193,
+      0.05
+    );
+
+    border-color:
+      rgba(255, 182, 193, 0.05);
   }
 
   .sale-money p {
     color: #b08888;
   }
 
-  .sale-money p:first-child strong {
-    color: #66ff66;
-  }
-
-  .sale-money p:last-child strong {
-    color: #ff6b8a;
-  }
-
   .delete-sale-btn {
-    background: linear-gradient(135deg, #3d1b1b, #2d0a0a);
-    color: #ffb6c1;
-    border-color: rgba(255, 182, 193, 0.1);
-  }
+    background: linear-gradient(
+      135deg,
+      #3d1b1b,
+      #2d0a0a
+    );
 
-  .delete-sale-btn:hover {
-    background: linear-gradient(135deg, #cc0033, #8b0000);
-    color: #ffffff;
+    color: #ffb6c1;
   }
 
   .empty-sales {
-    background: rgba(45, 27, 27, 0.6);
-    border-color: rgba(255, 182, 193, 0.1);
+    background: rgba(
+      45,
+      27,
+      27,
+      0.6
+    );
   }
 
   .empty-sales p {
@@ -751,95 +979,37 @@
   }
 
   .sale-delete-modal {
-    background: linear-gradient(145deg, #2d1b1b, #1a0a0a);
-    border-color: rgba(255, 182, 193, 0.15);
+    background: linear-gradient(
+      145deg,
+      #2d1b1b,
+      #1a0a0a
+    );
+
+    border-color:
+      rgba(255, 182, 193, 0.15);
   }
 
   .sale-delete-modal h2 {
     color: #ffb6c1;
   }
 
-  .sale-delete-modal p {
+  .sale-delete-modal > p {
     color: #b08888;
   }
 
-  .sale-delete-modal p strong {
-    color: #ff6b8a;
-  }
-
   .restore-message {
-    background: rgba(255, 182, 193, 0.05);
-    border-color: rgba(255, 182, 193, 0.1);
-    color: #ffb6c1 !important;
+    color: #ffb6c1;
+    background: rgba(
+      255,
+      182,
+      193,
+      0.05
+    );
   }
 
   .cancel-sale-delete {
-    background: linear-gradient(135deg, #3d1b1b, #2d0a0a);
+    background: #3d1b1b;
+
     color: #ffb6c1;
-    border-color: rgba(255, 182, 193, 0.1) !important;
-  }
-
-  .cancel-sale-delete:hover {
-    background: linear-gradient(135deg, #4d2b2b, #3d1b1b);
-    border-color: #ffb6c1 !important;
   }
 }
-
-.sales-history-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sales-history-header h2 svg {
-  width: 22px;
-  height: 22px;
-}
-
-.empty-sales > svg {
-  width: 42px;
-  height: 42px;
-  margin-bottom: 12px;
-}
-
-.delete-sale-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.delete-sale-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.sale-delete-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sale-delete-icon svg {
-  width: 30px;
-  height: 30px;
-}
-
-.restore-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.restore-message svg {
-  width: 18px;
-  height: 18px;
-}
-
-.confirm-sale-delete {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-

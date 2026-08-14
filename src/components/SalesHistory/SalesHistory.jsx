@@ -12,7 +12,6 @@ function SalesHistory({
   sales = [],
   onDeleteSale
 }) {
-
   const [saleToDelete, setSaleToDelete] =
     useState(null);
 
@@ -20,7 +19,10 @@ function SalesHistory({
   // OPEN DELETE MODAL
   // =========================
 
-  const handleDeleteClick = (sale) => {
+  const handleDeleteClick = (e, sale) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     setSaleToDelete(sale);
   };
 
@@ -28,9 +30,15 @@ function SalesHistory({
   // CONFIRM DELETE
   // =========================
 
-  const confirmDelete = () => {
+  const confirmDelete = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
-    if (!saleToDelete) return;
+    if (!saleToDelete) {
+      return;
+    }
 
     if (typeof onDeleteSale !== "function") {
       console.error(
@@ -39,166 +47,193 @@ function SalesHistory({
       return;
     }
 
-    onDeleteSale(saleToDelete.id);
+    try {
+      await onDeleteSale(saleToDelete.id);
 
-    setSaleToDelete(null);
+      setSaleToDelete(null);
+    } catch (error) {
+      console.error(
+        "Delete sale failed:",
+        error
+      );
+    }
   };
 
   // =========================
   // CANCEL
   // =========================
 
-  const cancelDelete = () => {
+  const cancelDelete = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     setSaleToDelete(null);
   };
 
   return (
+    <>
+      {/* ==================================================
+          SALES HISTORY
+      ================================================== */}
 
-    <div className="sales-history">
+      <div className="sales-history">
 
-      {/* =========================
-          HEADER
-      ========================= */}
+        {/* HEADER */}
 
-      <div className="sales-history-header">
+        <div className="sales-history-header">
 
-        <div>
+          <div>
 
-          <h2>
-            <FiFileText />
-            Sales History
-          </h2>
+            <h2>
+              <FiFileText />
+              Sales History
+            </h2>
 
-          <p>
-            View all recorded sales.
-          </p>
+            <p>
+              View all recorded sales.
+            </p>
+
+          </div>
 
         </div>
+
+
+        {/* ==================================================
+            EMPTY STATE
+        ================================================== */}
+
+        {sales.length === 0 ? (
+
+          <div className="empty-sales">
+
+            <FiFileText />
+
+            <p>
+              No sales recorded yet.
+            </p>
+
+            <small>
+              Completed sales will appear here.
+            </small>
+
+          </div>
+
+        ) : (
+
+          <div className="sales-list">
+
+            {sales
+              .slice()
+              .reverse()
+              .map((sale) => (
+
+                <div
+                  className="sale-card"
+                  key={sale.id}
+                >
+
+                  {/* SALE INFORMATION */}
+
+                  <div className="sale-info">
+
+                    <h3>
+                      {sale.product_name}
+                    </h3>
+
+                    <p>
+                      Quantity sold:{" "}
+                      <strong>
+                        {sale.quantity}
+                      </strong>
+                    </p>
+
+                    <p>
+                      Date:{" "}
+                      {sale.date}
+                    </p>
+
+                  </div>
+
+
+                  {/* MONEY */}
+
+                  <div className="sale-money">
+
+                    <p>
+                      Revenue:{" "}
+                      <strong>
+                        KSh{" "}
+                        {Number(
+                          sale.revenue || 0
+                        ).toLocaleString()}
+                      </strong>
+                    </p>
+
+                    <p>
+                      Profit:{" "}
+                      <strong>
+                        KSh{" "}
+                        {Number(
+                          sale.profit || 0
+                        ).toLocaleString()}
+                      </strong>
+                    </p>
+
+                  </div>
+
+
+                  {/* DELETE BUTTON */}
+
+                  <button
+                    type="button"
+                    className="delete-sale-btn"
+                    onClick={(e) =>
+                      handleDeleteClick(
+                        e,
+                        sale
+                      )
+                    }
+                    aria-label={`Delete sale for ${sale.product_name}`}
+                  >
+
+                    <FiTrash2 />
+
+                  </button>
+
+                </div>
+
+              ))}
+
+          </div>
+
+        )}
 
       </div>
 
 
-      {/* =========================
-          EMPTY STATE
-      ========================= */}
-
-      {sales.length === 0 ? (
-
-        <div className="empty-sales">
-
-          <FiFileText />
-
-          <p>
-            No sales recorded yet.
-          </p>
-
-          <small>
-            Completed sales will appear here.
-          </small>
-
-        </div>
-
-      ) : (
-
-        <div className="sales-list">
-
-          {sales
-            .slice()
-            .reverse()
-            .map((sale) => (
-
-              <div
-                className="sale-card"
-                key={sale.id}
-              >
-
-                {/* =========================
-                    SALE INFO
-                ========================= */}
-
-                <div className="sale-info">
-
-                  <h3>
-                    {sale.product_name}
-                  </h3>
-
-                  <p>
-                    Quantity sold:{" "}
-                    <strong>
-                      {sale.quantity}
-                    </strong>
-                  </p>
-
-                  <p>
-                    Date:{" "}
-                    {sale.date}
-                  </p>
-
-                </div>
-
-
-                {/* =========================
-                    SALE MONEY
-                ========================= */}
-
-                <div className="sale-money">
-
-                  <p>
-                    Revenue:{" "}
-                    <strong>
-                      KSh{" "}
-                      {Number(
-                        sale.revenue || 0
-                      ).toLocaleString()}
-                    </strong>
-                  </p>
-
-                  <p>
-                    Profit:{" "}
-                    <strong>
-                      KSh{" "}
-                      {Number(
-                        sale.profit || 0
-                      ).toLocaleString()}
-                    </strong>
-                  </p>
-
-                </div>
-
-
-                {/* =========================
-                    DELETE BUTTON
-                ========================= */}
-
-                <button
-                  type="button"
-                  className="delete-sale-btn"
-                  onClick={() =>
-                    handleDeleteClick(sale)
-                  }
-                  aria-label={`Delete sale for ${sale.product_name}`}
-                >
-                  <FiTrash2 />
-                </button>
-
-              </div>
-
-            ))}
-
-        </div>
-
-      )}
-
-
-      {/* =========================
+      {/* ==================================================
           DELETE MODAL
-      ========================= */}
+          IMPORTANT: OUTSIDE .sales-history
+      ================================================== */}
 
       {saleToDelete && (
 
-        <div className="sale-delete-overlay">
+        <div
+          className="sale-delete-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={cancelDelete}
+        >
 
-          <div className="sale-delete-modal">
+          <div
+            className="sale-delete-modal"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
 
             {/* WARNING ICON */}
 
@@ -233,32 +268,36 @@ function SalesHistory({
 
             {/* RESTORE MESSAGE */}
 
-            <p className="restore-message">
+            <div className="restore-message">
 
               <FiPackage />
 
               <span>
-                {saleToDelete.quantity}
-                {" "}
-                item(s) will be returned
-                to stock.
+                {saleToDelete.quantity} item(s)
+                will be returned to stock.
               </span>
 
-            </p>
+            </div>
 
 
             {/* BUTTONS */}
 
             <div className="sale-delete-buttons">
 
+              {/* CANCEL */}
+
               <button
                 type="button"
                 className="cancel-sale-delete"
                 onClick={cancelDelete}
               >
+
                 Cancel
+
               </button>
 
+
+              {/* DELETE */}
 
               <button
                 type="button"
@@ -280,10 +319,8 @@ function SalesHistory({
 
       )}
 
-    </div>
-
+    </>
   );
-
 }
 
 export default SalesHistory;
